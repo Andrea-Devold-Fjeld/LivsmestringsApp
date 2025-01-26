@@ -1,4 +1,24 @@
 # livsmestringapp
+## Kjøre prosjektet
+1. [Installer flutter](https://docs.flutter.dev/get-started/install)
+2. Klon prosjektet
+3. I terminalen skriv:
+````
+flutter pub get
+````
+
+Jeg vet ikke hvordan man bruker Visual Studio med emulator.
+Men man kan enten bruke [Android Studio](https://developer.android.com/studio) (Jeg gjør dette) eller man kan bruke Android Studio pluginen (kan hende det heter noe annet) til Intellij
+
+5. I device manager lag en ny device.
+    - Jeg har prøvd å kjøre den med versjon 34 og 35
+6. Start devicen
+7. I terminalen skriv:
+````
+flutter run
+````
+Så skal den starte.
+
 
 ## Retningslinjer for bruk av GitHub og git.
 
