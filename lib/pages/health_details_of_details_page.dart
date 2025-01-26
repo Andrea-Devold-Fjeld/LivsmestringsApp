@@ -15,12 +15,12 @@ class HealthDetailsOfDetailsPage extends StatefulWidget {
   final int prevIndex;
   final String appBarTittle;
 
-  HealthDetailsOfDetailsPage({
-    Key? key,
+  const HealthDetailsOfDetailsPage({
+    super.key,
     required this.prevIndex,
     required this.index,
     required this.appBarTittle,
-  }) : super(key: key);
+  });
 
   @override
   State<HealthDetailsOfDetailsPage> createState() => _HealthDetailsOfDetailsPageState();
@@ -79,7 +79,7 @@ class _HealthDetailsOfDetailsPageState extends State<HealthDetailsOfDetailsPage>
           : Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Container(
+          SizedBox(
             height: MediaQuery.of(context).size.height * 0.8,
             child: ListView.builder(
               itemCount: fetchedItems.length,

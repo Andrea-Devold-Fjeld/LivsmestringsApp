@@ -10,7 +10,7 @@ import '../widgets/loading_indicator.dart';
 
 class HealthPageNew extends StatefulWidget {
 
-  HealthPageNew({Key? key,}) : super(key: key);
+  const HealthPageNew({super.key,});
 
   @override
   State<HealthPageNew> createState() => _HealthPageNewState();

@@ -7,7 +7,7 @@ import 'package:get/get.dart';
 
 class SplashScreen extends StatefulWidget {
   final int? selectedLanguage;
-  SplashScreen({Key? key, required this.selectedLanguage});
+  const SplashScreen({super.key, required this.selectedLanguage});
 
   @override
   _SplashScreenState createState() => _SplashScreenState();

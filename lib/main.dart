@@ -41,7 +41,7 @@ class MyApp extends StatefulWidget {
   final int? selectedLanguage;
   final Locale locale;
 
-  MyApp({required this.selectedLanguage, required this.locale});
+  const MyApp({super.key, required this.selectedLanguage, required this.locale});
 
   @override
   _MyAppState createState() => _MyAppState();

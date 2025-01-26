@@ -4,7 +4,7 @@ import '../styles/fonts.dart';
 
 class ConfirmButton extends StatelessWidget {
   final VoidCallback onPressed;
-  ConfirmButton({super.key, required this.onPressed});
+  const ConfirmButton({super.key, required this.onPressed});
 
   @override
   Widget build(BuildContext context) {

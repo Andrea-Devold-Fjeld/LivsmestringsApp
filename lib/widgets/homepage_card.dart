@@ -33,24 +33,19 @@ class _HomePageCardState extends State<HomePageCard> {
        num achievementInPercentageRounded = (widget.progress * 100).round();
        achievementInPercentage = () {
          if  (achievementInPercentageRounded.toString().length == 3) {
-           return '${achievementInPercentageRounded.toString()[0]}'.tr +
-               '${achievementInPercentageRounded.toString()[1]}'.tr +
-               '${achievementInPercentageRounded.toString()[2]}'.tr +
-               ' %';
+           return '${achievementInPercentageRounded.toString()[0].tr}${achievementInPercentageRounded.toString()[1].tr}${achievementInPercentageRounded.toString()[2].tr} %';
          }
          else if (achievementInPercentageRounded.toString().length == 2) {
-           return '${achievementInPercentageRounded.toString()[0]}'.tr +
-               '${achievementInPercentageRounded.toString()[1]}'.tr +
-               ' %';
+           return '${achievementInPercentageRounded.toString()[0].tr}${achievementInPercentageRounded.toString()[1].tr} %';
 
           }
          else {
-           return '${achievementInPercentageRounded.toString()[0]}'.tr + ' %';
+           return '${achievementInPercentageRounded.toString()[0].tr} %';
          }
        }();
     }
     else{
-      achievementInPercentage =  '0'.tr + ' %' ;
+      achievementInPercentage =  '${'0'.tr} %' ;
     }
 
     return GestureDetector(

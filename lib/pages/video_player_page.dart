@@ -1,7 +1,5 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:appinio_video_player/appinio_video_player.dart';
-import 'package:flutter/widgets.dart';
 import '../models/video_item_model.dart';
 import '../services/career_data.dart';
 import '../services/health_data.dart';
@@ -23,12 +21,12 @@ class VideoPlayerPage extends StatefulWidget {
   final String? appBarTitle;
 
   const VideoPlayerPage({
-    Key? key,
+    super.key,
     required this.item,
     required this.isCareer,
     required this.title,
     required this.appBarTitle
-  }) : super(key: key);
+  });
 
   @override
   State<VideoPlayerPage> createState() => _VideoPlayerPageState();

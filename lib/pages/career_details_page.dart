@@ -89,7 +89,7 @@ class _CarrerDetailesPageState extends State<CarrerDetailesPage> {
           : Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Container(
+          SizedBox(
             height: MediaQuery.of(context).size.height * 0.8,
             child: ListView.builder(
               itemCount: fetchedItems.length,

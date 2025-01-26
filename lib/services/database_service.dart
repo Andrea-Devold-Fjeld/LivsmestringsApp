@@ -7,7 +7,7 @@ class Database {
   Future<String> fetchVideoUrl(String videoPath) async {
     try {
       String downloadUrl = await storage.ref(videoPath).getDownloadURL();
-      return await downloadUrl;
+      return downloadUrl;
     }
     catch (e){
       print("Error in fetchVideoUrl(): $e");

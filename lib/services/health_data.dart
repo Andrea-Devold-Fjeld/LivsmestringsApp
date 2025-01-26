@@ -83,7 +83,7 @@ List<String> getSubModuleIndexAndVideosTittle(List<String> subModulesTittles, St
     //initiating list that will be returned
     List<String> result = [];
     //integer variable that will identify sub-module index
-    int? subModuleIndex = null;
+    int? subModuleIndex;
 
     //filtering the sub-modules to fetch the index for the sub-module tittle clicked on
     for (int i = 0; i < subModulesTittles.length; i++) {
@@ -280,40 +280,40 @@ Future<List<String>> getVideoUrlsHealth(String unTranslatedItem) async {
     print("Detter er item før: $unTranslatedItem");
 
 
-    String videoPath = "videos/" + currentLanguage + "/helse/";
+    String videoPath = "videos/$currentLanguage/helse/";
 
     print("This is firstItem: $numberItem");
 
     if (numberItem == 7.1) {
-      videoPath = videoPath + "6.Fysisk_Og_Psykisk_Helse/6.1Helse_Og_Livsstil/";
+      videoPath = "${videoPath}6.Fysisk_Og_Psykisk_Helse/6.1Helse_Og_Livsstil/";
       videoUrls = await database.fetchAllVideos(videoPath);
     }
     else if (numberItem == 7.2) {
-      videoPath = videoPath + "6.Fysisk_Og_Psykisk_Helse/6.2Migrasjonsprosessen/";
+      videoPath = "${videoPath}6.Fysisk_Og_Psykisk_Helse/6.2Migrasjonsprosessen/";
       videoUrls = await database.fetchAllVideos(videoPath);
     }
     else if (numberItem == 8.1) {
-      videoPath = videoPath + "7.Ny_I_Norge/7.1Fastlegen/";
+      videoPath = "${videoPath}7.Ny_I_Norge/7.1Fastlegen/";
       videoUrls = await database.fetchAllVideos(videoPath);
     }
     else if (numberItem == 8.2) {
-      videoPath = videoPath + "7.Ny_I_Norge/7.2Migrasjonsprosessen/";
+      videoPath = "${videoPath}7.Ny_I_Norge/7.2Migrasjonsprosessen/";
       videoUrls = await database.fetchAllVideos(videoPath);
     }
     else if (numberItem == 8.3) {
-      videoPath = videoPath + "7.Ny_I_Norge/7.3Munnhelse/";
+      videoPath = "${videoPath}7.Ny_I_Norge/7.3Munnhelse/";
       videoUrls = await database.fetchAllVideos(videoPath);
     }
     else if (numberItem == 8.4) {
-      videoPath = videoPath + "7.Ny_I_Norge/7.4Mat_Og_Helse/";
+      videoPath = "${videoPath}7.Ny_I_Norge/7.4Mat_Og_Helse/";
       videoUrls = await database.fetchAllVideos(videoPath);
     }
     else if (numberItem == 9.1) {
-      videoPath = videoPath + "8.Retten_Til_Å_Leve_Et_Fritt_Og_Selvstendig_Liv/8.1Sanitetskvinnene/";
+      videoPath = "${videoPath}8.Retten_Til_Å_Leve_Et_Fritt_Og_Selvstendig_Liv/8.1Sanitetskvinnene/";
       videoUrls = await database.fetchAllVideos(videoPath);
     }
     else if (numberItem == 9.2) {
-      videoPath = videoPath + "8.Retten_Til_Å_Leve_Et_Fritt_Og_Selvstendig_Liv/8.2Skeiv_Verden/";
+      videoPath = "${videoPath}8.Retten_Til_Å_Leve_Et_Fritt_Og_Selvstendig_Liv/8.2Skeiv_Verden/";
       videoUrls = await database.fetchAllVideos(videoPath);
     }
     else {

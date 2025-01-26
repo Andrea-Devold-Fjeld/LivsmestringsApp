@@ -7,7 +7,7 @@ import '../widgets/buttom_navigation.dart';
 
 class NavigationPage extends StatefulWidget {
 
-  const NavigationPage({Key? key});
+  const NavigationPage({super.key});
 
   @override
   State<NavigationPage> createState() => NavigationPageState();

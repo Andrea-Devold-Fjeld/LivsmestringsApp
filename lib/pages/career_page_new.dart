@@ -1,4 +1,3 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../services/career_data.dart';
@@ -12,7 +11,7 @@ import '../widgets/loading_indicator.dart';
 class CareerPageNew extends StatefulWidget {
   final bool isCareer;
 
-  CareerPageNew({super.key,
+  const CareerPageNew({super.key,
         required this.isCareer,
   });
 

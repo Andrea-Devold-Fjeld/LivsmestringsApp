@@ -7,7 +7,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:get/get.dart';
 
 class LanguagePage extends StatefulWidget {
-  LanguagePage({Key? key});
+  const LanguagePage({super.key});
   @override
   State<LanguagePage> createState() => _LanguagesScreenState();}
 
@@ -36,7 +36,7 @@ class _LanguagesScreenState extends State<LanguagePage> {
   late Future language;
   final ScrollController _scrollController = ScrollController();
   bool arrowDownClicked = true;
-  int? activeItem = null;
+  int? activeItem;
 
 
   /*
@@ -71,6 +71,7 @@ class _LanguagesScreenState extends State<LanguagePage> {
   Future<int?> getSelectedLanguage() async {
     prefs = await SharedPreferences.getInstance();
     activeItem = prefs.getInt('selectedLanguage');
+    return null;
   }
 
   @override
@@ -90,7 +91,7 @@ class _LanguagesScreenState extends State<LanguagePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Container(
+      body: SizedBox(
         height: MediaQuery.of(context).size.height,
         child: Center(
           child: Column(
@@ -114,7 +115,7 @@ class _LanguagesScreenState extends State<LanguagePage> {
               ),
               const SizedBox(height: 10),
               Expanded(
-                child: Container(
+                child: SizedBox(
                   height: MediaQuery.of(context).size.height * 0.70,
                   child: FutureBuilder(
                     future: language,

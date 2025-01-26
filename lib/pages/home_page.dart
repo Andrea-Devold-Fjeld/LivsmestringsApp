@@ -1,7 +1,5 @@
 import 'dart:async';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
 import '../widgets/loading_indicator.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../services/career_data.dart';
@@ -18,7 +16,7 @@ import 'package:get/get.dart';
 
 class HomePage extends StatefulWidget {
 
-  const HomePage({Key? key});
+  const HomePage({super.key});
 
   @override
   State<HomePage> createState() => _HomePageState();
@@ -39,7 +37,7 @@ class _HomePageState extends State<HomePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Theme.of(context).colorScheme.background,
+      backgroundColor: Theme.of(context).colorScheme.surface,
       body: isLoading ? const Center(
         child: LoadingIndicator(),
       ) :Column(

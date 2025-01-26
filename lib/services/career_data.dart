@@ -440,28 +440,28 @@ Future<List<String>> getVideoUrlsCareer(List<String> careerModuleVideoTitles) as
     print("Detter er items før: $careerModuleVideoTitles");
 
     String currentLanguage = await getCurrentLanguage();
-    String videoPath = "videos/" + currentLanguage + "/";
+    String videoPath = "videos/$currentLanguage/";
 
     print("This is firstItem: $firstItem");
 
     if (firstItem == 1.1) {
-      videoPath = videoPath + "karriere/1.Meg_I_Kontekst/";
+      videoPath = "${videoPath}karriere/1.Meg_I_Kontekst/";
       videoUrls = await database.fetchAllVideos(videoPath);
     }
     else if (firstItem == 2.1) {
-      videoPath = videoPath + "karriere/2.Muligheter_Og_Begrensninger/";
+      videoPath = "${videoPath}karriere/2.Muligheter_Og_Begrensninger/";
       videoUrls = await database.fetchAllVideos(videoPath);
     }
     else if (firstItem == 3.1) {
-      videoPath = videoPath + "karriere/3.Valg_Og_Tilfeldigheter/";
+      videoPath = "${videoPath}karriere/3.Valg_Og_Tilfeldigheter/";
       videoUrls = await database.fetchAllVideos(videoPath);
     }
     else if (firstItem == 4.1) {
-      videoPath = videoPath + "karriere/4.Tilpasning_Og_Motstand/";
+      videoPath = "${videoPath}karriere/4.Tilpasning_Og_Motstand/";
       videoUrls = await database.fetchAllVideos(videoPath);
     }
     else if (firstItem == 5.1) {
-      videoPath = videoPath + "karriere/5.Endring_Og_Stabilitet/";
+      videoPath = "${videoPath}karriere/5.Endring_Og_Stabilitet/";
       videoUrls = await database.fetchAllVideos(videoPath);
     }
     else {
@@ -484,7 +484,7 @@ Future<List<String>> getAllVideoUrls() async{
 
     String currentLanguage =  await getCurrentLanguage();
 
-    String videoPath = "videos/" + currentLanguage + "/karriere/";
+    String videoPath = "videos/$currentLanguage/karriere/";
 
     videoUrls = await database.fetchAllVideos(videoPath);
 

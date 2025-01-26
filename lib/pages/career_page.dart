@@ -14,7 +14,7 @@ class CareerPage extends StatefulWidget {
 
   final bool isCareer;
 
-   CareerPage(
+   const CareerPage(
       {super.key, required this.isCareer,});
 
   @override
@@ -73,7 +73,7 @@ class _CareerPageState extends State<CareerPage> {
       body: Column(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
-        Container(
+        SizedBox(
           height: MediaQuery.of(context).size.height * 0.7,
           child: ListView.builder(
             itemCount: fetchedItems.length,

@@ -10,8 +10,7 @@ class ListButton extends StatelessWidget {
  // int buttonsLength;
 
   final VoidCallback onPressed;
-  ListButton({
-    Key? key,
+  ListButton({super.key,
     required this.content,
     required this.activeColor,
     required this.inactiveColor,

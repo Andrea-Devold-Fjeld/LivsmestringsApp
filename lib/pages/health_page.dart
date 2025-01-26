@@ -12,7 +12,7 @@ import 'package:auto_size_text/auto_size_text.dart';
 class HealthPage extends StatefulWidget {
 
 
-  HealthPage({Key? key,}) : super(key: key);
+  const HealthPage({super.key,});
 
   @override
   State<HealthPage> createState() => _HealthPageState();
@@ -67,7 +67,7 @@ class _HealthPageState extends State<HealthPage> {
       body: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Container(
+          SizedBox(
             height: MediaQuery.of(context).size.height * 0.7,
             child: ListView.builder(
               itemCount: fetchedItems.length, // Use fetchedItems instead of hardcodedItems

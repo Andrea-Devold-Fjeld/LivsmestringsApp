@@ -16,13 +16,13 @@ class HealthDetailsPageNew extends StatefulWidget {
   final List<String> subModulesTittles;
   final String moduleTittle;
 
-  HealthDetailsPageNew({
-    Key? key,
+  const HealthDetailsPageNew({
+    super.key,
     required this.subModuleTittle,
     required this.moduleTittle,
     required this.moduleIndex,
     required this.subModulesTittles,
-  }) : super(key: key);
+  });
 
   @override
   State<HealthDetailsPageNew> createState() => _HealthDetailsPageNewState();

@@ -6,7 +6,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 class LanguagePageNav extends StatefulWidget {
 
-  LanguagePageNav({Key? key});
+  const LanguagePageNav({super.key});
 
 static final List localeSet = [
     {'name': 'English', 'locale': Locale('en', 'UK')},
@@ -86,7 +86,7 @@ class _LanguagePageNavState extends State<LanguagePageNav> {
 
             ),
           ),
-          content: Container(
+          content: SizedBox(
             width: double.maxFinite,
             child: ListView.separated(
               shrinkWrap: true,
