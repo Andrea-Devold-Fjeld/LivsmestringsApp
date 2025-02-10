@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:livsmestringapp/models/DataModel.dart';
 import 'career_details_page.dart';
 import '../services/career_data.dart';
 import '../widgets/list_button.dart';
 import '../styles/colors.dart';
 import '../styles/fonts.dart';
-import 'navigation_page.dart';
 import 'package:get/get.dart';
 
 import 'package:auto_size_text/auto_size_text.dart';
@@ -13,9 +13,10 @@ import 'package:auto_size_text/auto_size_text.dart';
 class CareerPage extends StatefulWidget {
 
   final bool isCareer;
+  final Datamodel data;
 
-   const CareerPage(
-      {super.key, required this.isCareer,});
+  const CareerPage(
+      {super.key, required this.isCareer, required this.data});
 
   @override
   State<CareerPage> createState() => _CareerPageState();
@@ -28,7 +29,7 @@ class _CareerPageState extends State<CareerPage> {
   Widget build(BuildContext context) {
 
 
-    List<String> fetchedItems = getCareerModulesTittles("");
+    List<String> fetchedItems = getCareerModulesTittles("", widget.data);
 
     return Scaffold(
       appBar: AppBar(
@@ -49,12 +50,17 @@ class _CareerPageState extends State<CareerPage> {
                 else {
                   //Todo: Might be the only viable option if the progress bar is to be updated every time the user returns tot he Home Page:
                   // If the current page is the only one on the stack, navigate to the home page
+                  /*
                   Navigator.pushAndRemoveUntil(
                     context,
                     MaterialPageRoute(builder: (context) => NavigationPage()),
                         (route) => false, // Remove all routes from the stack
                   );
+
+                   */
                 }
+
+
               },
             ),
           ],
@@ -91,6 +97,7 @@ class _CareerPageState extends State<CareerPage> {
                       builder: (context) => CarrerDetailesPage(
                         isCareer: widget.isCareer,
                         index: index,
+                        data: widget.data
                       ),
                     ));
                   });

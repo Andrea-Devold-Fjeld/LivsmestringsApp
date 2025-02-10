@@ -1,118 +1,85 @@
-import 'dart:async';
 import 'package:flutter/material.dart';
-import '../widgets/loading_indicator.dart';
-import 'package:shared_preferences/shared_preferences.dart';
-import '../services/career_data.dart';
-import '../services/health_data.dart';
+import 'package:livsmestringapp/pages/career-tabs-page.dart';
+import '../models/DataModel.dart';
 import '../widgets/homepage_card.dart';
 import '../styles/colors.dart';
 import 'career_page_new.dart';
 import 'health_page_new.dart';
-
-
 import 'package:get/get.dart';
 
-
-
 class HomePage extends StatefulWidget {
-
-  const HomePage({super.key});
+  final Map<String, Datamodel> data;
+  const HomePage({super.key, required this.data});
 
   @override
   State<HomePage> createState() => _HomePageState();
 }
 
 class _HomePageState extends State<HomePage> {
-  late double careerProgress;
-  late double healthProgress = 0.0;
-  late SharedPreferences prefs;
-  late bool isLoading = true;
 
   @override
   void initState() {
     super.initState();
-    getProgress();
   }
+
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Theme.of(context).colorScheme.surface,
-      body: isLoading ? const Center(
-        child: LoadingIndicator(),
-      ) :Column(
-        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-        crossAxisAlignment: CrossAxisAlignment.center,
-        children: [
-          Container(
-            child: Image.asset(
-              'assets/logo_black.png',
-              width: 300,
-            ),
-          ),
-          HomePageCard(
-            progress: careerProgress.isFinite ? careerProgress : 0.0,
-            backgroundColor: AppColors.weakedGreen,
-            title: 'career'.tr,
-            icon: Icon(
-              Icons.work,
-              size: 40,
-              color: AppColors.white,
-            ),
-            onPressed: () {
-              Navigator.of(context).push(MaterialPageRoute(
-                builder: (context) => CareerPageNew(
-                  isCareer: true,
+      body:
+      Column(
+            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: <Widget>[ // Added explicit type here
+              Image.asset(
+                'assets/logo_black.png',
+                width: 300,
+              ),
+              HomePageCard(
+                key: const ValueKey('career'), // Added key for better widget identification
+                progress: _calculateProgress(widget.data['career']),
+                backgroundColor: AppColors.weakedGreen,
+                title: 'career'.tr,
+                icon: Icon(
+                  Icons.work,
+                  size: 40,
+                  color: AppColors.white,
                 ),
-              ));
-            },
-          ),
-          HomePageCard(
-            progress: healthProgress,
-            backgroundColor: AppColors.spaceCadet,
-            title: 'health'.tr,
-            icon: Icon(
-              Icons.local_hospital,
-              size: 40,
-              color: AppColors.white,
-            ),
-            onPressed: () {
-              Navigator.of(context).push(MaterialPageRoute(
-                builder: (context) => HealthPageNew(),
-              ));
-            },
-          ),
-        ],
-      ),
-    );
+                onPressed: () {
+                  Navigator.of(context).push(MaterialPageRoute(
+                    builder: (context) => CareerTabsPage(data: widget.data["career"]!)
+                    //CareerPageNew(isCareer: true, data: widget.data['career']!,),
+                  ));
+                },
+              ),
+              HomePageCard(
+                key: const ValueKey('health'), // Added key for better widget identification
+                progress: _calculateProgress(widget.data['health']),
+                backgroundColor: AppColors.spaceCadet,
+                title: 'health'.tr,
+                icon: Icon(
+                  Icons.local_hospital,
+                  size: 40,
+                  color: AppColors.white,
+                ),
+                onPressed: () {
+                  Navigator.of(context).push(MaterialPageRoute(
+                    builder: (context) => HealthPageNew(),
+                  ));
+                },
+              ),
+            ],
+          ));
+        }
   }
 
-  Future<void> getProgress() async {
-    Completer<void> completer = Completer<void>();
 
-    getCareerProgress().then((result) {
-      setState(() {
-        careerProgress = result;
-
-        getHealthProgress().then((result) {
-          setState(() {
-            healthProgress = result;
-            setState(() {
-              isLoading = false;
-            });
-            completer.complete(); // Complete the Future when both progress are fetched successfully
-          });
-        }).catchError((onError) {
-          print("This is error in getHealthProgress(): $onError");
-          completer.completeError(onError); // Complete the Future with error
-        });
-      });
-    }).catchError((onError) {
-      print("This is error in getCareerProgress(): $onError");
-      completer.completeError(onError); // Complete the Future with error
-    });
-
-    return completer.future; // Return the Future
+  double _calculateProgress(Datamodel? data) {
+    if (data == null) return 0.0;
+    return 0.0;
+    // Implement your progress calculation logic here based on your Datamodel
+    //return data.progress ?? 0.0;
   }
 
-}
+

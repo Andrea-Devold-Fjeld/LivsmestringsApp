@@ -1,0 +1,6 @@
+
+
+enum Category{
+  carreer,
+  health
+}

@@ -1,6 +1,7 @@
 import 'package:auto_size_text/auto_size_text.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:livsmestringapp/models/DataModel.dart';
 import 'package:livsmestringapp/pages/video_player_page.dart';
 
 import '../models/video_item_model.dart';
@@ -11,27 +12,15 @@ import '../widgets/list_button.dart';
 import '../widgets/loading_indicator.dart';
 
 
-/*
-import 'package:livsmestringapp/models';
-import 'package:livsmestringsapp/models/video_item_model.dart';
-import 'package:livsmestringsapp/widgets/list_button.dart';
-import 'package:livsmestringsapp/styles/colors.dart';
-import 'package:livsmestringsapp/styles/fonts.dart';
-import 'package:livsmestringsapp/pages/video_player_page.dart';
-import 'package:livsmestringsapp/services/career_data.dart';
-import 'package:auto_size_text/auto_size_text.dart';
-import 'package:livsmestringsapp/widgets/loading_indicator.dart';
-import 'package:get/get.dart';
-
- */
 
 
 class CarrerDetailesPage extends StatefulWidget {
   bool isCareer;
   final int index;
+  final Datamodel? data;
 
   CarrerDetailesPage({super.key, required this.index,
-    required this.isCareer,
+    required this.isCareer, required this.data,
   });
 
   @override
@@ -44,6 +33,7 @@ class _CarrerDetailesPageState extends State<CarrerDetailesPage> {
   late List<VideoItem> nextVideo;
   late bool isLoading = true;
   int activeItem = -1; // Initialize activeItem to -1
+  late Datamodel data;
 
   @override
   void initState() {
@@ -67,7 +57,7 @@ class _CarrerDetailesPageState extends State<CarrerDetailesPage> {
           },
         ),
         title: AutoSizeText(
-          getCareerModulesTittles("")[widget.index],
+          getCareerModulesTittles("", data)[widget.index],
           style: Fonts.homePageCardLabel,
 
           minFontSize: 10, // Set the minimum font size
@@ -108,7 +98,7 @@ class _CarrerDetailesPageState extends State<CarrerDetailesPage> {
                           isCareer: widget.isCareer,
                           item: VideoItem(title: fetchedItems[index], url: videoUrls[index], nextItem: nextVideo[index]), // Adjust index
                           title: fetchedItems[index],
-                          appBarTitle: getCareerModulesTittles("")[widget.index],
+                          appBarTitle: getCareerModulesTittles("", data)[widget.index],
                         ),
                       ));
                     });
@@ -127,9 +117,9 @@ class _CarrerDetailesPageState extends State<CarrerDetailesPage> {
       isLoading = true;
     });
 
-    List<String> oneUntranslatedTitle = getCareerModulesVideosTittle(widget.index, "Not_Translate");
+    List<String> oneUntranslatedTitle = getCareerModulesVideosTittle(widget.index, "Not_Translate", widget.data);
 
-    fetchedItems = getCareerModulesVideosTittle(widget.index, "");
+    fetchedItems = getCareerModulesVideosTittle(widget.index, "", widget.data);
     print("This is fetched items: $fetchedItems");
 
     print("This is oneUntranslatedTitle: $oneUntranslatedTitle");

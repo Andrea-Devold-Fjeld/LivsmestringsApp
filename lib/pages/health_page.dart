@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import '../models/DataModel.dart';
 import 'health_details_page.dart';
 import '../services/health_data.dart';
 import '../widgets/list_button.dart';
@@ -10,9 +11,9 @@ import 'package:auto_size_text/auto_size_text.dart';
 
 
 class HealthPage extends StatefulWidget {
+  final Datamodel data;
 
-
-  const HealthPage({super.key,});
+  const HealthPage({super.key, required this.data});
 
   @override
   State<HealthPage> createState() => _HealthPageState();
@@ -45,7 +46,7 @@ class _HealthPageState extends State<HealthPage> {
                   // If the current page is the only one on the stack, navigate to the home page
                   Navigator.pushAndRemoveUntil(
                     context,
-                    MaterialPageRoute(builder: (context) => NavigationPage()),
+                    MaterialPageRoute(builder: (context) => NavigationPage(data: {},)),
                         (route) => false, // Remove all routes from the stack
                   );
                 }

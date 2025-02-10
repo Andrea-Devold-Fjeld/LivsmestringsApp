@@ -1,6 +1,15 @@
+import 'dart:io';
+
+import 'package:flutter/cupertino.dart';
+import 'package:livsmestringapp/models/DataModel.dart';
+
+import '../consumer/FetchData.dart';
 import '../models/video_item_model.dart';
 import '../services/database_service.dart';
+import '../models/CategoryEnum.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:dio/dio.dart';
+
 
 import 'package:get/get.dart';
 
@@ -52,11 +61,56 @@ List<String> CareerItems = [
   '5.3_change',
 ];
 
+Datamodel findAndReplaceAndTranslate(Datamodel data){
+  List<Chapter> newChapter = [];
+  data.chapters.forEach(
+      (c) {
+        List<Video> newVideo = [];
+        c.videos.forEach(
+            (v) {
+              List<Task> newTask = [];
+              v.tasks?.forEach(
+                  (t) {
+                    newTask.add(new Task(title: t.title.replaceAll("_", " ").tr, url: t.url));
+                  }
+              );
+              newVideo.add(new Video(title: v.title.replaceAll("_", " ").tr, url: v.url, tasks: newTask));
+            }
+        );
+        newChapter.add(new Chapter(title: c.title.replaceAll("_", " ").tr, videos: newVideo));
+      }
+  );
+  return new Datamodel(chapters: newChapter);
+}
+
 
 
 // This method ensure retrieving the tittles for Career modules
 // The return variable is a list of Strings
-List<String> getCareerModulesTittles(String state) {
+List<String> getCareerModulesTittles(String state, Datamodel data) {
+
+  List<String> result = [];
+
+  if (state == "not_translate"){
+    for (final d in data.chapters){
+      result.add(d.title);
+    }
+  }else {
+    for (final d in data.chapters){
+      result.add(d.title.tr);
+    }
+  }
+
+  if(state == "Not_Translate"){
+    //sending the list as a parameter to the sorting method
+    return result;
+  }
+  else{
+    //sending the list as a parameter to the sorting and translating method
+    return groupAndTranslateModulesTittles(result);
+  }
+
+
   // implemented try/catch for handling errors
   try {
     //initiating list that will be returned
@@ -83,12 +137,15 @@ List<String> getCareerModulesTittles(String state) {
     print('Error in getCareerModulesTittles: $e');
     return [];
   }
+
+
 }
 
 
 // This method ensure retrieving the tittles for career videos
 // The return variable is a list of Strings
-List<String> getCareerModulesVideosTittle(int index, String state){
+List<String> getCareerModulesVideosTittle(int index, String state, Datamodel? data){
+
 
   // implemented try/catch for handling errors
   try {
@@ -113,6 +170,8 @@ List<String> getCareerModulesVideosTittle(int index, String state){
     print('Error in getCareerModulesVideosTittle: $e');
     return [];
   }
+
+
 }
 
 
@@ -307,14 +366,14 @@ Future<double> getCareerProgress() async {
 // It then checks if these topics have been seen (true /false), and add the values in a mapping in order to return the nested list
 // for adding a tic or not to the view if the user have watched the video or not.
 //For the languages that dont use latin numerals we have to use another method to make the list.
-Future<List<List<bool>>> getDataAboutUserHaveSeenVideos(List<String> careerItems) async {
+Future<List<List<bool>>> getDataAboutUserHaveSeenVideos(List<String> careerItems, Datamodel data) async {
   try {
     String language = await getCurrentLanguage();
 
     SharedPreferences prefs = await SharedPreferences.getInstance();
 
     if(language == "arabisk" || language == "pashto" || language == "urdu" || language == "farsi" || language == "dari"|| language == "tamil" || language == "thai"){
-      return getDataAboutUserHaveSeenVideosOtherLanguages(prefs, careerItems);
+      return getDataAboutUserHaveSeenVideosOtherLanguages(prefs, careerItems, data);
     }
     else{
       List<String> itemResult = await groupAndTranslateWithoutHeadlinesCareer();
@@ -660,14 +719,14 @@ bool compareFirstDigits(String string1, String string2) {
 //This method takes in the headings for career items as a list of strings, and shared preferences in the parameter.
 //It then iterates over the list of headings, fetches the corresponding videotopics for each chapter and checks if the videos have been watched.
 //The nested list with boolean values are then returned
-List<List<bool>> getDataAboutUserHaveSeenVideosOtherLanguages(SharedPreferences prefs, List<String> careerItems){
+List<List<bool>> getDataAboutUserHaveSeenVideosOtherLanguages(SharedPreferences prefs, List<String> careerItems, Datamodel data){
   try{
     List<List<bool>> returnList = [];
     int i = 0;
 
     for(String heading in careerItems){
       returnList.add([]);
-      List<String> anIteration = getCareerModulesVideosTittle(i, "");
+      List<String> anIteration = getCareerModulesVideosTittle(i, "", data);
 
       for(String item in anIteration){
         bool? checkValue = prefs.getBool(item);
@@ -702,13 +761,13 @@ List<List<bool>> getDataAboutUserHaveSeenVideosOtherLanguages(SharedPreferences 
 //The method then iterates over the headings, for each heading a new nested list is added, and the corresponding video titles are fetched.
 //Since the videoItems are in the right order, it is only about getting the right amount mapped in the same nested list.
 //Then the nested list of video items are returned to be used in the view matching the headings and video titles nested there.
-List<List<VideoItem>> videosMappedInOtherLanguages(List<VideoItem> videoItems, List<String> careerItems){
+List<List<VideoItem>> videosMappedInOtherLanguages(List<VideoItem> videoItems, List<String> careerItems, Datamodel data){
   List<List<VideoItem>> returnlist = [];
   int i = 0;
   int j = 0;
   for(String heading in careerItems){
     returnlist.add([]);
-    List<String> anIteration = getCareerModulesVideosTittle(i, "");
+    List<String> anIteration = getCareerModulesVideosTittle(i, "", data);
     for(String item in anIteration){
       returnlist[i].add(videoItems[j]);
       j++;
@@ -725,12 +784,12 @@ List<List<VideoItem>> videosMappedInOtherLanguages(List<VideoItem> videoItems, L
 // have entered a new chapter by comparing the titles, if we have,  then we add a new nested list and starts to add there.
 // If not, then we add videos in the curretn nested list.
 //When finsished, the nested list of videoitems is returned.
-Future<List<List<VideoItem>>> nextVideoItemsNested(List<VideoItem> videoItems, List<String> careerItems) async{
+Future<List<List<VideoItem>>> nextVideoItemsNested(List<VideoItem> videoItems, List<String> careerItems, Datamodel data) async{
   try {
     String language = await getCurrentLanguage();
 
     if(language == "arabisk" || language == "pashto" || language == "urdu" || language == "farsi" || language == "dari"|| language == "tamil" || language == "thai"){
-      return videosMappedInOtherLanguages(videoItems, careerItems);
+      return videosMappedInOtherLanguages(videoItems, careerItems, data);
     }
     else {
       List<List<VideoItem>> result = [];
@@ -760,5 +819,7 @@ Future<List<List<VideoItem>>> nextVideoItemsNested(List<VideoItem> videoItems, L
     return [];
   }
 }
+
+
 
 

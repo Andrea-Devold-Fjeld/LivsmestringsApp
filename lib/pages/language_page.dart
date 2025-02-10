@@ -1,4 +1,3 @@
-import 'navigation_page.dart';
 import '../widgets/language_button.dart';
 import '../styles/fonts.dart';
 import 'package:auto_size_text/auto_size_text.dart';
@@ -83,9 +82,14 @@ class _LanguagesScreenState extends State<LanguagePage> {
   void updateLanguage(Locale locale, int? index) {
     Get.updateLocale(locale);
     prefs.setInt('selectedLanguage', index!);
+    Navigator.pop(context, prefs.setInt('selectedLanguage', index)
+    );
+    /*
     Navigator.of(context).pushReplacement(MaterialPageRoute(
       builder: (context) => NavigationPage(),
     ));
+
+     */
   }
 
   @override
