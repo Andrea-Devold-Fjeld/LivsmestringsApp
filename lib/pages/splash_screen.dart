@@ -1,8 +1,6 @@
 import '../styles/fonts.dart';
 import 'package:auto_size_text/auto_size_text.dart';
 import 'package:flutter/material.dart';
-import 'language_page.dart';
-import 'navigation_page.dart';
 import 'package:get/get.dart';
 
 class SplashScreen extends StatefulWidget {
@@ -27,46 +25,55 @@ class _SplashScreenState extends State<SplashScreen> {
     Future.delayed(
       const Duration(seconds: 3),
           () {
-        Navigator.of(context).pushReplacement(
-          MaterialPageRoute(
-            builder: ((context) => selectedLanguage == null
-                ? LanguagePage()
-                : NavigationPage()),
-          ),
-        );
-      },
+        /*
+            if (selectedLanguage == null) {
+              Navigator.push(context,
+                  MaterialPageRoute(
+                      builder: (context) => LanguagePage()
+                  )
+              ).then((value) => selectedLanguage = value);
+            }
+            else {
+              Navigator.of(context).pushReplacement(
+                  MaterialPageRoute(
+                      builder: (context) => NavigationPage(data: widget.data)
+                  )
+              );
+            }
+
+         */
+          }
     );
 
 
 
+
     return Scaffold(
-      body: Container(
-        child: Center(
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Image.asset(
-                'assets/logo_black.png',
-                width: 300,
-              ),
-        /*    AutoSizeText('welcome'.tr,
-                  style: Fonts.header1,
-                minFontSize: 8, // Set the minimum font size
-                maxFontSize: 30, // Set the maximum font size
-                maxLines: 1, // Limit the text to a single line
-              ),
-         */
-              SizedBox(
-                height: 30,
-              ),
-              AutoSizeText('life_mastery_app'.tr,
-                  style: Fonts.italicBold,
-                minFontSize: 8, // Set the minimum font size
-                maxFontSize: 30, // Set the maximum font size
-                maxLines: 1, // Limit the text to a single line
-              ),
-            ],
-          ),
+      body: Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Image.asset(
+              'assets/logo_black.png',
+              width: 300,
+            ),
+      /*    AutoSizeText('welcome'.tr,
+                style: Fonts.header1,
+              minFontSize: 8, // Set the minimum font size
+              maxFontSize: 30, // Set the maximum font size
+              maxLines: 1, // Limit the text to a single line
+            ),
+       */
+            SizedBox(
+              height: 30,
+            ),
+            AutoSizeText('life_mastery_app'.tr,
+                style: Fonts.italicBold,
+              minFontSize: 8, // Set the minimum font size
+              maxFontSize: 30, // Set the maximum font size
+              maxLines: 1, // Limit the text to a single line
+            ),
+          ],
         ),
       ),
     );

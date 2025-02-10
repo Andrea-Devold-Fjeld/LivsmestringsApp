@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:livsmestringapp/models/DataModel.dart';
 import '../pages/career_page.dart';
 import 'health_page.dart';
 import '../pages/home_page.dart';
@@ -6,8 +7,8 @@ import 'language_page_nav.dart';
 import '../widgets/buttom_navigation.dart';
 
 class NavigationPage extends StatefulWidget {
-
-  const NavigationPage({super.key});
+  final Map<String, Datamodel> data;
+  const NavigationPage({super.key, required this.data});
 
   @override
   State<NavigationPage> createState() => NavigationPageState();
@@ -15,6 +16,8 @@ class NavigationPage extends StatefulWidget {
 
 class NavigationPageState extends State<NavigationPage> {
   int selectedTab = 0;
+  late Datamodel careerData;
+  late Datamodel healthData;
 
 
   late List<Widget> pages; // Declare pages variable
@@ -22,14 +25,21 @@ class NavigationPageState extends State<NavigationPage> {
   @override
   void initState() {
     super.initState();
-    pages = [ // Initialize pages inside initState
-      HomePage(),
-      CareerPage(
-        isCareer: true,
-      ),
-      HealthPage(),
-      LanguagePageNav(),
-    ];
+    if(widget.data.containsKey("career") && widget.data.containsKey("health")){
+      pages = [ // Initialize pages inside initState
+        HomePage(data: widget.data,),
+
+        CareerPage(
+          isCareer: true,
+          data: widget.data["career"]!,
+        ),
+        HealthPage(
+          data: widget.data["health"]!,
+        ),
+        LanguagePageNav(),
+      ];
+    }
+
   }
 
 
@@ -43,6 +53,7 @@ class NavigationPageState extends State<NavigationPage> {
 
   @override
   Widget build(BuildContext context) {
+
     return Scaffold(
       body: pages[selectedTab],
       bottomNavigationBar: ButtomNavigationBar(

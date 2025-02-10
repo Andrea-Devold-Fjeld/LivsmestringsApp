@@ -1,5 +1,8 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import '../models/DataModel.dart';
 import '../services/career_data.dart';
 import '../styles/colors.dart';
 import '../styles/fonts.dart';
@@ -10,9 +13,11 @@ import '../widgets/loading_indicator.dart';
 
 class CareerPageNew extends StatefulWidget {
   final bool isCareer;
+  final Datamodel data;
 
   const CareerPageNew({super.key,
         required this.isCareer,
+        required this.data
   });
 
   @override
@@ -30,11 +35,13 @@ class _CareerPageNewState extends State<CareerPageNew> {
   late bool isLoading = true;
   List<int> expandedIndices = []; // Maintain a list of expanded indices
   int selectedIndex = 0;
+  late Datamodel careerData;
 
   @override
   void initState() {
     super.initState();
-    careerItems = getCareerModulesTittles("");
+    careerItems = getCareerModulesTittles("", widget.data);
+    careerData = findAndReplaceAndTranslate(widget.data);
     print("careerItems: $careerItems");
     initializeLists();
   }
@@ -105,7 +112,7 @@ class _CareerPageNewState extends State<CareerPageNew> {
                 SingleChildScrollView(
                   child: Column(
                     children: [
-                      ...getCareerModulesVideosTittle(index, "").asMap().entries.map(
+                      ...getCareerModulesVideosTittle(index, "", widget.data).asMap().entries.map(
                             (entry) {
                           final int subIndex = entry.key;
                           final String item = entry.value;
@@ -171,6 +178,8 @@ class _CareerPageNewState extends State<CareerPageNew> {
       isLoading = true;
     });
 
+
+
     List<String> items = await groupAndTranslateWithoutHeadlinesCareer();
     print("This is items: $items");
 
@@ -182,7 +191,7 @@ class _CareerPageNewState extends State<CareerPageNew> {
           setState(() {
             nextVideo = nextVideos;
 
-            nextVideoItemsNested(nextVideo, careerItems).then((nextVideosMapped){
+            nextVideoItemsNested(nextVideo, careerItems, widget.data).then((nextVideosMapped){
               setState(() {
                 nextVideoMap = nextVideosMapped;
 
@@ -190,7 +199,7 @@ class _CareerPageNewState extends State<CareerPageNew> {
                   setState(() {
                     videoUrlsMap = urlsMapped;
 
-                    getDataAboutUserHaveSeenVideos(careerItems).then((haveUserSeenVideos) {
+                    getDataAboutUserHaveSeenVideos(careerItems, widget.data).then((haveUserSeenVideos) {
                       setState(() {
 
                         haveSeenVideo = haveUserSeenVideos;
