@@ -1,15 +1,10 @@
 import 'dart:async';
 
-import 'package:flutter/material.dart';
-import 'video_player_page.dart';
-import '../services/health_data.dart';
-import '../styles/colors.dart';
-import '../styles/fonts.dart';
 import 'package:auto_size_text/auto_size_text.dart';
-import '../widgets/loading_indicator.dart';
-import 'package:get/get.dart';
-import '../models/video_item_model.dart';
-import '../services/career_data.dart';
+import 'package:flutter/material.dart';
+
+import 'video_item_model.dart';
+import '../styles/colors.dart';
 
 
 class HealthDetailsPageNew extends StatefulWidget {

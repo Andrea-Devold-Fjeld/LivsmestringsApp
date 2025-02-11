@@ -1,15 +1,10 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
-import 'package:get/get.dart';
+
 import '../models/DataModel.dart';
-import '../services/career_data.dart';
-import '../styles/colors.dart';
-import '../styles/fonts.dart';
-import '../models/video_item_model.dart';
-import 'video_player_page.dart';
-import 'package:auto_size_text/auto_size_text.dart';
-import '../widgets/loading_indicator.dart';
+import 'video_item_model.dart';
+import '../services/data.dart';
 
 class CareerPageNew extends StatefulWidget {
   final bool isCareer;
@@ -49,9 +44,10 @@ class _CareerPageNewState extends State<CareerPageNew> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      /*
       appBar: AppBar(
         centerTitle: true,
-/*
+
         leading: Row(
           children: [
             IconButton(
@@ -112,7 +108,7 @@ class _CareerPageNewState extends State<CareerPageNew> {
                 SingleChildScrollView(
                   child: Column(
                     children: [
-                      ...getCareerModulesVideosTittle(index, "", widget.data).asMap().entries.map(
+                      ...getCareerModulesVideosTitle(index, "", widget.data).asMap().entries.map(
                             (entry) {
                           final int subIndex = entry.key;
                           final String item = entry.value;
@@ -172,7 +168,7 @@ class _CareerPageNewState extends State<CareerPageNew> {
       ),
 
  */
-    ));
+    );
 
 
   }

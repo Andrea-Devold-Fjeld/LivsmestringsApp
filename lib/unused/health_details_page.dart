@@ -1,10 +1,6 @@
 import 'package:flutter/material.dart';
-import '../widgets/list_button.dart';
+
 import '../styles/colors.dart';
-import '../styles/fonts.dart';
-import '../services/health_data.dart';
-import 'health_details_of_details_page.dart';
-import 'package:auto_size_text/auto_size_text.dart';
 
 
 class HealthDetailsPage extends StatefulWidget {

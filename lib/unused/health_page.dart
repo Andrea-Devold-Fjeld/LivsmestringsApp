@@ -1,13 +1,13 @@
+import 'package:auto_size_text/auto_size_text.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+
 import '../models/DataModel.dart';
-import 'health_details_page.dart';
-import '../services/health_data.dart';
-import '../widgets/list_button.dart';
 import '../styles/colors.dart';
 import '../styles/fonts.dart';
-import 'navigation_page.dart';
-import 'package:auto_size_text/auto_size_text.dart';
+import '../widgets/list_button.dart';
+import 'health_details_page.dart';
+import '../pages/navigation_page.dart';
 
 
 class HealthPage extends StatefulWidget {
