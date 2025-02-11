@@ -11,7 +11,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'unused/firebase_options.dart';
 import '../pages/language_page_nav.dart';
 import '../pages/splash_screen.dart';
-import '../services/LocaleString.dart';
+import 'services/LocaleString.dart';
 import '../styles/theme.dart';
 import 'consumer/FetchData.dart';
 import 'models/DataModel.dart';
