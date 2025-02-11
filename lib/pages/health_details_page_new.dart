@@ -60,6 +60,7 @@ class _HealthDetailsPageNewState extends State<HealthDetailsPageNew> {
             Navigator.of(context).pop();
           },
         ),
+        /*
         title: AutoSizeText(
           getHealthModulesTittles()[widget.moduleIndex],
           style: Fonts.homePageCardLabel,
@@ -104,6 +105,8 @@ class _HealthDetailsPageNewState extends State<HealthDetailsPageNew> {
             ),
           );
         },
+
+         */
       ),
     );
   }
@@ -139,8 +142,10 @@ class _HealthDetailsPageNewState extends State<HealthDetailsPageNew> {
           ],
         ),
         onTap: () {
+          /*
           Navigator.of(context).push(
             MaterialPageRoute(
+
               builder: (context) => VideoPlayerPage(
                 isCareer: false,
                 item: VideoItem(
@@ -153,6 +158,8 @@ class _HealthDetailsPageNewState extends State<HealthDetailsPageNew> {
               ),
             ),
           );
+
+           */
         },
       );
 
@@ -163,6 +170,7 @@ class _HealthDetailsPageNewState extends State<HealthDetailsPageNew> {
   }
 
   Future<void> initializeLists() async {
+    /*
     List<String> result = getSubModuleIndexAndVideosTittle(
       getHealthSubModuleTittles(widget.moduleIndex, ""),
       widget.subModuleTittle,
@@ -209,5 +217,7 @@ class _HealthDetailsPageNewState extends State<HealthDetailsPageNew> {
         });
       });
     });
+
+     */
   }
 }

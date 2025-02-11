@@ -13,7 +13,7 @@ import 'package:get/get.dart';
 import 'package:cached_video_player_plus/cached_video_player_plus.dart';
 
 
-
+/*
 class VideoPlayerPage extends StatefulWidget {
   final bool isCareer;
   final String title;
@@ -184,4 +184,6 @@ class _VideoPlayerPageState extends State<VideoPlayerPage> {
   }
  */
 }
+
+ */
 

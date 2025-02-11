@@ -29,7 +29,7 @@ class _HealthDetailsPageState extends State<HealthDetailsPage> {
     print('Current Index is: ${widget.index}');
     print('Type of widget.index: ${widget.index.runtimeType}');
  //   print('Health Items Length: ${widget.healthItems.length}');
-    List<String> fetchedItems = getHealthSubModuleTittles(widget.index, "");
+    //List<String> fetchedItems = getHealthSubModuleTittles(widget.index, "");
 
     return Scaffold(
       appBar: AppBar(
@@ -44,6 +44,7 @@ class _HealthDetailsPageState extends State<HealthDetailsPage> {
             Navigator.of(context).pop();
           },
         ),
+        /*
         title:  AutoSizeText(
           getHealthModulesTittles()[widget.index],
           style: Fonts.homePageCardLabel,
@@ -88,6 +89,8 @@ class _HealthDetailsPageState extends State<HealthDetailsPage> {
           ),
         ],
       ),
-    );
+
+         */
+    ));
   }
 }

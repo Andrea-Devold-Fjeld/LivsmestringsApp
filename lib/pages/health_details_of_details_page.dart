@@ -96,6 +96,7 @@ class _HealthDetailsOfDetailsPageState extends State<HealthDetailsOfDetailsPage>
                     setState(() {
                       activeItem =
                           index; // Update activeItem without subtracting 1
+                      /*
                       Navigator.of(context).push(MaterialPageRoute(
                         builder: (context) =>
                             VideoPlayerPage(
@@ -106,6 +107,8 @@ class _HealthDetailsOfDetailsPageState extends State<HealthDetailsOfDetailsPage>
                               appBarTitle:  title,
                             ),
                       ));
+
+                       */
                     });
                   }
                 );
@@ -118,6 +121,8 @@ class _HealthDetailsOfDetailsPageState extends State<HealthDetailsOfDetailsPage>
   }
 
   Future<void> initializeLists() async {
+
+    /*
     List<String> result = getHealthSubModulesVideosTittle(widget.prevIndex, widget.index);
     String titleNotTranslated =  getHealthSubModuleTittles(widget.prevIndex, "Not_Translate")[widget.index];
     String titleResult = getHealthSubModuleTittles(widget.prevIndex, "")[widget.index];
@@ -149,6 +154,8 @@ class _HealthDetailsOfDetailsPageState extends State<HealthDetailsOfDetailsPage>
         });
       });
     });
+
+     */
   }
 
 }
