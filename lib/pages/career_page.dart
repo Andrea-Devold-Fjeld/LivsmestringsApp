@@ -29,7 +29,7 @@ class _CareerPageState extends State<CareerPage> {
   Widget build(BuildContext context) {
 
 
-    List<String> fetchedItems = getCareerModulesTittles("", widget.data);
+    List<String> fetchedItems = getCareerModulesTitles("", widget.data);
 
     return Scaffold(
       appBar: AppBar(
