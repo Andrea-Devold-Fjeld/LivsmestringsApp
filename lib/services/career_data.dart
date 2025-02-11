@@ -83,7 +83,7 @@ Datamodel findAndReplaceAndTranslate(Datamodel data){
   return new Datamodel(chapters: newChapter);
 }
 
-/*
+
 List<String> getCareerModulesTitles(String state, Datamodel data) {
   List<String> newModuleTitle = [];
   data.chapters.forEach(
@@ -92,8 +92,8 @@ List<String> getCareerModulesTitles(String state, Datamodel data) {
 
   return newModuleTitle;
 }
-*/
 
+/*
 
 
 // This method ensure retrieving the tittles for Career modules
@@ -830,6 +830,8 @@ Future<List<List<VideoItem>>> nextVideoItemsNested(List<VideoItem> videoItems, L
     return [];
   }
 }
+
+ */
 
 
 

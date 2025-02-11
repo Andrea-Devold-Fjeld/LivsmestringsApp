@@ -42,7 +42,7 @@ class _CareerTabsPageState extends State<CareerTabsPage> with SingleTickerProvid
               Navigator.of(context).pop();
             }, icon: const Icon(
               Icons.arrow_back,
-              color: AppColors.white,
+              color: AppColors.black,
               size: 30,
             ))
           ],
@@ -79,6 +79,7 @@ class VideoListPage extends StatelessWidget {
           title: Text(video.title),
           subtitle: Text(video.url),
           onTap: () {
+            video.watched = true;
             Navigator.of(context).push(
               MaterialPageRoute(
                 builder: (context) => YoutubePage(url: video.url),

@@ -24,7 +24,8 @@ class _HealthPageState extends State<HealthPage> {
 
   @override
   Widget build(BuildContext context) {
-    List<String> fetchedItems = getHealthModulesTittles();
+    //List<String> fetchedItems = getHealthModulesTittles();
+    List<String> fetchedItems = [];
 
     return Scaffold(
       appBar: AppBar(

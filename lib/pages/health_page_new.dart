@@ -47,7 +47,7 @@ class _HealthPageNewState extends State<HealthPageNew> {
             ),
           ],
         ),
-
+/*
         title:  AutoSizeText(
           'health'.tr,
           style: Fonts.homePageCardLabel,
@@ -126,7 +126,9 @@ class _HealthPageNewState extends State<HealthPageNew> {
           );
         },
       ),
-    );
+
+ */
+    ));
   }
 
   Future<void> initializeLists() async {

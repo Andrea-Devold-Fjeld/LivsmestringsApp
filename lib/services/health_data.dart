@@ -41,7 +41,7 @@ List<String> HealthItems = [
   '8.1.1_psychological_health',
 ];
 
-
+/*
 // This method ensure retrieving the tittles for health sub-modules videos accessed through bottom navigation bar
 // The return variable is a list of Strings
 List<String> getHealthSubModulesVideosTittle(int moduleIndex, int subModuleIndex) {
@@ -482,6 +482,8 @@ String getHeadlineNotTranslatedHealth(List<String> translatedResult, String tran
     return "";
   }
 }
+
+*/
 
 
 

@@ -51,7 +51,7 @@ class _CareerPageNewState extends State<CareerPageNew> {
     return Scaffold(
       appBar: AppBar(
         centerTitle: true,
-
+/*
         leading: Row(
           children: [
             IconButton(
@@ -170,10 +170,16 @@ class _CareerPageNewState extends State<CareerPageNew> {
           );
         },
       ),
-    );
+
+ */
+    ));
+
+
   }
 
   Future<void> initializeLists() async{
+
+    /*
     setState(() {
       isLoading = true;
     });
@@ -238,5 +244,8 @@ class _CareerPageNewState extends State<CareerPageNew> {
         print("This is the error in getVideoUrls(): $error");
       });
     });
+    */
   }
+
+
 }

@@ -56,6 +56,7 @@ class _CarrerDetailesPageState extends State<CarrerDetailesPage> {
             Navigator.of(context).pop();
           },
         ),
+        /*
         title: AutoSizeText(
           getCareerModulesTitles("", data)[widget.index],
           style: Fonts.homePageCardLabel,
@@ -109,11 +110,14 @@ class _CarrerDetailesPageState extends State<CarrerDetailesPage> {
           ),
         ],
       ),
-    );
+
+         */
+    ));
   }
 
   Future<void> initializeLists() async{
 
+    /*
     setState(() {
       isLoading = true;
     });
@@ -146,5 +150,7 @@ class _CarrerDetailesPageState extends State<CarrerDetailesPage> {
         print("This is the error in getVideoUrls: $error");
       });
     });
+
+     */
   }
 }
