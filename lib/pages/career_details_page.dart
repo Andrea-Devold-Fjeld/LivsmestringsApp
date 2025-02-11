@@ -57,7 +57,7 @@ class _CarrerDetailesPageState extends State<CarrerDetailesPage> {
           },
         ),
         title: AutoSizeText(
-          getCareerModulesTittles("", data)[widget.index],
+          getCareerModulesTitles("", data)[widget.index],
           style: Fonts.homePageCardLabel,
 
           minFontSize: 10, // Set the minimum font size
@@ -98,7 +98,7 @@ class _CarrerDetailesPageState extends State<CarrerDetailesPage> {
                           isCareer: widget.isCareer,
                           item: VideoItem(title: fetchedItems[index], url: videoUrls[index], nextItem: nextVideo[index]), // Adjust index
                           title: fetchedItems[index],
-                          appBarTitle: getCareerModulesTittles("", data)[widget.index],
+                          appBarTitle: getCareerModulesTitles("", data)[widget.index],
                         ),
                       ));
                     });
@@ -113,6 +113,7 @@ class _CarrerDetailesPageState extends State<CarrerDetailesPage> {
   }
 
   Future<void> initializeLists() async{
+
     setState(() {
       isLoading = true;
     });

@@ -40,7 +40,7 @@ class _CareerPageNewState extends State<CareerPageNew> {
   @override
   void initState() {
     super.initState();
-    careerItems = getCareerModulesTittles("", widget.data);
+    careerItems = getCareerModulesTitles("", widget.data);
     careerData = findAndReplaceAndTranslate(widget.data);
     print("careerItems: $careerItems");
     initializeLists();
