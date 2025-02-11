@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:livsmestringapp/models/CategoryEnum.dart';
 import 'package:livsmestringapp/pages/chapter-page.dart';
+import 'package:livsmestringapp/pages/language_page_nav.dart';
 
 import '../models/DataModel.dart';
 import '../pages/home_page.dart';
@@ -36,7 +37,7 @@ class _LayoutState extends State<Layout> {
           HomePage(data: widget.data),
           ChapterPage(data: widget.data["career"]!, category: Category.carreer),
           ChapterPage(data: widget.data["health"]!, category: Category.health),
-          const Center(child: Text('Language')),
+          LanguagePageNav(),
         ],
       ),
       bottomNavigationBar: ButtomNavigationBar(

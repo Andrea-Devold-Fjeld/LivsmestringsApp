@@ -5,7 +5,7 @@
 #include <gdk/gdkx.h>
 #endif
 
-#include "flutter/generated_plugin_registrant.h"
+#include "../../../windows/flutter/ephemeral/.plugin_symlinks/flutter_inappwebview_windows/example/windows/flutter/generated_plugin_registrant.h"
 
 struct _MyApplication {
   GtkApplication parent_instance;
