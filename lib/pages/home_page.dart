@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
-import 'package:livsmestringapp/pages/career-tabs-page.dart';
-import '../models/DataModel.dart';
-import '../widgets/homepage_card.dart';
-import '../styles/colors.dart';
-import 'career_page_new.dart';
-import 'health_page_new.dart';
 import 'package:get/get.dart';
+import 'package:livsmestringapp/pages/chapter-page.dart';
+
+import '../models/CategoryEnum.dart';
+import '../models/DataModel.dart';
+import '../styles/colors.dart';
+import '../widgets/homepage_card.dart';
 
 class HomePage extends StatefulWidget {
   final Map<String, Datamodel> data;
@@ -36,39 +36,57 @@ class _HomePageState extends State<HomePage> {
                 'assets/logo_black.png',
                 width: 300,
               ),
-              HomePageCard(
-                key: const ValueKey('career'), // Added key for better widget identification
-                progress: _calculateProgress(widget.data['career']),
-                backgroundColor: AppColors.weakedGreen,
-                title: 'career'.tr,
-                icon: Icon(
-                  Icons.work,
-                  size: 40,
-                  color: AppColors.white,
-                ),
-                onPressed: () {
-                  Navigator.of(context).push(MaterialPageRoute(
-                    builder: (context) => CareerTabsPage(data: widget.data["career"]!)
-                    //CareerPageNew(isCareer: true, data: widget.data['career']!,),
-                  ));
-                },
-              ),
-              HomePageCard(
-                key: const ValueKey('health'), // Added key for better widget identification
-                progress: _calculateProgress(widget.data['health']),
-                backgroundColor: AppColors.spaceCadet,
-                title: 'health'.tr,
-                icon: Icon(
-                  Icons.local_hospital,
-                  size: 40,
-                  color: AppColors.white,
-                ),
-                onPressed: () {
-                  Navigator.of(context).push(MaterialPageRoute(
-                    builder: (context) => HealthPageNew(),
-                  ));
-                },
-              ),
+              // Iterating over each entry in the data map
+              ...widget.data.entries.map((entry) {
+                String key = entry.key;
+                var value = entry.value;
+
+                // Determine the appropriate title and icon based on the key
+                String title = key.tr;
+                Icon icon;
+                Widget targetPage;
+
+                switch (key) {
+                  case 'career':
+                    icon = Icon(
+                      Icons.work,
+                      size: 40,
+                      color: AppColors.white,
+                    );
+                    targetPage = ChapterPage(data: widget.data["career"]!, category: Category.carreer);
+                break;
+                  case 'health':
+                    icon = Icon(
+                      Icons.local_hospital,
+                      size: 40,
+                      color: AppColors.white,
+                    );
+                    targetPage = ChapterPage(data: widget.data["health"]!, category: Category.health);
+                    break;
+                  default:
+                    icon = Icon(
+                      Icons.help,
+                      size: 40,
+                      color: AppColors.white,
+                    );
+                    targetPage = Container(); // Default empty container
+                    break;
+                }
+
+                return HomePageCard(
+                  key: ValueKey(key),
+                  progress: _calculateProgress(value),
+                  backgroundColor: key == 'career' ? AppColors.weakedGreen : AppColors.spaceCadet,
+                  title: title,
+                  icon: icon,
+                  onPressed: () {
+                    Navigator.of(context).push(MaterialPageRoute(
+                      builder: (context) => targetPage,
+                    ));
+                  },
+                );
+              }).toList(),
+
             ],
           ));
         }

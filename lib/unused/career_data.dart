@@ -1,17 +1,5 @@
-import 'dart:io';
-
-import 'package:flutter/cupertino.dart';
-import 'package:livsmestringapp/models/DataModel.dart';
-
-import '../consumer/FetchData.dart';
-import '../models/video_item_model.dart';
-import '../services/database_service.dart';
-import '../models/CategoryEnum.dart';
-import 'package:shared_preferences/shared_preferences.dart';
-import 'package:dio/dio.dart';
-
-
 import 'package:get/get.dart';
+import 'package:livsmestringapp/models/DataModel.dart';
 
 List<String> CareerItems = [
   '1_me_in_context',
@@ -61,6 +49,7 @@ List<String> CareerItems = [
   '5.3_change',
 ];
 
+/*
 Datamodel findAndReplaceAndTranslate(Datamodel data){
   List<Chapter> newChapter = [];
   data.chapters.forEach(
@@ -92,6 +81,8 @@ List<String> getCareerModulesTitles(String state, Datamodel data) {
 
   return newModuleTitle;
 }
+
+ */
 
 /*
 

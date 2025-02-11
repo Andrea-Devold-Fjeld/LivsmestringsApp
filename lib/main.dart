@@ -1,20 +1,18 @@
 // main.dart
-import 'package:flutter/services.dart';
+import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
-import 'package:livsmestringapp/pages/home_page.dart';
+import 'package:flutter/services.dart';
+import 'package:get/get.dart';
 import 'package:livsmestringapp/pages/language_page.dart';
+import 'package:livsmestringapp/widgets/Layout.dart';
 import 'package:logging/logging.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-import 'package:get/get.dart';
-import '../services/LocaleString.dart';
+import 'unused/firebase_options.dart';
 import '../pages/language_page_nav.dart';
-
-import '../firebase_options.dart';
 import '../pages/splash_screen.dart';
+import '../services/LocaleString.dart';
 import '../styles/theme.dart';
-import 'package:firebase_core/firebase_core.dart';
-
 import 'consumer/FetchData.dart';
 import 'models/DataModel.dart';
 
@@ -111,7 +109,7 @@ class _MyAppState extends State<MyApp> {
                 return LanguagePage();
               }
               else {
-                return HomePage(data: snapshot.requireData,);
+                return Layout(data: snapshot.requireData);
 
               }
               /*

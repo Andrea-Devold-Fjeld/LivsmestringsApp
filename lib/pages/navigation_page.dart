@@ -1,10 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:livsmestringapp/models/DataModel.dart';
-import '../pages/career_page.dart';
-import 'health_page.dart';
+
+import '../unused/career_page.dart';
 import '../pages/home_page.dart';
-import 'language_page_nav.dart';
 import '../widgets/buttom_navigation.dart';
+import '../unused/health_page.dart';
+import 'language_page_nav.dart';
 
 class NavigationPage extends StatefulWidget {
   final Map<String, Datamodel> data;

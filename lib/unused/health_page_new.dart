@@ -1,11 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:get/get.dart';
-import 'health_details_page_new.dart';
-import '../services/health_data.dart';
+
 import '../styles/colors.dart';
-import '../styles/fonts.dart';
-import 'package:auto_size_text/auto_size_text.dart';
-import '../widgets/loading_indicator.dart';
 
 
 class HealthPageNew extends StatefulWidget {

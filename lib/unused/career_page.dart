@@ -1,13 +1,13 @@
+import 'package:auto_size_text/auto_size_text.dart';
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import 'package:livsmestringapp/models/DataModel.dart';
-import 'career_details_page.dart';
-import '../services/career_data.dart';
-import '../widgets/list_button.dart';
+
+import '../services/data.dart';
 import '../styles/colors.dart';
 import '../styles/fonts.dart';
-import 'package:get/get.dart';
-
-import 'package:auto_size_text/auto_size_text.dart';
+import '../widgets/list_button.dart';
+import 'career_details_page.dart';
 
 
 class CareerPage extends StatefulWidget {

@@ -1,7 +1,4 @@
-import 'package:shared_preferences/shared_preferences.dart';
-import '../services/database_service.dart';
-import '../services/career_data.dart';
-import 'package:get/get.dart';
+
 
 List<String> HealthItems = [
   '7_physical_and_psychological',

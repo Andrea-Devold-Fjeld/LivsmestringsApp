@@ -1,9 +1,10 @@
-import '../widgets/language_button.dart';
-import '../styles/fonts.dart';
 import 'package:auto_size_text/auto_size_text.dart';
 import 'package:flutter/material.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import 'package:get/get.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+
+import '../styles/fonts.dart';
+import '../widgets/language_button.dart';
 
 class LanguagePage extends StatefulWidget {
   const LanguagePage({super.key});
