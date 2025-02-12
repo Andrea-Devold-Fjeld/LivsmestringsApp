@@ -21,9 +21,9 @@ class _YoutubePageState extends State<YoutubePage> {
   late PlayerState _playerState;
   late YoutubeMetaData _videoMetaData;
   late String VideoId;
-  double _volume = 100;
-  bool _muted = false;
-  bool _isPlayerReady = false;
+  final double _volume = 100;
+  final bool _muted = false;
+  final bool _isPlayerReady = false;
 
   @override
   void initState() {

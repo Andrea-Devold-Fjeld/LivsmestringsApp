@@ -1,5 +1,3 @@
-import 'package:get/get.dart';
-import 'package:livsmestringapp/models/DataModel.dart';
 
 List<String> CareerItems = [
   '1_me_in_context',

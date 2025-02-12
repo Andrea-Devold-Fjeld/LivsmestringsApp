@@ -14,7 +14,7 @@ class ChapterPage extends StatefulWidget {
   final Category category;
 
 
-  ChapterPage({required this.data, required this.category});
+  const ChapterPage({super.key, required this.data, required this.category});
 
   @override
   _ChapterPageState createState() => _ChapterPageState();
@@ -116,7 +116,7 @@ class _ChapterPageState extends State<ChapterPage> with SingleTickerProviderStat
 class VideoListPage extends StatelessWidget {
   final Chapter chapter;
 
-  VideoListPage({ required this.chapter});
+  const VideoListPage({super.key,  required this.chapter});
 
   @override
   Widget build(BuildContext context) {
