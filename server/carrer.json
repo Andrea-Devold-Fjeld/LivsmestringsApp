@@ -1,0 +1,207 @@
+
+{
+  "Chapters":
+          [
+            {
+              "Title":"1_me_in_context",
+              "Videos":
+                      [
+                        {
+                          "Title": "1.1_introduction",
+                          "Url": "https://youtu.be/RFMuw3xpmFE?si=H7L3hrdN5HXqS2X7"
+                        },
+                        {
+                          "Title": "1.2_new_words",
+                          "Url": "https://youtu.be/RFMuw3xpmFE?si=H7L3hrdN5HXqS2X7"
+                        },
+                        {
+                          "Title": "1.3_personal_qualities",
+                          "Url": "https://youtu.be/RFMuw3xpmFE?si=H7L3hrdN5HXqS2X7",
+                          "Tasks": [
+                            {
+                              "Title":"1.3.1_reflective_task_personal_qualities",
+                              "Url": "https://youtu.be/RFMuw3xpmFE?si=H7L3hrdN5HXqS2X7"
+                            }
+                          ]
+                        },
+                        {
+                          "Title": "1.4_interests",
+                          "Url": "https://youtu.be/RFMuw3xpmFE?si=H7L3hrdN5HXqS2X7",
+                          "Tasks": [
+                            {
+                              "Title": "1.4.1_task",
+                              "Url": "https://youtu.be/RFMuw3xpmFE?si=H7L3hrdN5HXqS2X7"
+                            }
+                          ]
+                        },
+                        {
+                          "Title": "1.5_values",
+                          "Url": "https://youtu.be/RFMuw3xpmFE?si=H7L3hrdN5HXqS2X7"
+                        },
+                        {
+                          "Title": "1.6_reflective_task",
+                          "Url": "https://youtu.be/RFMuw3xpmFE?si=H7L3hrdN5HXqS2X7"
+                        },
+                        {
+                          "Title": "1.7_roles",
+                          "Url": "https://youtu.be/RFMuw3xpmFE?si=H7L3hrdN5HXqS2X7"
+                        },
+                        {
+                          "Title":   "1.8_case_and_reflective",
+                          "Url": "https://youtu.be/RFMuw3xpmFE?si=H7L3hrdN5HXqS2X7"
+                        },
+                        {
+                          "Title": "1.9_summary",
+                          "Url": "https://youtu.be/RFMuw3xpmFE?si=H7L3hrdN5HXqS2X7"
+                        }
+                      ]
+            },
+            {
+              "Title":"2_possibilties_and_limitations",
+              "Videos": [
+                {
+                  "Title": "2.1_introduction",
+                  "Url": "https://youtu.be/RFMuw3xpmFE?si=H7L3hrdN5HXqS2X7"
+                },
+                {
+                  "Title": "2.2_new_words",
+                  "Url": "https://youtu.be/RFMuw3xpmFE?si=H7L3hrdN5HXqS2X7"
+                },
+                {
+                  "Title": "2.3_horizon_of_possibilities",
+                  "Url": "https://youtu.be/RFMuw3xpmFE?si=H7L3hrdN5HXqS2X7"
+                },
+                {
+                  "Title": "2.4_limitations",
+                  "Url": "https://youtu.be/RFMuw3xpmFE?si=H7L3hrdN5HXqS2X7",
+                  "Tasks": [
+                    {
+                      "Title": "2.4.1_case_and_reflective",
+                      "Url": "https://youtu.be/RFMuw3xpmFE?si=H7L3hrdN5HXqS2X7"
+                    },
+                    {
+                      "Title": "2.4.2_reflective_task",
+                      "Url": "https://youtu.be/RFMuw3xpmFE?si=H7L3hrdN5HXqS2X7"
+                    }
+
+                  ]
+                },
+                {
+                  "Title": "2.5_thought_traps",
+                  "Url": "https://youtu.be/RFMuw3xpmFE?si=H7L3hrdN5HXqS2X7",
+                  "Tasks": [
+                    {
+                      "Title": "2.5.1_religion",
+                      "Url": "https://youtu.be/RFMuw3xpmFE?si=H7L3hrdN5HXqS2X7"
+                    }
+                  ]
+                },
+                {
+                  "Title": "2.6_summary",
+                  "Url": "https://youtu.be/RFMuw3xpmFE?si=H7L3hrdN5HXqS2X7"
+                }
+              ]
+            },
+            {
+              "Title": "3_choices_and_chances",
+              "Videos": [
+                {
+                  "Title": "3.1_introduction",
+                  "Url": "https://youtu.be/RFMuw3xpmFE?si=H7L3hrdN5HXqS2X7"
+                },
+                {
+                  "Title": "3.2_new_words",
+                  "Url": "https://youtu.be/RFMuw3xpmFE?si=H7L3hrdN5HXqS2X7"
+                },
+                {
+                  "Title": "3.3_own_choices",
+                  "Url": "https://youtu.be/RFMuw3xpmFE?si=H7L3hrdN5HXqS2X7",
+                  "Tasks": [
+                    {
+                      "Title": "3.3.1_case",
+                      "Url": "https://youtu.be/RFMuw3xpmFE?si=H7L3hrdN5HXqS2X7"
+                    }
+                  ]
+                },
+                {
+                  "Title": "3.4_good_coincidences",
+                  "Url": "https://youtu.be/RFMuw3xpmFE?si=H7L3hrdN5HXqS2X7",
+                  "Tasks": [
+                    {
+                      "Title": "3.4.1_case_volunteer_work",
+                      "Url": "https://youtu.be/RFMuw3xpmFE?si=H7L3hrdN5HXqS2X7"
+                    }
+                  ]
+                },
+                {
+                  "Title": "3.5_reflective_task",
+                  "Url": "https://youtu.be/RFMuw3xpmFE?si=H7L3hrdN5HXqS2X7"
+                },
+                {
+                  "Title": "3.6_summary",
+                  "Url": "https://youtu.be/RFMuw3xpmFE?si=H7L3hrdN5HXqS2X7"
+                }
+              ]
+            },
+            {
+              "Title": "4_adaptations_and_resistance",
+              "Videos": [
+                {
+                  "Title": "4.1_introduction",
+                  "Url": "https://youtu.be/RFMuw3xpmFE?si=H7L3hrdN5HXqS2X7"
+                },
+                {
+                  "Title": "4.2_new_words",
+                  "Url": "https://youtu.be/RFMuw3xpmFE?si=H7L3hrdN5HXqS2X7"
+                },
+                {
+                  "Title": "4.3_cases",
+                  "Url": "https://youtu.be/RFMuw3xpmFE?si=H7L3hrdN5HXqS2X7"
+                },
+                {
+                  "Title": "4.4_reflective_task",
+                  "Url": "https://youtu.be/RFMuw3xpmFE?si=H7L3hrdN5HXqS2X7"
+                },
+                {
+                  "Title": "4.5_summary",
+                  "Url": "https://youtu.be/RFMuw3xpmFE?si=H7L3hrdN5HXqS2X7"
+                }
+              ]
+            },
+            {
+              "Title": "5_change_and_stability",
+              "Videos": [
+                {
+                  "Title": "5.1_introduction",
+                  "Url": "https://youtu.be/RFMuw3xpmFE?si=H7L3hrdN5HXqS2X7"
+                },
+                {
+                  "Title": "5.2_new_words",
+                  "Url": "https://youtu.be/RFMuw3xpmFE?si=H7L3hrdN5HXqS2X7"
+                },
+                {
+                  "Title": "5.3_change",
+                  "Url": "https://youtu.be/RFMuw3xpmFE?si=H7L3hrdN5HXqS2X7"
+                },
+                {
+                  "Title": "5.4_stability",
+                  "Url": "https://youtu.be/RFMuw3xpmFE?si=H7L3hrdN5HXqS2X7"
+                },
+                {
+                  "Title": "5.5_cases",
+                  "Url": "https://youtu.be/RFMuw3xpmFE?si=H7L3hrdN5HXqS2X7"
+                },
+                {
+                  "Title": "5.6_reflective_task",
+                  "Url": "https://youtu.be/RFMuw3xpmFE?si=H7L3hrdN5HXqS2X7"
+                },
+                {
+                  "Title": "5.7_summary",
+                  "Url": "https://youtu.be/RFMuw3xpmFE?si=H7L3hrdN5HXqS2X7"
+                }
+              ]
+            }
+          ]
+}
+
+
