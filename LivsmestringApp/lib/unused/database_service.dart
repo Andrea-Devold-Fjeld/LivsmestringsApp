@@ -1,5 +1,6 @@
 import 'package:firebase_storage/firebase_storage.dart';
 
+/*
 class Database {
   FirebaseStorage storage = FirebaseStorage.instance;
   //A method that takes in a path as a string in the paramether and returns the video url.
@@ -60,3 +61,5 @@ class Database {
   }
 
 }
+
+ */
