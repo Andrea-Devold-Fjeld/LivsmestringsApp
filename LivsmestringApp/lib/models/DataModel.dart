@@ -1,18 +1,57 @@
 import 'package:json_annotation/json_annotation.dart';
 
+
 @JsonSerializable()
 class Datamodel {
   @JsonKey(name: 'Chapters')
+  final String category;
   final List<Chapter> chapters;
+  late final int _totalVideos = totalVideos();
+  late int _watchedVideos = initWatchedVideos();
+  late double _progress = _watchedVideos/_totalVideos;
 
-  Datamodel({required this.chapters});
+  Datamodel({required this.chapters, required this.category});
 
-  factory Datamodel.fromJson(Map<String, dynamic> json) {
+  factory Datamodel.fromJson(Map<String, dynamic> json, String category) {
     return Datamodel(
       chapters: (json['Chapters'] as List)
           .map((chapter) => Chapter.fromJson(chapter))
-          .toList(),
+          .toList(), category: category,
     );
+  }
+
+  int totalVideos(){
+    var count = 0;
+    for (var c in chapters) {
+          count += c.videos.length;
+          for (var v in c.videos) {
+                count += v.tasks?.length ?? 0;
+              }
+        }
+
+    return count;
+  }
+
+  set watchedVideos(int i){
+    _watchedVideos += i;
+    _progress = _watchedVideos/_totalVideos;
+  }
+  double get progress => _progress;
+
+  int initWatchedVideos() {
+    var count = 0;
+    for (var c in chapters) {
+          for (var v in c.videos) {
+                if(v.watched) count++;
+                v.tasks?.forEach(
+                        (t){
+                      if(t.watched) count++;
+                    }
+                );
+              }
+        }
+
+    return count;
   }
 }
 
@@ -33,6 +72,8 @@ class Chapter {
           .toList(),
     );
   }
+
+
 }
 
 class Video {

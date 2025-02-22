@@ -75,7 +75,7 @@ class _HomePageState extends State<HomePage> {
 
                 return HomePageCard(
                   key: ValueKey(key),
-                  progress: _calculateProgress(value),
+                  progress: entry.value.progress,
                   backgroundColor: key == 'career' ? AppColors.weakedGreen : AppColors.spaceCadet,
                   title: title,
                   icon: icon,

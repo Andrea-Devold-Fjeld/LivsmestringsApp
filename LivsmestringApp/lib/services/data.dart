@@ -18,7 +18,7 @@ Datamodel findAndReplaceAndTranslate(Datamodel data){
             }
         newChapter.add(Chapter(title: c.title.replaceAll("_", " ").tr, videos: newVideo));
       }
-  return Datamodel(chapters: newChapter);
+  return Datamodel(chapters: newChapter, category: data.category);
 }
 
 
