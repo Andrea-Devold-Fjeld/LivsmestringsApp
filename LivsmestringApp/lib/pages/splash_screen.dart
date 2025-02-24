@@ -24,26 +24,7 @@ class _SplashScreenState extends State<SplashScreen> {
   @override
   Widget build(BuildContext context) {
     Future.delayed(
-      const Duration(seconds: 3),
-          () {
-        /*
-            if (selectedLanguage == null) {
-              Navigator.push(context,
-                  MaterialPageRoute(
-                      builder: (context) => LanguagePage()
-                  )
-              ).then((value) => selectedLanguage = value);
-            }
-            else {
-              Navigator.of(context).pushReplacement(
-                  MaterialPageRoute(
-                      builder: (context) => NavigationPage(data: widget.data)
-                  )
-              );
-            }
-
-         */
-          }
+      const Duration(seconds: 3)
     );
 
 
@@ -58,13 +39,6 @@ class _SplashScreenState extends State<SplashScreen> {
               'assets/logo_black.png',
               width: 300,
             ),
-      /*    AutoSizeText('welcome'.tr,
-                style: Fonts.header1,
-              minFontSize: 8, // Set the minimum font size
-              maxFontSize: 30, // Set the maximum font size
-              maxLines: 1, // Limit the text to a single line
-            ),
-       */
             SizedBox(
               height: 30,
             ),

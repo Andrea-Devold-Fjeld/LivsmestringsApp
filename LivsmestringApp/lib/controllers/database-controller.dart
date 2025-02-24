@@ -1,4 +1,5 @@
 import 'package:get/get_state_manager/src/simple/get_controllers.dart';
+import 'package:livsmestringapp/dto/category_dto.dart';
 import 'package:sqflite/sqflite.dart';
 
 import '../databse/database_operation.dart';
@@ -12,19 +13,23 @@ class DatabaseController extends GetxController {
   Future<void> insertDatamodel(Datamodel data) async {
     await insertDataModel(db, data);
   }
-  Future<void> markVideoWatched(String videoUrl) async {
-    await updateVideoWatchStatus(db, videoUrl, true);
+  Future<void> markVideoWatched(String videoTitle) async {
+    await updateVideoWatchStatus(db, videoTitle, true);
   }
 
   Future<void> markTaskWatched(String taskUrl) async {
     await updateTaskWatchStatus(db, taskUrl, true);
   }
 
-  Future<Map<String, dynamic>> getVideoProgress() async {
-    return await getProgress(db);
+  Future<Datamodel> getDatamodel(String category) async {
+    return await getDataModel(db, category);
   }
 
-  getChapters(String category) async {
-    await getChaptersWithCategory(db);
+  Future<ProgressModel> getVideoProgress(int categoryId) async {
+    return await getProgress(db, categoryId);
+  }
+
+  Future<List<CategoryDTO>> getCategories() async {
+    return await getAllCategories(db);
   }
 }

@@ -28,7 +28,7 @@ class NavigationPageState extends State<NavigationPage> {
     super.initState();
     if(widget.data.containsKey("career") && widget.data.containsKey("health")){
       pages = [ // Initialize pages inside initState
-        HomePage(data: widget.data,),
+        HomePage(),
 
         CareerPage(
           isCareer: true,

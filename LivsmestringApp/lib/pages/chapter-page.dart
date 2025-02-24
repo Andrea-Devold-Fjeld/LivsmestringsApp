@@ -1,20 +1,33 @@
 
 import 'package:auto_size_text/auto_size_text.dart';
 import 'package:flutter/material.dart';
-import 'package:livsmestringapp/models/CategoryEnum.dart';
+import 'package:get/get.dart';
+import 'package:livsmestringapp/dto/category_dto.dart';
 import 'package:livsmestringapp/widgets/youtube-video-player.dart';
 
+import '../controllers/database-controller.dart';
 import '../models/DataModel.dart';
-import '../services/data.dart';
 import '../styles/colors.dart';
 import '../styles/fonts.dart';
 
 class ChapterPage extends StatefulWidget {
-  final Datamodel data;
-  final Category category;
+  final CategoryDTO category;
+  final ValueSetter<bool> updateProgress;
+
+  const ChapterPage({super.key, required this.category, required this.updateProgress}); //required this.data
+
+  void _updateProgress() {
+    updateProgress(true);
+  }
+  @override
+  _ChapterPageState createState() => _ChapterPageState();
+}
 
 
-  const ChapterPage({super.key, required this.data, required this.category});
+class ChapterPageNav extends StatefulWidget {
+  final CategoryDTO category;
+
+  const ChapterPageNav({super.key, required this.category}); //required this.data
 
   @override
   _ChapterPageState createState() => _ChapterPageState();
@@ -22,23 +35,43 @@ class ChapterPage extends StatefulWidget {
 
 class _ChapterPageState extends State<ChapterPage> with SingleTickerProviderStateMixin {
   late TabController _tabController;
-  late Datamodel data;
+  Datamodel? data;
   late String pageTitle;
   late Color pageColor;
+  final DatabaseController _databaseController = Get.find<DatabaseController>();
+
+  void reloadData() {
+    _databaseController.getDatamodel(widget.category.name).then((result) {
+      setState(() {
+        data = result;
+        widget._updateProgress();
+      });
+    });
+  }
 
   @override
   void initState() {
     super.initState();
-    switch (widget.category){
-      case Category.carreer:
+    switch (widget.category.name) {
+      case 'career':
         pageTitle = "Career";
         pageColor = AppColors.weakedGreen;
-      case Category.health:
+        break;
+      case 'health':
         pageTitle = "Health";
         pageColor = AppColors.spaceCadet;
-      }
-    data = findAndReplaceAndTranslate(widget.data);
-    _tabController = TabController(length: data.chapters.length, vsync: this);
+        break;
+      default:
+        pageTitle = "Unknown";
+        pageColor = Colors.grey;
+        break;
+    }
+    _databaseController.getDatamodel(widget.category.name).then((result) {
+      setState(() {
+        data = result;
+        _tabController = TabController(length: data!.chapters.length, vsync: this);
+      });
+    });
   }
 
   @override
@@ -74,9 +107,9 @@ class _ChapterPageState extends State<ChapterPage> with SingleTickerProviderStat
         ),
         backgroundColor: pageColor,
       ),
-      body: SingleChildScrollView( // Wrap the entire body in SingleChildScrollView
+      body: data != null ? SingleChildScrollView( // Wrap the entire body in SingleChildScrollView
         child: Column(
-          children: data.chapters.map((chapter) {
+          children: data!.chapters.map((chapter) {
             return Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -100,7 +133,7 @@ class _ChapterPageState extends State<ChapterPage> with SingleTickerProviderStat
                     textColor: Colors.purple[600],
                     children: [
                       // Nested ListView.builder for videos inside the ExpansionTile
-                      VideoListPage(chapter: chapter),
+                      VideoListPage(chapter: chapter, updateWatched: (bool value) { reloadData(); }),
                     ],
                   ),
                 ),
@@ -108,16 +141,19 @@ class _ChapterPageState extends State<ChapterPage> with SingleTickerProviderStat
             );
           }).toList(),
         ),
-      ),
+      ) : Center(child: CircularProgressIndicator()),
     );
   }
 }
 
 class VideoListPage extends StatelessWidget {
   final Chapter chapter;
+  final ValueSetter<bool> updateWatched;
+  const VideoListPage({super.key,  required this.chapter, required this.updateWatched});
 
-  const VideoListPage({super.key,  required this.chapter});
-
+  void _onUpdate(){
+    updateWatched(true);
+  }
   @override
   Widget build(BuildContext context) {
     return ListView.builder(
@@ -135,7 +171,7 @@ class VideoListPage extends StatelessWidget {
             color: video.watched ? Colors.green : Colors.grey,
           ),
           onTap: () {
-            video.watched = true;
+            _markVideoAsWatched(video);
             Navigator.of(context).push(
               MaterialPageRoute(
                 builder: (context) =>
@@ -146,5 +182,13 @@ class VideoListPage extends StatelessWidget {
         );
       },
     );
+  }
+
+
+  void _markVideoAsWatched(Video video) async {
+    final DatabaseController databaseController = Get.find<DatabaseController>();
+    await databaseController.markVideoWatched(video.title);
+    _onUpdate();
+    video.watched = true;
   }
 }
