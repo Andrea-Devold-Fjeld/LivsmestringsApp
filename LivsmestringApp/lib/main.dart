@@ -14,6 +14,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:sqflite/sqflite.dart';
 
 import 'controllers/database-controller.dart';
+import 'controllers/home-page-controller.dart';
 import 'databse/database-helper.dart';
 import 'unused/firebase_options.dart';
 import '../pages/language_page_nav.dart';
@@ -99,7 +100,7 @@ Future<void> main() async {
 
   // Put the DatabaseController into the GetX dependency injection system
   Get.put(DatabaseController(database));
-
+  Get.put(HomePageController());
    //Prevents the application from changing orientation to horizontal at any point:
   WidgetsFlutterBinding.ensureInitialized();
   await SystemChrome.setPreferredOrientations([

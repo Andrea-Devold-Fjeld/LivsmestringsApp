@@ -3,9 +3,11 @@ import 'package:get/get.dart';
 import 'package:livsmestringapp/databse/database_operation.dart';
 import 'package:livsmestringapp/dto/category_dto.dart';
 import 'package:livsmestringapp/pages/chapter-page.dart';
+import 'package:livsmestringapp/pages/language_page_nav.dart';
 import '../controllers/database-controller.dart';
 import '../models/DataModel.dart';
 import '../styles/colors.dart';
+import '../widgets/buttom_navigation.dart';
 import '../widgets/homepage_card.dart';
 
 class HomePage extends StatefulWidget {
@@ -20,12 +22,32 @@ class _HomePageState extends State<HomePage> {
   late final Map<int, ProgressModel> _progress = {};
   late Map<String, Datamodel> _data;
   final DatabaseController _databaseController = Get.find<DatabaseController>();
+  int _selectedTab = 0;
 
+  Object _handleNavigation(int index) {
+    if(index == 0){
+      return Navigator.of(context).push(MaterialPageRoute(
+          builder: (builder) => HomePage()));
+    }else if(index == 1){
+      return Navigator.of(context).push(MaterialPageRoute(
+          builder: (builder) => ChapterPage(category: _categories[0],updateProgress: (bool value) {_loadData();} ,)));
+    }else if(index == 2){
+      return Navigator.of(context).push(MaterialPageRoute(
+          builder: (builder) => ChapterPage(category: _categories[1], updateProgress: (bool value){_loadData();},)));
+    }else if(index == 3){
+      return Navigator.of(context).push(MaterialPageRoute(
+          builder: (builder) => LanguagePageNav()));
+    }else {
+      return Text("Feil");
+    }
+  }
   @override
   void initState() {
     super.initState();
     _loadData();
   }
+
+
 
   Future<void> _loadData() async {
     var categories = await _databaseController.getCategories();
@@ -44,6 +66,41 @@ class _HomePageState extends State<HomePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      body: IndexedStack(
+        index: _selectedTab,
+        children: [
+          HomePageContent(categories: _categories, progress: _progress, updateProgress: (bool value){_loadData();} ),
+          ChapterPage(category: _categories[0], updateProgress:  (bool value){_loadData();}),
+          ChapterPage(category: _categories[1], updateProgress:  (bool value){_loadData();}),
+          LanguagePageNav()
+        ],
+      ),
+      bottomNavigationBar: ButtomNavigationBar(
+        selectedTab: _selectedTab,
+        onTap: _handleNavigation,
+      ),
+    );
+  }
+}
+
+class HomePageContent extends StatefulWidget {
+  final List<CategoryDTO> categories;
+  final Map<int, ProgressModel> progress;
+  final ValueSetter<bool> updateProgress;
+
+  const HomePageContent({super.key, required this.categories, required this.progress, required this.updateProgress});
+
+
+
+  @override
+  State<StatefulWidget> createState() => _HomePageContent();
+  }
+
+class _HomePageContent extends State<HomePageContent> {
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
       backgroundColor: Theme
           .of(context)
           .colorScheme
@@ -56,7 +113,7 @@ class _HomePageState extends State<HomePage> {
             'assets/logo_black.png',
             width: 300,
           ),
-          ..._categories.map((entry) {
+          ...widget.categories.map((entry) {
             int id = entry.id;
             String name = entry.name;
 
@@ -92,7 +149,7 @@ class _HomePageState extends State<HomePage> {
             }
             return HomePageCard(
               key: ValueKey(name),
-              progress: _progress[id]?.progress ?? 0.0,
+              progress: widget.progress[id]?.progress ?? 0.0,
               backgroundColor: backgroundColor,
               title: title,
               icon: icon,
@@ -100,10 +157,10 @@ class _HomePageState extends State<HomePage> {
                 Navigator.of(context).push(
                   MaterialPageRoute(
                     builder: (context) =>
-                        ChapterPage( category: entry, updateProgress: (bool value) { _loadData(); },),
+                        ChapterPage( category: entry, updateProgress: widget.updateProgress),
                   ),
                 );
-                },
+              },
             );
           })
 
@@ -111,7 +168,11 @@ class _HomePageState extends State<HomePage> {
       ),
     );
   }
+
 }
+
+
+
 
 
 

@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:livsmestringapp/controllers/home-page-controller.dart';
 import 'package:livsmestringapp/pages/chapter-page.dart';
 import 'package:livsmestringapp/pages/language_page_nav.dart';
 import 'package:livsmestringapp/controllers/database-controller.dart';
 import '../pages/home_page.dart';
 import 'buttom_navigation.dart';
+
 
 class Layout extends StatefulWidget {
   final Future<List> categories;
@@ -20,7 +22,7 @@ class Layout extends StatefulWidget {
 class _LayoutState extends State<Layout> {
   int _selectedTab = 0;
   final DatabaseController _databaseController = Get.find();
-
+  final HomePageController _homePageController = Get.find();
   void _handleNavigation(int index) {
     setState(() {
       _selectedTab = index;
@@ -51,7 +53,7 @@ class _LayoutState extends State<Layout> {
         List<Widget> nav = [];
         nav.add(HomePage());
         for (var v in categories) {
-          nav.add(ChapterPageNav(category: v));
+          nav.add(ChapterPage(category: v, updateProgress: (bool value) {  },));
         }
         nav.add(LanguagePageNav());
 
@@ -69,3 +71,5 @@ class _LayoutState extends State<Layout> {
     );
   }
 }
+
+
