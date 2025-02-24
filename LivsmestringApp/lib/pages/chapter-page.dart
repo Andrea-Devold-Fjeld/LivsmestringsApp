@@ -6,6 +6,7 @@ import 'package:livsmestringapp/dto/category_dto.dart';
 import 'package:livsmestringapp/widgets/youtube-video-player.dart';
 
 import '../controllers/database-controller.dart';
+import '../controllers/home-page-controller.dart';
 import '../models/DataModel.dart';
 import '../styles/colors.dart';
 import '../styles/fonts.dart';
@@ -73,13 +74,14 @@ class _ChapterPageState extends State<ChapterPage> with SingleTickerProviderStat
 
   @override
   Widget build(BuildContext context) {
+    final homePageController = Get.find<HomePageController>();
     return Scaffold(
       appBar: AppBar(
         leading: Row(
           children: [
             IconButton(
               onPressed: () {
-                Navigator.of(context).pop();
+                homePageController.navigateHome();  // You can change 0 to any other tab index if needed
               },
               icon: const Icon(
                 Icons.arrow_back,
@@ -156,46 +158,44 @@ class VideoListPage extends StatelessWidget {
         Video video = chapter.videos[videoIndex];
         bool hasTasks = video.tasks != null && video.tasks!.isNotEmpty;
 
-        if (hasTasks) {
-          return ExpansionTile(
-              title: Text(video.title),
-            controlAffinity: ListTileControlAffinity.leading,
-            trailing: Icon(
-              video.watched ? Icons.check_circle : Icons
-                  .circle_outlined,
-              color: video.watched ? Colors.green : Colors.grey,
-            ),
-            onExpansionChanged: (expanded){
-
-            },
-            children: [
-              TaskListPage(tasks: video.tasks!, updateWatched: (bool value) {_onUpdate();},)
-            ],
-          );
-        }else {
-          return ListTile(
-            title: Text(video.title),
-            trailing: Icon(
-              video.watched ? Icons.check_circle : Icons
-                  .circle_outlined,
-              color: video.watched ? Colors.green : Colors.grey,
-            ),
-            onTap: () {
-              _markVideoAsWatched(video);
-              Navigator.of(context).push(
-                MaterialPageRoute(
-                  builder: (context) =>
-                      YoutubePage(url: video.url),
+        return ListTile(
+          title: Text(video.title),
+          trailing: Icon(
+            video.watched ? Icons.check_circle : Icons.circle_outlined,
+            color: video.watched ? Colors.green : Colors.grey,
+          ),
+          onTap: () {
+            // Navigate to the YouTube video when title is tapped
+            _markVideoAsWatched(video);
+            Navigator.of(context).push(
+              MaterialPageRoute(
+                builder: (context) => YoutubePage(
+                  url: video.url,
+                  tasks: video.tasks,
+                  title: video.title,
+                  updateProgress: (bool value) {},
                 ),
-              );
-            },
-          );
-        }
+              ),
+            );
+          },
+          subtitle: hasTasks
+              ? ExpansionTile(
+            title: Text("Tasks"),
+            children: [
+              // Show tasks when ExpansionTile is expanded
+              TaskListPage(
+                tasks: video.tasks!,
+                updateWatched: (bool value) {
+                  _onUpdate();
+                },
+              ),
+            ],
+          )
+              : null,  // No tasks, so subtitle is null
+        );
       },
     );
   }
-
-
   void _markVideoAsWatched(Video video) async {
     final DatabaseController databaseController = Get.find<DatabaseController>();
     await databaseController.markVideoWatched(video.title);
@@ -237,7 +237,7 @@ class TaskListPage extends StatelessWidget {
             _markTaskAsWatched(task);
             Navigator.of(context).push(
               MaterialPageRoute(
-                builder: (context) => YoutubePage(url: task.url),
+                builder: (context) => YoutubePage(url: task.url, title: task.title, tasks: null, updateProgress: (bool value){_markTaskAsWatched(task);},),
               ),
             );
           },

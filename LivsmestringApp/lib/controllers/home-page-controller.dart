@@ -33,22 +33,39 @@ class HomePageController extends GetxController {
   final DatabaseController databaseController = Get.find<DatabaseController>();
   var currentIndex = 0.obs;
 
-  final pages = <String>["home", "home", "career", "language"];
+  final pages = <String>["/home", "/career", "/health","/language"];
 
   void changePage(int index) {
     currentIndex.value = index;
-    Get.toNamed(pages[index], id: 1);
+    Get.toNamed(pages[index], id: 1);  // No need for MaterialPageRoute, GetX handles it
+  }
+
+  CategoryDTO? checkCategory(String category){
+    if(category == "career"){
+      return careerCategory.value;
+    }
+    if(category == "health"){
+      return healthCategory.value;
+    }
+    else {
+      //#TODO better error handling
+      return CategoryDTO(id: 1000, name: '');
+    }
+  }
+  void navigateHome(){
+    currentIndex.value = 0;
+    Get.toNamed("/home");
   }
 
   Route? onGenerateRoute(RouteSettings settings) {
-    if (settings.name == "home") {
+    if (settings.name == "/home") {
       return GetPageRoute(
         settings: settings,
         page: () => HomePage(),
         binding: HomeBinding(),
       );
     }
-    if (settings.name == "home") {
+    if (settings.name == "/health") {
       return GetPageRoute(
           settings: settings,
           page: () =>
@@ -57,7 +74,7 @@ class HomePageController extends GetxController {
 
       );
     }
-    if (settings.name == "career") {
+    if (settings.name == "/career") {
       return GetPageRoute(
           settings: settings,
           page: () =>
@@ -66,7 +83,7 @@ class HomePageController extends GetxController {
 
       );
     }
-    if (settings.name == "language") {
+    if (settings.name == "/language") {
       return GetPageRoute(
           settings: settings,
           page: () => LanguagePageNav()
