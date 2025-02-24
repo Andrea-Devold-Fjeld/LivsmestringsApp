@@ -5,7 +5,7 @@ import 'package:json_annotation/json_annotation.dart';
 class Datamodel {
   @JsonKey(name: 'Chapters')
   final String category;
-  final List<Chapter> chapters;
+   List<Chapter> chapters;
   late final int _totalVideos = totalVideos();
   late int _watchedVideos = initWatchedVideos();
   late double _progress = _watchedVideos/_totalVideos;
@@ -57,7 +57,7 @@ class Datamodel {
 
 class Chapter {
   final String title;
-  final List<Video> videos;
+  List<Video> videos;
 
   Chapter({
     required this.title,

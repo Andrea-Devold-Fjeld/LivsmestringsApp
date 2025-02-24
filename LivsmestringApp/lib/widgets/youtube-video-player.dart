@@ -77,18 +77,26 @@ class _YoutubePageState extends State<YoutubePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Container(
-        child: YoutubePlayer(
-          controller: _controller,
-          showVideoProgressIndicator: true,
-          progressIndicatorColor: Colors.amber,
-          progressColors: ProgressBarColors(
-              playedColor: Colors.amber,
-              handleColor: Colors.amberAccent
-          ),
-          onReady: () {
-            _controller.addListener(listener);
-          },),
+      appBar: AppBar(
+        backgroundColor: Colors.black,
+        leading: IconButton(
+          icon: Icon(Icons.close, color: Colors.white),
+          onPressed: () {
+            Navigator.of(context).pop();
+          },
+        ),
+      ),
+      body: YoutubePlayer(
+        controller: _controller,
+        showVideoProgressIndicator: true,
+        progressIndicatorColor: Colors.amber,
+        progressColors: ProgressBarColors(
+          playedColor: Colors.amber,
+          handleColor: Colors.amberAccent,
+        ),
+        onReady: () {
+          _controller.addListener(listener);
+        },
       ),
     );
   }

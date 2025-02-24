@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:livsmestringapp/databse/database_operation.dart';
+import 'package:livsmestringapp/dto/category_dto.dart';
 import 'package:livsmestringapp/pages/language_page.dart';
 import 'package:livsmestringapp/services/data.dart';
 import 'package:livsmestringapp/widgets/Layout.dart';
@@ -13,6 +14,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:sqflite/sqflite.dart';
 
 import 'controllers/database-controller.dart';
+import 'databse/database-helper.dart';
 import 'unused/firebase_options.dart';
 import '../pages/language_page_nav.dart';
 import '../pages/splash_screen.dart';
@@ -91,12 +93,11 @@ Future<void> onCreate(Database db, int version) async {
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  final database = openDatabase(
-    join(await getDatabasesPath(), 'videos_database.db'),
-    onCreate: onCreate,
-    version: 1,
-   );
+  // Initialize the database
+  final databaseHelper = DatabaseHelper();
+  final database = databaseHelper.db;
 
+  // Put the DatabaseController into the GetX dependency injection system
   Get.put(DatabaseController(database));
 
    //Prevents the application from changing orientation to horizontal at any point:
@@ -136,18 +137,22 @@ class _MyAppState extends State<MyApp> {
   late Future<Map<String, Datamodel>> _dataFuture;
   late Locale _locale;
   final dbController = Get.find<DatabaseController>();
+  late Future<List<CategoryDTO>> categories;
 
 
   @override
   void initState() {
     super.initState();
+    categories = _getCategories();
     _dataFuture = _fetchAllData();
     _selectedLanguage = widget.selectedLanguage;
     _locale = widget.locale;
     Logger.root.level = Level.ALL; // defaults to Level.INFO
 
   }
-
+  Future<List<CategoryDTO>> _getCategories() {
+    return dbController.getCategories();
+  }
   Future<Map<String, Datamodel>> _fetchAllData() async {
     final results = await Future.wait([
       fetchData('career'),
@@ -183,36 +188,21 @@ class _MyAppState extends State<MyApp> {
       home: FutureBuilder(
           future: _dataFuture,
           builder: (context, snapshot){
-
             if (snapshot.connectionState == ConnectionState.waiting) {
               return SplashScreen(selectedLanguage: _selectedLanguage, );
             }
-            else if (snapshot.hasData){
-              if(_selectedLanguage == null){
-                return LanguagePage();
+            else if (snapshot.hasData) {
+
+                if (_selectedLanguage == null) {
+                     return LanguagePage(selectedLanguage: (v) => setState(() {
+                       _selectedLanguage = v;
+                     }));
+                }
+                else {
+                  return Layout(categories: categories,);
+                }
+
               }
-              else {
-
-                return Layout(data: snapshot.requireData);
-
-              }
-              /*
-              WidgetsBinding.instance.addPostFrameCallback((_) =>
-                  Navigator.of(context).pushReplacement(
-                    MaterialPageRoute(
-                        builder: (context) {
-                          if (_selectedLanguage == null){
-                            return LanguagePage();
-                          }
-                          return HomePage(data: snapshot.requireData,);
-                        }
-                    ),
-                  )
-              );
-
-
-               */
-            }
             else if (snapshot.hasError){
               return Center(child: Text("Error: ${snapshot.error}"));
             }
@@ -220,15 +210,7 @@ class _MyAppState extends State<MyApp> {
               return Center(child: Text("No data available"));
             }
           })
-      //home: SplashScreen(
-      //  selectedLanguage: _selectedLanguage,
-      //),
     );
   }
 }
 
-/*
-_selectedLanguage == null
-                          ?  LanguagePage()
-                          :  NavigationPage()),
- */

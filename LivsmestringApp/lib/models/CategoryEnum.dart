@@ -1,6 +1,6 @@
 
 
-enum Category{
+enum CategoryEnum{
   carreer,
   health
 }

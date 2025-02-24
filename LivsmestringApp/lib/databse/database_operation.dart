@@ -1,6 +1,10 @@
-import 'dart:developer';
+import 'dart:core';
+import 'package:flutter/foundation.dart';
+import 'package:livsmestringapp/dto/category_dto.dart';
 import 'package:sqflite/sqflite.dart';
-
+import '../dto/chapter_dto.dart';
+import '../dto/task_dto.dart';
+import '../dto/video_dto.dart';
 import '../models/DataModel.dart';
 
 // Updated insert method for the new schema
@@ -31,7 +35,7 @@ Future<void> insertDataModel(Future<Database> futureDb, Datamodel model) async {
           'category_id': categoryId,
           'title': chapter.title,
         },
-        conflictAlgorithm: ConflictAlgorithm.replace,
+        conflictAlgorithm: ConflictAlgorithm.ignore,
       );
 
       // Insert videos
@@ -44,7 +48,7 @@ Future<void> insertDataModel(Future<Database> futureDb, Datamodel model) async {
             'url': video.url,
             'watched': video.watched ? 1 : 0,
           },
-          conflictAlgorithm: ConflictAlgorithm.replace,
+          conflictAlgorithm: ConflictAlgorithm.ignore,
         );
 
         // Insert tasks if they exist
@@ -58,7 +62,7 @@ Future<void> insertDataModel(Future<Database> futureDb, Datamodel model) async {
                 'url': task.url,
                 'watched': task.watched ? 1 : 0,
               },
-              conflictAlgorithm: ConflictAlgorithm.replace,
+              conflictAlgorithm: ConflictAlgorithm.ignore,
             );
           }
         }
@@ -69,75 +73,161 @@ Future<void> insertDataModel(Future<Database> futureDb, Datamodel model) async {
 
 // Updated method to retrieve data model with category
 Future<Datamodel> getDataModel(Future<Database> futureDb, String category) async {
-  final Database db = await futureDb;
+  try{
+    final Database db = await futureDb;
+    // Get category ID
+    final List<Map<String, dynamic>> categoryResult = await db.query(
+      'categories',
+      where: 'name = ?',
+      whereArgs: [category],
+    );
 
-  // Get category ID
-  final List<Map<String, dynamic>> categoryResult = await db.query(
-    'categories',
-    where: 'name = ?',
-    whereArgs: [category],
-  );
+    if (categoryResult.isEmpty) {
+      throw Exception('Category not found: $category');
+    }
 
-  if (categoryResult.isEmpty) {
-    throw Exception('Category not found: $category');
+    final categoryId = categoryResult.first['id'];
+
+    // Get chapters for this category
+    final List<Map<String, dynamic>> chapters = await db.query(
+      'chapters',
+      where: 'category_id = ?',
+      whereArgs: [categoryId],
+    );
+
+    final List<Chapter> chaptersList = await Future.wait(
+      chapters.map((chapter) async {
+        final List<Map<String, dynamic>> videos = await db.query(
+          'videos',
+          where: 'chapter_id = ?',
+          whereArgs: [chapter['id']],
+        );
+
+        final List<Video> videosList = await Future.wait(
+          videos.map((video) async {
+            final List<Map<String, dynamic>> tasks = await db.query(
+              'tasks',
+              where: 'video_id = ?',
+              whereArgs: [video['id']],
+            );
+
+            return Video(
+              title: video['title'],
+              url: video['url'],
+              tasks: tasks.map((task) => Task(
+                title: task['title'],
+                url: task['url'],
+              )..watched = task['watched'] == 1).toList(),
+            )..watched = video['watched'] == 1;
+          }),
+        );
+
+        return Chapter(
+          title: chapter['title'],
+          videos: videosList,
+        );
+      }),
+    );
+
+    return Datamodel(chapters: chaptersList, category: category);
+  }catch(e){
+    if (kDebugMode) {
+      print(e);
+    }
+    throw Exception();
+
+  }
+}
+
+
+Future<List<ChapterDTO>> getAllWatchedVideosAndTasksByCategory(Future<Database> futureDb, int categoryId) async {
+  final db = await futureDb;
+
+  // Query to get watched videos and tasks by category
+  final query = '''
+    SELECT 
+      chapters.id as chapter_id, 
+      chapters.title as chapter_title, 
+      videos.id as video_id, 
+      videos.title as video_title, 
+      videos.url as video_url, 
+      videos.watched as video_watched, 
+      tasks.id as task_id, 
+      tasks.title as task_title, 
+      tasks.url as task_url, 
+      tasks.watched as task_watched
+    FROM chapters 
+    JOIN videos ON chapters.id = videos.chapter_id 
+    LEFT JOIN tasks ON videos.id = tasks.video_id
+    WHERE chapters.category_id = ? AND (videos.watched = 1 OR tasks.watched = 1)
+  ''';
+
+  // Execute the query
+  final result = await db.rawQuery(query, [categoryId]);
+
+  // Process the results into a hierarchical structure
+  List<ChapterDTO> chapters = [];
+  Map<int, ChapterDTO> chapterMap = {};
+  Map<int, VideoDTO> videoMap = {};
+
+  for (var row in result) {
+    int chapterId = row['chapter_id'] as int;
+    int videoId = row['video_id'] as int;
+    int taskId = row['task_id'] as int;
+
+    if (!chapterMap.containsKey(chapterId)) {
+      chapterMap[chapterId] = ChapterDTO(
+        id: chapterId,
+        categoryId: categoryId,
+        title: row['chapter_title'] as String,
+        videos: [],
+      );
+      chapters.add(chapterMap[chapterId]!);
+    }
+
+    if (videoId != null) {
+      if (!videoMap.containsKey(videoId)) {
+        videoMap[videoId] = VideoDTO(
+          id: videoId,
+          chapterId: chapterId,
+          title: row['video_title'] as String,
+          url: row['video_url'] as String,
+          watched: row['video_watched'] == 1,
+          tasks: [],
+        );
+        chapterMap[chapterId]!.videos.add(videoMap[videoId]!);
+      }
+
+      if (taskId != null && row['task_watched'] == 1) {
+        videoMap[videoId]!.tasks.add(TaskDTO(
+          id: taskId,
+          videoId: videoId,
+          title: row['task_title'] as String,
+          url: row['task_url'] as String,
+          watched: true,
+        ));
+      }
+    }
   }
 
-  final categoryId = categoryResult.first['id'];
+  // Filter out videos that are not watched
+  for (var chapter in chapters) {
+    chapter.videos = chapter.videos.where((video) => video.watched || video.tasks.any((task) => task.watched)).toList();
+  }
 
-  // Get chapters for this category
-  final List<Map<String, dynamic>> chapters = await db.query(
-    'chapters',
-    where: 'category_id = ?',
-    whereArgs: [categoryId],
-  );
-
-  final List<Chapter> chaptersList = await Future.wait(
-    chapters.map((chapter) async {
-      final List<Map<String, dynamic>> videos = await db.query(
-        'videos',
-        where: 'chapter_id = ?',
-        whereArgs: [chapter['id']],
-      );
-
-      final List<Video> videosList = await Future.wait(
-        videos.map((video) async {
-          final List<Map<String, dynamic>> tasks = await db.query(
-            'tasks',
-            where: 'video_id = ?',
-            whereArgs: [video['id']],
-          );
-
-          return Video(
-            title: video['title'],
-            url: video['url'],
-            tasks: tasks.map((task) => Task(
-              title: task['title'],
-              url: task['url'],
-            )..watched = task['watched'] == 1).toList(),
-          )..watched = video['watched'] == 1;
-        }),
-      );
-
-      return Chapter(
-        title: chapter['title'],
-        videos: videosList,
-      );
-    }),
-  );
-
-  return Datamodel(chapters: chaptersList, category: category);
+  return chapters;
 }
 
 
 // Helper methods also need to be updated to handle Future<Database>
-Future<void> updateVideoWatchStatus(Future<Database> futureDb, String videoUrl, bool watched) async {
+Future<void> updateVideoWatchStatus(Future<Database> futureDb, String videoName, bool watched) async {
   final Database db = await futureDb;
   await db.transaction((txn) async {
     await txn.update(
       'videos',
       {'watched': watched ? 1 : 0},
-      where: 'url = ?',
-      whereArgs: [videoUrl],
+      where: 'title = ?',
+      whereArgs: [videoName],
     );
   });
 }
@@ -153,45 +243,6 @@ Future<void> updateTaskWatchStatus(Future<Database> futureDb, String taskUrl, bo
     );
   });
 }
-
-//Future<List<String>> getChaptersFromCategory(Future<Database> futureDb) async {
-
-  /*
-  futureDb.then(
-    (db) =>
-        db.query(
-          'categories',
-        ),
-  ).then(
-      (categoryResult){
-        Map<String, List<String>> chapters = {};
-        categoryResult.forEach(
-          (category){
-            log("in getchapter: $category");
-          }
-        );
-        final categoryId =  categoryResult.first['id'];
-        return futureDb.then(
-            (db) => db.query(
-              'videos',
-              where: 'category_id = ?',
-              whereArgs: [categoryId],
-            )
-            );
-      }
-
-  ).onError(() = throw Exception());
-  /*
-  final List<Map<String, dynamic>> categoryResult = await db.query(
-    'categories',
-    where: 'name = ?',
-    whereArgs: [category],
-  );
-
-   */
-
-   */
-//}
 
 Future<List<Map<String, dynamic>>> getCategoryId(Database db, String category) {
   return db.query(
@@ -209,119 +260,73 @@ Future<List<Map<String, dynamic>>> getChapters(Database db, int categoryId) {
   );
 }
 
-Future<List<Map<String, dynamic>>> getAllCategories(Database db){
-  return db.query(
-    'categories',
+Future<List<CategoryDTO>> getAllCategories(Future<Database> futureDb) async {
+  try {
+    final db = await futureDb;
+    final List<Map<String, dynamic>> maps = await db.query('categories');
+
+    return List.generate(maps.length, (i) {
+      return CategoryDTO.fromMap(maps[i]);
+    });
+  } catch (e) {
+    throw Exception("An error happened with the db: $e");
+  }
+}
+
+Future<List<Map<String, dynamic>>> getVideos(Database db, int chapterId){
+  return db.query('videos',
+    where: 'chapter_id = ?',
+    whereArgs: [chapterId],
   );
 }
-Future<void> getChaptersWithCategory(Future<Database> futureDb)async {
-  futureDb.then((db) {
-    return getAllCategories(db)
-        .then((categoryResult) {
-          log("category $categoryResult");
-    });
-  });
-}
 
-
-Future<Map<String, dynamic>> getProgress(Future<Database> futureDb) async {
+Future<ProgressModel> getProgress(Future<Database> futureDb, int categoryId) async {
   final Database db = await futureDb;
 
-  // Get total counts
   final totalVideosResult = await db.rawQuery('''
     SELECT 
-      (SELECT COUNT(*) FROM videos) +
-      (SELECT COUNT(*) FROM tasks) as total
-  ''');
+      (SELECT COUNT(*)
+       FROM videos
+       JOIN chapters ON videos.chapter_id = chapters.id
+       WHERE chapters.category_id = ?) +
+      (SELECT COUNT(*)
+       FROM tasks
+       JOIN videos ON tasks.video_id = videos.id
+       JOIN chapters ON videos.chapter_id = chapters.id
+       WHERE chapters.category_id = ?) as total
+  ''', [categoryId, categoryId]);
+
   final totalCount = Sqflite.firstIntValue(totalVideosResult) ?? 0;
-
-  // Get watched counts
-  final watchedResult = await db.rawQuery('''
+  final query = '''
     SELECT 
-      (SELECT COUNT(*) FROM videos WHERE watched = 1) +
-      (SELECT COUNT(*) FROM tasks WHERE watched = 1) as watched
-  ''');
-  final watchedCount = Sqflite.firstIntValue(watchedResult) ?? 0;
+      COUNT(DISTINCT videos.id) as watched_videos_count,
+      COUNT(tasks.id) as watched_tasks_count
+    FROM chapters 
+    JOIN videos ON chapters.id = videos.chapter_id 
+    LEFT JOIN tasks ON videos.id = tasks.video_id
+    WHERE chapters.category_id = ? AND (videos.watched = 1 OR tasks.watched = 1)
+  ''';
 
+  // Execute the query
+  final result = await db.rawQuery(query, [categoryId]);
+
+  // Extract the counts from the result
+  final watchedVideosCount = result[0]['watched_videos_count'] as int;
+  final watchedTasksCount = result[0]['watched_tasks_count'] as int;
+
+  var watchedCount = watchedTasksCount + watchedVideosCount;
   // Calculate progress percentage
   final double progress = totalCount > 0 ? watchedCount / totalCount : 0.0;
 
-  return {
-    'totalVideos': totalCount,
-    'watchedVideos': watchedCount,
-    'progress': progress,
-  };
+  return ProgressModel(totalVideos: totalCount, watchedVideos: watchedCount, categoryId: categoryId, progress: progress);
 }
 
-final String categoryTable = 'categories';
-final String categoryId = 'id';
-final String categoryName = 'name';
+class ProgressModel {
+  final int totalVideos;
+  final int watchedVideos;
+  final double progress;
+  final int categoryId;
 
-class Categories {
-  final int? id;
-  final String name;
+  ProgressModel({required this.totalVideos, required this.watchedVideos, required this.categoryId, required this.progress });
 
-  Categories({this.id, required this.name});
-
-  factory Categories.fromMap(Map<String, dynamic> json) => Categories(
-    id: json['id'],
-    name: json['name'],
-  );
-
-  Map<String, dynamic> toMap() {
-    return {'id': id, 'name': name};
-  }
-}
-
-class Chapters {
-  final int? id;
-  final int? categoryId;
-  final String title;
-
-  Chapters({this.id, required this.categoryId, required this.title});
-
-  factory Chapters.fromMap(Map<String, dynamic> json) => Chapters(
-      categoryId: json['category_id'],
-      title: json['title']
-  );
-
-  Map<String, dynamic> toMap() {
-    return {'id': id, 'category_id': categoryId, 'title': title};
-  }
-}
-/*
-  CREATE TABLE videos(
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    chapter_id INTEGER NOT NULL,
-    title TEXT NOT NULL,
-    url TEXT NOT NULL,
-    watched INTEGER NOT NULL DEFAULT 0,
-    FOREIGN KEY (chapter_id) REFERENCES chapters (id)
-      ON DELETE CASCADE
-  );
-'''
-
- */
-class Videos {
-  final int? id;
-  final int chapterId;
-  final String title;
-  final String url;
-  final bool watched;
-
-
-  Videos({this.id,required this.chapterId,required this.title,required this.url,required this.watched});
-
-  factory Videos.fromMap(Map<String, dynamic> json) => Videos(
-      chapterId: json['chapter_id'],
-      title: json['title'],
-      url: json['url'],
-      watched: json['watched'] == 1
-  );
-
-  Map<String, dynamic> toMap() {
-    return {'id': id, 'chapter_id': chapterId,
-  };
-
-}
 }

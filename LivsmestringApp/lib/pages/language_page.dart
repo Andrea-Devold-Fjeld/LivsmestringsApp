@@ -2,17 +2,22 @@ import 'package:auto_size_text/auto_size_text.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-
-import '../styles/fonts.dart';
-import '../widgets/language_button.dart';
+import 'package:livsmestringapp/styles/fonts.dart';
+import 'package:livsmestringapp/widgets/language_button.dart';
 
 class LanguagePage extends StatefulWidget {
-  const LanguagePage({super.key});
+  final ValueSetter<int> selectedLanguage;
+  const LanguagePage({super.key, required this.selectedLanguage});
+
   @override
-  State<LanguagePage> createState() => _LanguagesScreenState();}
+  State<LanguagePage> createState() => _LanguagesScreenState();
+
+  void _handleSelection(int index){
+    selectedLanguage(index);
+  }
+}
 
 class _LanguagesScreenState extends State<LanguagePage> {
-
   final List<Map<String, dynamic>> locale = [
     {'name': 'English', 'locale': Locale('en', 'UK')},
     {'name': 'Español', 'locale': Locale('es', 'ES')},
@@ -33,45 +38,15 @@ class _LanguagesScreenState extends State<LanguagePage> {
   ];
 
   late SharedPreferences prefs;
-  late Future language;
+  late Future<int?> language;
   final ScrollController _scrollController = ScrollController();
   bool arrowDownClicked = true;
   int? activeItem;
 
-
-  /*
-  final List<Map<String, dynamic>> locale = [
-
-    //   {'name': 'دری', 'locale': Locale('prs', 'AF')},
-   // {'name': 'فارسی', 'locale': Locale('fa', 'IR')},
-    {'name': 'English', 'locale': Locale('en', 'UK')},
-    {'name': 'Español', 'locale': Locale('es', 'ES')},
-    {'name': 'Kiswahili', 'locale': Locale('sw', 'KE')},
-    {'name': 'Kurmancî', 'locale': Locale('ku', 'TR')},
-    {'name': 'Norsk', 'locale': Locale('nb', 'NO')},
-    {'name': 'Soomaali', 'locale': Locale('so', 'SO')},
-    {'name': 'Türkçe', 'locale': Locale('tr', 'TR')},
-    {'name': 'عربي', 'locale': Locale('ar', 'AR')},
-    {'name': 'پښتو', 'locale': Locale('ps', 'AF')},
-    {'name': 'ትግሪኛ', 'locale': Locale('ti', 'ET')},
-    {'name': 'украïнська', 'locale': Locale('uk', 'UA')},
-    {'name': 'اردو', 'locale': Locale('ur', 'PK')},
-
-    ];
-
-   */
-
-
-
-
-
-
-
-
   Future<int?> getSelectedLanguage() async {
     prefs = await SharedPreferences.getInstance();
     activeItem = prefs.getInt('selectedLanguage');
-    return null;
+    return activeItem;
   }
 
   @override
@@ -83,14 +58,8 @@ class _LanguagesScreenState extends State<LanguagePage> {
   void updateLanguage(Locale locale, int? index) {
     Get.updateLocale(locale);
     prefs.setInt('selectedLanguage', index!);
-    Navigator.pop(context, prefs.setInt('selectedLanguage', index)
-    );
-    /*
-    Navigator.of(context).pushReplacement(MaterialPageRoute(
-      builder: (context) => NavigationPage(),
-    ));
-
-     */
+    widget._handleSelection(index);
+    Navigator.pop(context);
   }
 
   @override
@@ -111,18 +80,18 @@ class _LanguagesScreenState extends State<LanguagePage> {
                   ),
                 ],
               ),
-              AutoSizeText('welcome'.tr,
-                  style: Fonts.header1,
-
-                minFontSize: 14, // Set the minimum font size
-                maxFontSize: 20, // Set the maximum font size
-                maxLines: 2, // Limit the text to a single line
+              AutoSizeText(
+                'welcome'.tr,
+                style: Fonts.header1,
+                minFontSize: 14,
+                maxFontSize: 20,
+                maxLines: 2,
               ),
               const SizedBox(height: 10),
               Expanded(
                 child: SizedBox(
                   height: MediaQuery.of(context).size.height * 0.70,
-                  child: FutureBuilder(
+                  child: FutureBuilder<int?>(
                     future: language,
                     builder: (context, snapshot) {
                       if (snapshot.connectionState == ConnectionState.done) {
@@ -132,7 +101,7 @@ class _LanguagesScreenState extends State<LanguagePage> {
                           itemBuilder: (context, index) {
                             return LanguageButton(
                               language: locale[index]['name'],
-                              active: activeItem == index ? true : false,
+                              active: activeItem == index,
                               onPressed: () {
                                 setState(() {
                                   activeItem = index;
@@ -143,9 +112,7 @@ class _LanguagesScreenState extends State<LanguagePage> {
                           },
                         );
                       } else {
-                        return Container(
-                          child: CircularProgressIndicator(),
-                        );
+                        return CircularProgressIndicator();
                       }
                     },
                   ),
