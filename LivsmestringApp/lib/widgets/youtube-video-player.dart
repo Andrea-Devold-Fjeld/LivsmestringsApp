@@ -1,17 +1,25 @@
-
-
 import 'package:flutter/material.dart';
 import 'package:youtube_player_flutter/youtube_player_flutter.dart';
 
+import '../models/DataModel.dart';
+
 class YoutubePage extends StatefulWidget {
   final String url;
-  const YoutubePage({super.key, required this.url});
+  final String title;
+  final List<Task>? tasks;
+  final ValueSetter<bool> updateProgress;
+
+  const YoutubePage({
+    super.key,
+    required this.url,
+    required this.tasks,
+    required this.title,
+    required this.updateProgress,
+  });
 
   @override
   State<StatefulWidget> createState() => _YoutubePageState();
-
 }
-
 
 class _YoutubePageState extends State<YoutubePage> {
   late YoutubePlayerController _controller;
@@ -40,8 +48,7 @@ class _YoutubePageState extends State<YoutubePage> {
         forceHD: false,
         enableCaption: true,
       ),
-    )
-      ..addListener(listener);
+    )..addListener(listener);
     _idController = TextEditingController();
     _seekToController = TextEditingController();
     _videoMetaData = const YoutubeMetaData();
@@ -57,10 +64,8 @@ class _YoutubePageState extends State<YoutubePage> {
     }
   }
 
-
   @override
   void deactivate() {
-    // Pauses video while navigating to next page.
     _controller.pause();
     super.deactivate();
   }
@@ -72,7 +77,6 @@ class _YoutubePageState extends State<YoutubePage> {
     _seekToController.dispose();
     super.dispose();
   }
-
 
   @override
   Widget build(BuildContext context) {
@@ -86,17 +90,70 @@ class _YoutubePageState extends State<YoutubePage> {
           },
         ),
       ),
-      body: YoutubePlayer(
-        controller: _controller,
-        showVideoProgressIndicator: true,
-        progressIndicatorColor: Colors.amber,
-        progressColors: ProgressBarColors(
-          playedColor: Colors.amber,
-          handleColor: Colors.amberAccent,
-        ),
-        onReady: () {
-          _controller.addListener(listener);
-        },
+      body: Column(
+        children: [
+          // Youtube Player
+          YoutubePlayer(
+            controller: _controller,
+            showVideoProgressIndicator: true,
+            progressIndicatorColor: Colors.amber,
+            progressColors: ProgressBarColors(
+              playedColor: Colors.amber,
+              handleColor: Colors.amberAccent,
+            ),
+            onReady: () {
+              _controller.addListener(listener);
+            },
+          ),
+
+          // Title under the video player
+          Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: Text(
+              widget.title, // Use the passed title from the widget constructor
+              style: TextStyle(
+                fontSize: 18,
+                fontWeight: FontWeight.bold,
+                color: Colors.black, // You can change the color if needed
+              ),
+              textAlign: TextAlign.center, // Centers the title
+            ),
+          ),
+
+          // ListView if tasks are provided
+          if (widget.tasks != null && widget.tasks!.isNotEmpty) ...[
+            ListView.builder(
+              shrinkWrap: true,
+              physics: const NeverScrollableScrollPhysics(),
+              itemCount: widget.tasks!.length,
+              itemBuilder: (context, taskIndex) {
+                final task = widget.tasks![taskIndex];
+                return ListTile(
+                  dense: true,
+                  contentPadding: const EdgeInsets.only(left: 32.0, right: 16.0),
+                  title: Text(task.title),
+                  trailing: Icon(
+                    task.watched ? Icons.check_circle : Icons.circle_outlined,
+                    color: task.watched ? Colors.green : Colors.grey,
+                  ),
+                  onTap: () {
+                    widget.updateProgress(true);  // Call updateProgress method here
+                    Navigator.of(context).push(
+                      MaterialPageRoute(
+                        builder: (context) => YoutubePage(
+                          url: task.url,
+                          title: task.title,
+                          tasks: null,
+                          updateProgress: widget.updateProgress, // Pass the updateProgress function
+                        ),
+                      ),
+                    );
+                  },
+                );
+              },
+            ),
+          ],
+        ],
       ),
     );
   }

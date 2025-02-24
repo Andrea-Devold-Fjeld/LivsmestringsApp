@@ -5,6 +5,8 @@ import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:livsmestringapp/databse/database_operation.dart';
 import 'package:livsmestringapp/dto/category_dto.dart';
+import 'package:livsmestringapp/pages/chapter-page.dart';
+import 'package:livsmestringapp/pages/home_page.dart';
 import 'package:livsmestringapp/pages/language_page.dart';
 import 'package:livsmestringapp/services/data.dart';
 import 'package:livsmestringapp/widgets/Layout.dart';
@@ -187,30 +189,45 @@ class _MyAppState extends State<MyApp> {
       theme: lightMode,
       darkTheme: darkMode,
       home: FutureBuilder(
-          future: _dataFuture,
-          builder: (context, snapshot){
-            if (snapshot.connectionState == ConnectionState.waiting) {
-              return SplashScreen(selectedLanguage: _selectedLanguage, );
+        future: _dataFuture,
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return SplashScreen(selectedLanguage: _selectedLanguage);
+          } else if (snapshot.hasData) {
+            if (_selectedLanguage == null) {
+              return LanguagePage(
+                selectedLanguage: (v) => setState(() {
+                  _selectedLanguage = v;
+                }),
+              );
+            } else {
+              return HomePage(); // Default route for home screen
             }
-            else if (snapshot.hasData) {
-
-                if (_selectedLanguage == null) {
-                     return LanguagePage(selectedLanguage: (v) => setState(() {
-                       _selectedLanguage = v;
-                     }));
-                }
-                else {
-                  return Layout(categories: categories,);
-                }
-
-              }
-            else if (snapshot.hasError){
-              return Center(child: Text("Error: ${snapshot.error}"));
-            }
-            else {
-              return Center(child: Text("No data available"));
-            }
-          })
+          } else if (snapshot.hasError) {
+            return Center(child: Text("Error: ${snapshot.error}"));
+          } else {
+            return Center(child: Text("No data available"));
+          }
+        },
+      ),
+      // Define your pages (routes) here
+      getPages: [
+        GetPage(
+          name: '/home',
+          page: () => HomePage(),
+          binding: BindingsBuilder(() {
+            Get.lazyPut<HomePageController>(() => HomePageController());
+          }),
+        ),
+        GetPage(
+          name: '/chapter',
+          page: () => ChapterPage(category: Get.find<HomePageController>().careerCategory.value!, updateProgress: (bool value) {  }),
+        ),
+        GetPage(
+          name: '/language',
+          page: () => LanguagePageNav(),
+        ),
+      ],
     );
   }
 }
