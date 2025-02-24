@@ -24,15 +24,6 @@ class ChapterPage extends StatefulWidget {
 }
 
 
-class ChapterPageNav extends StatefulWidget {
-  final CategoryDTO category;
-
-  const ChapterPageNav({super.key, required this.category}); //required this.data
-
-  @override
-  _ChapterPageState createState() => _ChapterPageState();
-}
-
 class _ChapterPageState extends State<ChapterPage> with SingleTickerProviderStateMixin {
   late TabController _tabController;
   Datamodel? data;
@@ -146,6 +137,7 @@ class _ChapterPageState extends State<ChapterPage> with SingleTickerProviderStat
   }
 }
 
+
 class VideoListPage extends StatelessWidget {
   final Chapter chapter;
   final ValueSetter<bool> updateWatched;
@@ -162,24 +154,43 @@ class VideoListPage extends StatelessWidget {
       itemCount: chapter.videos.length,
       itemBuilder: (context, videoIndex) {
         Video video = chapter.videos[videoIndex];
-        return ListTile(
-          title: Text(video.title),
-          subtitle: Text(video.url),
-          trailing: Icon(
-            video.watched ? Icons.check_circle : Icons
-                .circle_outlined,
-            color: video.watched ? Colors.green : Colors.grey,
-          ),
-          onTap: () {
-            _markVideoAsWatched(video);
-            Navigator.of(context).push(
-              MaterialPageRoute(
-                builder: (context) =>
-                    YoutubePage(url: video.url),
-              ),
-            );
-          },
-        );
+        bool hasTasks = video.tasks != null && video.tasks!.isNotEmpty;
+
+        if (hasTasks) {
+          return ExpansionTile(
+              title: Text(video.title),
+            controlAffinity: ListTileControlAffinity.leading,
+            trailing: Icon(
+              video.watched ? Icons.check_circle : Icons
+                  .circle_outlined,
+              color: video.watched ? Colors.green : Colors.grey,
+            ),
+            onExpansionChanged: (expanded){
+
+            },
+            children: [
+              TaskListPage(tasks: video.tasks!, updateWatched: (bool value) {_onUpdate();},)
+            ],
+          );
+        }else {
+          return ListTile(
+            title: Text(video.title),
+            trailing: Icon(
+              video.watched ? Icons.check_circle : Icons
+                  .circle_outlined,
+              color: video.watched ? Colors.green : Colors.grey,
+            ),
+            onTap: () {
+              _markVideoAsWatched(video);
+              Navigator.of(context).push(
+                MaterialPageRoute(
+                  builder: (context) =>
+                      YoutubePage(url: video.url),
+                ),
+              );
+            },
+          );
+        }
       },
     );
   }
@@ -191,4 +202,48 @@ class VideoListPage extends StatelessWidget {
     _onUpdate();
     video.watched = true;
   }
+}
+
+class TaskListPage extends StatelessWidget {
+  final List<Task> tasks;
+  final ValueSetter<bool> updateWatched;
+  const TaskListPage({super.key, required this.tasks, required this.updateWatched});
+
+  void _onUpdate(){
+    updateWatched(true);
+  }
+  void _markTaskAsWatched(Task task) async {
+    final DatabaseController databaseController = Get.find<DatabaseController>();
+    await databaseController.markTaskWatched(task.title);
+    _onUpdate();
+  }
+  @override
+  Widget build(BuildContext context) {
+    return ListView.builder(
+      shrinkWrap: true,
+      physics: const NeverScrollableScrollPhysics(),
+      itemCount: tasks.length,
+      itemBuilder: (context, taskIndex) {
+        Task task = tasks[taskIndex];
+        return ListTile(
+          dense: true,
+          contentPadding: const EdgeInsets.only(left: 32.0, right: 16.0),
+          title: Text(task.title),
+          trailing: Icon(
+            task.watched ? Icons.check_circle : Icons.circle_outlined,
+            color: task.watched ? Colors.green : Colors.grey,
+          ),
+          onTap: () {
+            _markTaskAsWatched(task);
+            Navigator.of(context).push(
+              MaterialPageRoute(
+                builder: (context) => YoutubePage(url: task.url),
+              ),
+            );
+          },
+        );
+      },
+    );
+  }
+
 }
