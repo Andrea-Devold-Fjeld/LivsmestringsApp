@@ -1,0 +1,62 @@
+{
+  "VideoUrls": [
+    {
+      "Title": "1.1_introduction",
+      "Language": [
+        {
+          "Language": "en",
+          "Url": ""
+        },
+        {
+          "Language": "no",
+          "Url": ""
+        },
+        {
+          "Language": "es",
+          "Url": ""
+        },
+        {
+          "Language": "ur",
+          "Url": ""
+        },
+        {
+          "Language": "uk",
+          "Url": ""
+        },
+        {
+          "Language": "ps",
+          "Url": ""
+        }
+      ]
+    },
+    {
+      "Title": "1.2_new_words",
+      "Language": [
+        {
+          "Language": "en",
+          "Url": ""
+        },
+        {
+          "Language": "no",
+          "Url": ""
+        },
+        {
+          "Language": "es",
+          "Url": ""
+        },
+        {
+          "Language": "ur",
+          "Url": ""
+        },
+        {
+          "Language": "uk",
+          "Url": ""
+        },
+        {
+          "Language": "ps",
+          "Url": ""
+        }
+      ]
+    }
+  ]
+}

@@ -159,10 +159,13 @@ class _MyAppState extends State<MyApp> {
   Future<Map<String, Datamodel>> _fetchAllData() async {
     final results = await Future.wait([
       fetchData('career'),
-      fetchData('health')
+      fetchData('health'),
     ]);
-    var career = findAndReplaceAndTranslate(results[0]);
-    var health = findAndReplaceAndTranslate(results[1]);
+    final resultVideoUrls = await Future.wait([
+      fetchVideoUrls()
+    ]);
+    var career = findAndReplaceAndTranslate(results[0],resultVideoUrls.first, _locale );
+    var health = findAndReplaceAndTranslate(results[1], resultVideoUrls.first, _locale);
     dbController.insertDatamodel(career);
     dbController.insertDatamodel(health);
     return {
