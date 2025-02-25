@@ -4,6 +4,8 @@ import 'package:get/get.dart';
 import 'package:livsmestringapp/models/DataModel.dart';
 import 'dart:developer';
 
+import 'package:livsmestringapp/models/VideoUrl.dart';
+
 
 final dio = Dio();
 
@@ -22,6 +24,25 @@ Future<Datamodel> fetchData(String category) async {
     }
   }catch (e){
     throw Exception('Failed to load data from $category: $e');
+  }
+  throw Exception();
+}
+
+Future<VideoUrlsResponse> fetchVideoUrls() async {
+  log.printInfo(info: "fetch video urls");
+  try {
+    final response = await dio.get('https://testhttp.fly.dev/video');
+    if(response.statusCode == 200) {
+      log("After response: $response ");
+      return VideoUrlsResponse.fromJson(response.data);
+    }
+    if (response.statusCode != 200){
+      log(response.statusCode as String);
+      log(response.headers as String);
+      return VideoUrlsResponse.fromJson(response.data);
+    }
+  }catch (e){
+    throw Exception('Failed to load data from : $e');
   }
   throw Exception();
 }
