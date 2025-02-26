@@ -81,7 +81,7 @@ class _ChapterPageState extends State<ChapterPage> with SingleTickerProviderStat
           children: [
             IconButton(
               onPressed: () {
-                homePageController.navigateHome();  // You can change 0 to any other tab index if needed
+                homePageController.changePage(0);  // You can change 0 to any other tab index if needed
               },
               icon: const Icon(
                 Icons.arrow_back,
@@ -92,7 +92,7 @@ class _ChapterPageState extends State<ChapterPage> with SingleTickerProviderStat
           ],
         ),
         title: AutoSizeText(
-          pageTitle,
+          pageTitle.tr,
           style: Fonts.homePageCardLabel,
           minFontSize: 10,
           maxFontSize: 20,
@@ -115,7 +115,7 @@ class _ChapterPageState extends State<ChapterPage> with SingleTickerProviderStat
                   margin: EdgeInsets.all(8.0),
                   child: ExpansionTile(
                     title: AutoSizeText(
-                      chapter.title,
+                      chapter.title.tr,
                       style: TextStyle(
                         fontWeight: FontWeight.bold,
                       ),
@@ -159,7 +159,7 @@ class VideoListPage extends StatelessWidget {
         bool hasTasks = video.tasks != null && video.tasks!.isNotEmpty;
 
         return ListTile(
-          title: Text(video.title),
+          title: Text(video.title.tr),
           trailing: Icon(
             video.watched ? Icons.check_circle : Icons.circle_outlined,
             color: video.watched ? Colors.green : Colors.grey,
@@ -172,7 +172,7 @@ class VideoListPage extends StatelessWidget {
                 builder: (context) => YoutubePage(
                   url: video.url,
                   tasks: video.tasks,
-                  title: video.title,
+                  title: video.title.tr,
                   updateProgress: (bool value) {},
                 ),
               ),
@@ -228,7 +228,7 @@ class TaskListPage extends StatelessWidget {
         return ListTile(
           dense: true,
           contentPadding: const EdgeInsets.only(left: 32.0, right: 16.0),
-          title: Text(task.title),
+          title: Text(task.title.tr),
           trailing: Icon(
             task.watched ? Icons.check_circle : Icons.circle_outlined,
             color: task.watched ? Colors.green : Colors.grey,
@@ -237,7 +237,7 @@ class TaskListPage extends StatelessWidget {
             _markTaskAsWatched(task);
             Navigator.of(context).push(
               MaterialPageRoute(
-                builder: (context) => YoutubePage(url: task.url, title: task.title, tasks: null, updateProgress: (bool value){_markTaskAsWatched(task);},),
+                builder: (context) => YoutubePage(url: task.url, title: task.title.tr, tasks: null, updateProgress: (bool value){_markTaskAsWatched(task);},),
               ),
             );
           },

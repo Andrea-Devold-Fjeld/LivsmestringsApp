@@ -1,6 +1,7 @@
 import 'package:auto_size_text/auto_size_text.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:livsmestringapp/controllers/home-page-controller.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:livsmestringapp/styles/fonts.dart';
 import 'package:livsmestringapp/widgets/language_button.dart';
@@ -13,28 +14,28 @@ class LanguagePage extends StatefulWidget {
   State<LanguagePage> createState() => _LanguagesScreenState();
 
   void _handleSelection(int index){
-    selectedLanguage(index);
+
   }
 }
 
 class _LanguagesScreenState extends State<LanguagePage> {
   final List<Map<String, dynamic>> locale = [
     {'name': 'English', 'locale': Locale('en', 'UK')},
-    {'name': 'Español', 'locale': Locale('es', 'ES')},
-    {'name': 'Kiswahili', 'locale': Locale('sw', 'KE')},
-    {'name': 'Kurmancî', 'locale': Locale('ku', 'TR')},
+    //{'name': 'Español', 'locale': Locale('es', 'ES')},
+    //{'name': 'Kiswahili', 'locale': Locale('sw', 'KE')},
+    //{'name': 'Kurmancî', 'locale': Locale('ku', 'TR')},
     {'name': 'Norsk', 'locale': Locale('nb', 'NO')},
-    {'name': 'Soomaali', 'locale': Locale('so', 'SO')},
-    {'name': 'Türkçe', 'locale': Locale('tr', 'TR')},
-    {'name': 'украïнська', 'locale': Locale('uk', 'UA')},
-    {'name': 'اردو', 'locale': Locale('ur', 'PK')},
-    {'name': 'العربية', 'locale': Locale('ar', 'AR')},
+    //{'name': 'Soomaali', 'locale': Locale('so', 'SO')},
+    //{'name': 'Türkçe', 'locale': Locale('tr', 'TR')},
+    //{'name': 'украïнська', 'locale': Locale('uk', 'UA')},
+    //{'name': 'اردو', 'locale': Locale('ur', 'PK')},
+    //{'name': 'العربية', 'locale': Locale('ar', 'AR')},
     {'name': 'پښتو', 'locale': Locale('ps', 'AF')},
-    {'name': 'فارسی', 'locale': Locale('fa', 'IR')},  // Persian
-    {'name': 'தமிழ்', 'locale': Locale('ta', 'IN')}, // Tamil
-    {'name': 'ไทย', 'locale': Locale('th', 'TH')}, // Thai
-    {'name': 'አማርኛ', 'locale': Locale('am', 'ET')}, // Amharic
-    {'name': 'ትግሪኛ', 'locale': Locale('ti', 'ET')},
+    //{'name': 'فارسی', 'locale': Locale('fa', 'IR')},  // Persian
+    //{'name': 'தமிழ்', 'locale': Locale('ta', 'IN')}, // Tamil
+    //{'name': 'ไทย', 'locale': Locale('th', 'TH')}, // Thai
+    //{'name': 'አማርኛ', 'locale': Locale('am', 'ET')}, // Amharic
+    //{'name': 'ትግሪኛ', 'locale': Locale('ti', 'ET')},
   ];
 
   late SharedPreferences prefs;
@@ -59,7 +60,9 @@ class _LanguagesScreenState extends State<LanguagePage> {
     Get.updateLocale(locale);
     prefs.setInt('selectedLanguage', index!);
     widget._handleSelection(index);
-    Navigator.pop(context);
+    var homeController = Get.find<HomePageController>();
+    homeController.setLocale(locale);
+    Get.toNamed("/home");
   }
 
   @override

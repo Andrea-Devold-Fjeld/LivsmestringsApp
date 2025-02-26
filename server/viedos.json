@@ -2,61 +2,39 @@
   "VideoUrls": [
     {
       "Title": "1.1_introduction",
-      "Language": [
-        {
-          "Language": "en",
-          "Url": ""
-        },
-        {
-          "Language": "no",
-          "Url": ""
-        },
-        {
-          "Language": "es",
-          "Url": ""
-        },
-        {
-          "Language": "ur",
-          "Url": ""
-        },
-        {
-          "Language": "uk",
-          "Url": ""
-        },
-        {
-          "Language": "ps",
-          "Url": ""
-        }
-      ]
+      "Url":
+      {
+        "en": "https://youtu.be/LEvsQV9x3Oo",
+        "nb": "https://youtu.be/KOwLhVRP7UY",
+        "ps": "https://youtu.be/I9zQ3BCxEEw"
+      }
     },
     {
       "Title": "1.2_new_words",
-      "Language": [
-        {
-          "Language": "en",
-          "Url": ""
-        },
-        {
-          "Language": "no",
-          "Url": ""
-        },
-        {
-          "Language": "es",
-          "Url": ""
-        },
-        {
-          "Language": "ur",
-          "Url": ""
-        },
-        {
-          "Language": "uk",
-          "Url": ""
-        },
-        {
-          "Language": "ps",
-          "Url": ""
-        }
-      ]
+      "Url":
+      {
+        "en": "https://youtu.be/6cp-8z2md_0",
+        "nb": "https://youtu.be/oQB-1CxXP2k",
+        "ps": "https://youtu.be/1IwtqI7muew"
+      }
+    },
+    {
+      "Title": "2.1_introduction",
+      "Url": {
+        "en": "https://youtu.be/dDanFYmbTOM",
+        "nb": "https://youtu.be/iFDXvfv1kyc",
+        "ps": "https://youtu.be/JAiBSiYfEX8"
+      }
+    },
+    {
+      "Title": "2.2_new_words",
+      "Url":
+      {
+        "en": "https://youtu.be/hpdKugixC0g",
+        "nb": "https://youtu.be/37UTzYAXHno",
+        "ps": "https://youtu.be/A-mk6Oua6TE"
+      }
+
     }
   ]
 }

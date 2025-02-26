@@ -1,12 +1,5 @@
-import 'package:flutter/material.dart';
-import 'package:get/get.dart';
-import 'package:livsmestringapp/controllers/home-page-controller.dart';
-import 'package:livsmestringapp/pages/chapter-page.dart';
-import 'package:livsmestringapp/pages/language_page_nav.dart';
-import 'package:livsmestringapp/controllers/database-controller.dart';
-import '../pages/home_page.dart';
-import 'buttom_navigation.dart';
 
+/*
 
 class Layout extends StatefulWidget {
   final Future<List> categories;
@@ -73,3 +66,5 @@ class _LayoutState extends State<Layout> {
 }
 
 
+
+ */

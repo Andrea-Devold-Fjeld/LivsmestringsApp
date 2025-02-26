@@ -39,7 +39,7 @@ func main() {
 }
 
 func VideoHandler(w http.ResponseWriter, r *http.Request) {
-	var payload VideoResponse
+	var payload VideoUrls
 
 	err := json.Unmarshal(videos, &payload)
 	if err != nil {
@@ -105,14 +105,15 @@ type Data struct {
 }
 
 // VideoResponse is the top-level structure for the JSON response
-type VideoResponse struct {
-	VideoUrls []VideoURL `json:"VideoUrls"`
+// Struct to represent the video URL data for each video
+type Video struct {
+	Title string            `json:"Title"`
+	Url   map[string]string `json:"Url"`
 }
 
-// VideoURL represents a single video with its title and available languages
-type VideoURL struct {
-	Title    string        `json:"Title"`
-	Language []LanguageURL `json:"Language"`
+// Struct to represent the overall structure containing video URLs
+type VideoUrls struct {
+	VideoUrls []Video `json:"VideoUrls"`
 }
 
 // LanguageURL represents a single language option for a video

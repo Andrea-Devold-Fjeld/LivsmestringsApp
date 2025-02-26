@@ -1,25 +1,30 @@
+import 'dart:developer';
+
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:livsmestringapp/databse/database_operation.dart';
 import 'package:livsmestringapp/dto/category_dto.dart';
 import 'package:livsmestringapp/pages/chapter-page.dart';
+import 'package:livsmestringapp/pages/language_page.dart';
 import 'package:livsmestringapp/pages/language_page_nav.dart';
-import '../controllers/database-controller.dart';
 import '../controllers/home-page-controller.dart';
-import '../models/DataModel.dart';
 import '../styles/colors.dart';
 import '../widgets/buttom_navigation.dart';
 import '../widgets/homepage_card.dart';
 class HomePage extends StatelessWidget {
-  const HomePage({super.key});
+  final int? selectedLanguage;
+  const HomePage({super.key, required this.selectedLanguage});
 
   @override
   Widget build(BuildContext context) {
     final homePageController = Get.find<HomePageController>();
-
-    return Scaffold(
-      body: Obx(() {
-        return IndexedStack(
+    if(selectedLanguage == null){
+      return LanguagePage(selectedLanguage: (int value) {});
+    }
+    else {
+      return Scaffold(
+        body:
+        IndexedStack(
           index: homePageController.currentIndex.value,
           children: [
             HomePageContent(
@@ -37,13 +42,15 @@ class HomePage extends StatelessWidget {
             ),
             LanguagePageNav(),
           ],
-        );
-      }),
-      bottomNavigationBar: ButtomNavigationBar(
-        selectedTab: homePageController.currentIndex.value,
-        onTap: homePageController.changePage,
-      ),
-    );
+        )
+        ,
+        bottomNavigationBar: ButtomNavigationBar(
+          selectedTab: homePageController.currentIndex.value,
+          onTap: homePageController.changePage,
+        ),
+      );
+    }
+
   }
 }
 
@@ -112,18 +119,16 @@ class _HomePageContent extends State<HomePageContent> {
             title: title,
             icon: icon,
             onPressed: () {
-              Navigator.of(context).push(
-                MaterialPageRoute(
-                  builder: (context) =>
-                      ChapterPage(
-                        category: homePageController.checkCategory(name)!,
-                        updateProgress: homePageController.updateProgress,
-                      ),
-                ),
-              );
+              log("In onTap homepagecard title: $title");
+              var route = "/${title.toLowerCase()}";
+              log("route is $route");
+              homePageController.changePage(1);
+
+            }
+            );
             },
-          );
-        })
+
+        )
       ],
     );
   }

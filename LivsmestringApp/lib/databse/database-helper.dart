@@ -1,3 +1,4 @@
+import 'package:livsmestringapp/models/category-db.dart';
 import 'package:sqflite/sqflite.dart';
 import 'package:path/path.dart';
 
@@ -28,7 +29,7 @@ final String createVideosTable = '''
     title TEXT NOT NULL,
     url TEXT NOT NULL,
     watched INTEGER NOT NULL DEFAULT 0,
-    UNIQUE(chapter_id, title, url),
+    UNIQUE(chapter_id, title),
     FOREIGN KEY (chapter_id) REFERENCES chapters (id)
       ON DELETE CASCADE
   );
@@ -41,7 +42,7 @@ final String createTasksTable = '''
     title TEXT NOT NULL,
     url TEXT NOT NULL,
     watched INTEGER NOT NULL DEFAULT 0,
-    UNIQUE(video_id, title, url),
+    UNIQUE(video_id, title),
     FOREIGN KEY (video_id) REFERENCES videos (id)
       ON DELETE CASCADE
   );
@@ -67,6 +68,10 @@ class DatabaseHelper {
     await db.execute(createChaptersTable);
     await db.execute(createVideosTable);
     await db.execute(createTasksTable);
+
+    //var category = Category(name: "career", chapters: List.empty());
+    Map.of({"name": "career"});
+    await db.insert("categories", Map.of({"name": "career"}));
 
     // Create indices for better query performance
     await db.execute('''

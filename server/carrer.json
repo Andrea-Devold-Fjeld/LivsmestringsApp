@@ -4,10 +4,12 @@
       "Title": "1_me_in_context",
       "Videos": [
         {
-          "Title": "1.1_introduction"
+          "Title": "1.1_introduction",
+          "Url": ""
         },
         {
-          "Title": "1.2_new_words"
+          "Title": "1.2_new_words",
+          "Url": ""
         }
       ]
     },
