@@ -32,4 +32,9 @@ class DatabaseController extends GetxController {
   Future<List<CategoryDTO>> getCategories() async {
     return await getAllCategories(db);
   }
+
+  Future<void> updateUrl(Video video, String url) async {
+    return await updateVideoUrl(db, video.title, url);
+  }
+
 }

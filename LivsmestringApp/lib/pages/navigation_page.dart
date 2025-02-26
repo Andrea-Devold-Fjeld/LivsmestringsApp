@@ -1,12 +1,6 @@
-import 'package:flutter/material.dart';
-import 'package:livsmestringapp/models/DataModel.dart';
 
-import '../unused/career_page.dart';
-import '../pages/home_page.dart';
-import '../widgets/buttom_navigation.dart';
-import '../unused/health_page.dart';
-import 'language_page_nav.dart';
 
+/*
 class NavigationPage extends StatefulWidget {
   final Map<String, Datamodel> data;
   const NavigationPage({super.key, required this.data});
@@ -64,3 +58,6 @@ class NavigationPageState extends State<NavigationPage> {
     );
   }
 }
+
+
+ */

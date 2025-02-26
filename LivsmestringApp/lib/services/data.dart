@@ -2,11 +2,35 @@ import 'dart:developer';
 import 'dart:ui';
 
 import 'package:get/get.dart';
+import 'package:livsmestringapp/controllers/database-controller.dart';
 import 'package:livsmestringapp/models/VideoUrl.dart';
 
 import '../models/DataModel.dart';
 
-Datamodel findAndReplaceAndTranslate(Datamodel data, VideoUrlsResponse urls, Locale locale) {
+void replaceUrls(Datamodel data, VideoUrls urls){
+  var dbController = Get.find<DatabaseController>();
+  Locale? locale = Get.locale;
+  if(locale == null){
+    log("no locale");
+  }
+  else {
+    for (var chapter in data.chapters){
+      for (var video in chapter.videos){
+        for(var url in urls.videoUrls){
+          if (url.title.toLowerCase().replaceAll("_", " ") ==
+              video.title.toLowerCase().replaceAll("_", " ")) {
+            if(url.url[locale.languageCode] != null){
+              dbController.updateUrl(video, url.url[locale.languageCode]!);
+            }
+          }
+        }
+      }
+    }
+  }
+
+}
+
+Datamodel findAndReplaceAndTranslate(Datamodel data, VideoUrls urls, Locale locale) {
   log("in find and replace for locale: ${locale.languageCode}");
 
   List<Chapter> newChapters = [];
@@ -26,22 +50,19 @@ Datamodel findAndReplaceAndTranslate(Datamodel data, VideoUrlsResponse urls, Loc
         if (urlVideo.title.toLowerCase().replaceAll("_", " ") ==
             videoTitle.toLowerCase().replaceAll("_", " ")) {
 
-          // Find the right language URL
-          for (var lang in urlVideo.languages) {
-            if (lang.language == locale.languageCode) {
-              videoUrl = lang.url;
-              log("Found URL for video '${videoTitle}' in ${locale.languageCode}: ${videoUrl}");
-              break;
+            // Find the right language URL
+            if(urlVideo.url[locale.languageCode] != null){
+              videoUrl = urlVideo.url[locale.languageCode];
             }
-          }
 
-          // If no exact language match, try to use a default
-          if (videoUrl == null && urlVideo.languages.isNotEmpty) {
-            videoUrl = urlVideo.languages[0].url;
-            log("No URL for '${videoTitle}' in ${locale.languageCode}, using default: ${videoUrl}");
-          }
 
-          break;
+            // If no exact language match, try to use a default
+            if (videoUrl == null && urlVideo.url.isNotEmpty) {
+              videoUrl = "error";
+              log("No URL for '$videoTitle' in ${locale.languageCode}, using default: $videoUrl");
+            }
+
+            break;
         }
       }
 
@@ -58,16 +79,14 @@ Datamodel findAndReplaceAndTranslate(Datamodel data, VideoUrlsResponse urls, Loc
                 taskTitle.toLowerCase().replaceAll("_", " ")) {
 
               // Find the right language URL for the task
-              for (var lang in urlVideo.languages) {
-                if (lang.language == locale.languageCode) {
-                  taskUrl = lang.url;
-                  break;
-                }
+              if(urlVideo.url[locale.languageCode] != null){
+                taskUrl = urlVideo.url[locale.languageCode];
+
               }
 
               // If no exact language match, try to use a default
-              if (taskUrl == null && urlVideo.languages.isNotEmpty) {
-                taskUrl = urlVideo.languages[0].url;
+              if (taskUrl == null && urlVideo.url.isNotEmpty) {
+                taskUrl = "error";
               }
 
               break;

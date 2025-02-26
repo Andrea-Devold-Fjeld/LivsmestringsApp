@@ -39,12 +39,15 @@ class ButtomNavigationBarState extends State<ButtomNavigationBar> {
           ),
           label: 'career_nav'.tr,
         ),
+        /*
         BottomNavigationBarItem(
           icon: Icon(
             Icons.health_and_safety,
           ),
           label: 'health_nav'.tr,
         ),
+
+         */
         BottomNavigationBarItem(
           icon: Icon(
             Icons.language,

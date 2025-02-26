@@ -185,30 +185,28 @@ Future<List<ChapterDTO>> getAllWatchedVideosAndTasksByCategory(Future<Database> 
       chapters.add(chapterMap[chapterId]!);
     }
 
-    if (videoId != null) {
-      if (!videoMap.containsKey(videoId)) {
-        videoMap[videoId] = VideoDTO(
-          id: videoId,
-          chapterId: chapterId,
-          title: row['video_title'] as String,
-          url: row['video_url'] as String,
-          watched: row['video_watched'] == 1,
-          tasks: [],
-        );
-        chapterMap[chapterId]!.videos.add(videoMap[videoId]!);
-      }
-
-      if (taskId != null && row['task_watched'] == 1) {
-        videoMap[videoId]!.tasks.add(TaskDTO(
-          id: taskId,
-          videoId: videoId,
-          title: row['task_title'] as String,
-          url: row['task_url'] as String,
-          watched: true,
-        ));
-      }
+    if (!videoMap.containsKey(videoId)) {
+      videoMap[videoId] = VideoDTO(
+        id: videoId,
+        chapterId: chapterId,
+        title: row['video_title'] as String,
+        url: row['video_url'] as String,
+        watched: row['video_watched'] == 1,
+        tasks: [],
+      );
+      chapterMap[chapterId]!.videos.add(videoMap[videoId]!);
     }
-  }
+
+    if (row['task_watched'] == 1) {
+      videoMap[videoId]!.tasks.add(TaskDTO(
+        id: taskId,
+        videoId: videoId,
+        title: row['task_title'] as String,
+        url: row['task_url'] as String,
+        watched: true,
+      ));
+    }
+    }
 
   // Filter out videos that are not watched
   for (var chapter in chapters) {
@@ -240,6 +238,18 @@ Future<void> updateTaskWatchStatus(Future<Database> futureDb, String taskUrl, bo
       {'watched': watched ? 1 : 0},
       where: 'url = ?',
       whereArgs: [taskUrl],
+    );
+  });
+}
+
+Future<void> updateVideoUrl(Future<Database> futureDb, String videoName, String newUrl) async {
+  final Database db = await futureDb;
+  await db.transaction((txn) async {
+    await txn.update(
+      'videos',
+      {'url': newUrl},
+      where: 'title = ?',
+      whereArgs: [videoName],
     );
   });
 }

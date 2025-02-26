@@ -1,4 +1,3 @@
-import 'chapter-db.dart';
 
 class Task {
   final int? id;

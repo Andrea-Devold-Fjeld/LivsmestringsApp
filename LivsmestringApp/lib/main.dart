@@ -1,101 +1,33 @@
-// main.dart
-import 'package:firebase_core/firebase_core.dart';
+import 'dart:developer';
+
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
-import 'package:livsmestringapp/databse/database_operation.dart';
-import 'package:livsmestringapp/dto/category_dto.dart';
+import 'package:get/get_core/src/get_main.dart';
+import 'package:get/get_state_manager/src/rx_flutter/rx_obx_widget.dart';
 import 'package:livsmestringapp/pages/chapter-page.dart';
 import 'package:livsmestringapp/pages/home_page.dart';
 import 'package:livsmestringapp/pages/language_page.dart';
+import 'package:livsmestringapp/pages/language_page_nav.dart';
+import 'package:livsmestringapp/pages/splash_screen.dart';
+import 'package:livsmestringapp/services/LocaleString.dart';
 import 'package:livsmestringapp/services/data.dart';
-import 'package:livsmestringapp/widgets/Layout.dart';
+import 'package:livsmestringapp/styles/theme.dart';
+import 'package:livsmestringapp/widgets/buttom_navigation.dart';
 import 'package:logging/logging.dart';
-import 'package:path/path.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:sqflite/sqflite.dart';
 
+import 'consumer/FetchData.dart';
 import 'controllers/database-controller.dart';
 import 'controllers/home-page-controller.dart';
 import 'databse/database-helper.dart';
-import 'unused/firebase_options.dart';
-import '../pages/language_page_nav.dart';
-import '../pages/splash_screen.dart';
-import 'services/LocaleString.dart';
-import '../styles/theme.dart';
-import 'consumer/FetchData.dart';
+import 'dto/category_dto.dart';
 import 'models/DataModel.dart';
-
-final String createCategoriesTable = '''
-  CREATE TABLE categories(
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    name TEXT NOT NULL UNIQUE
-  );
-''';
-
-final String createChaptersTable = '''
-  CREATE TABLE chapters(
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    category_id INTEGER NOT NULL,
-    title TEXT NOT NULL,
-    FOREIGN KEY (category_id) REFERENCES categories (id)
-      ON DELETE CASCADE
-  );
-''';
-
-final String createVideosTable = '''
-  CREATE TABLE videos(
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    chapter_id INTEGER NOT NULL,
-    title TEXT NOT NULL,
-    url TEXT NOT NULL,
-    watched INTEGER NOT NULL DEFAULT 0,
-    FOREIGN KEY (chapter_id) REFERENCES chapters (id)
-      ON DELETE CASCADE
-  );
-''';
-
-final String createTasksTable = '''
-  CREATE TABLE tasks(
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    video_id INTEGER NOT NULL,
-    title TEXT NOT NULL,
-    url TEXT NOT NULL,
-    watched INTEGER NOT NULL DEFAULT 0,
-    FOREIGN KEY (video_id) REFERENCES videos (id)
-      ON DELETE CASCADE
-  );
-''';
-
-// Implementation for onCreate
-Future<void> onCreate(Database db, int version) async {
-  // Create tables
-  await db.execute(createCategoriesTable);
-  await db.execute(createChaptersTable);
-  await db.execute(createVideosTable);
-  await db.execute(createTasksTable);
-
-  // Create indices for better query performance
-  await db.execute('''
-    CREATE INDEX idx_chapters_category
-    ON chapters(category_id);
-  ''');
-
-  await db.execute('''
-    CREATE INDEX idx_videos_chapter
-    ON videos(chapter_id);
-  ''');
-
-  await db.execute('''
-    CREATE INDEX idx_tasks_video
-    ON tasks(video_id);
-  ''');
-}
-
-
-
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
+
   // Initialize the database
   final databaseHelper = DatabaseHelper();
   final database = databaseHelper.db;
@@ -103,22 +35,24 @@ Future<void> main() async {
   // Put the DatabaseController into the GetX dependency injection system
   Get.put(DatabaseController(database));
   Get.put(HomePageController());
-   //Prevents the application from changing orientation to horizontal at any point:
-  WidgetsFlutterBinding.ensureInitialized();
+
+  // Prevents the application from changing orientation to horizontal at any point
   await SystemChrome.setPreferredOrientations([
     DeviceOrientation.portraitUp,
   ]);
 
+  // Get language preferences
   SharedPreferences prefs = await SharedPreferences.getInstance();
   int? getLanguage = prefs.getInt('selectedLanguage');
   Locale locale = getLanguage != null
       ? LanguagePageNav.localeSet[getLanguage]['locale']
       : Locale('nb', 'NO');
 
+  // Run the app with the new navigation structure
   runApp(MyApp(
-    selectedLanguage: getLanguage,
-    locale: locale,
-    db: database
+      selectedLanguage: getLanguage,
+      locale: locale,
+      db: database
   ));
 }
 
@@ -133,46 +67,30 @@ class MyApp extends StatefulWidget {
   _MyAppState createState() => _MyAppState();
 }
 
-
-
 class _MyAppState extends State<MyApp> {
   late int? _selectedLanguage;
   late Future<Map<String, Datamodel>> _dataFuture;
   late Locale _locale;
   final dbController = Get.find<DatabaseController>();
+  final homeController = Get.find<HomePageController>();
   late Future<List<CategoryDTO>> categories;
-
 
   @override
   void initState() {
     super.initState();
+    var homepageController = Get.find<HomePageController>();
     categories = _getCategories();
-    _dataFuture = _fetchAllData();
+    _dataFuture = homepageController.fetchAllData();
     _selectedLanguage = widget.selectedLanguage;
     _locale = widget.locale;
     Logger.root.level = Level.ALL; // defaults to Level.INFO
-
   }
+
   Future<List<CategoryDTO>> _getCategories() {
     return dbController.getCategories();
   }
-  Future<Map<String, Datamodel>> _fetchAllData() async {
-    final results = await Future.wait([
-      fetchData('career'),
-      fetchData('health'),
-    ]);
-    final resultVideoUrls = await Future.wait([
-      fetchVideoUrls()
-    ]);
-    var career = findAndReplaceAndTranslate(results[0],resultVideoUrls.first, _locale );
-    var health = findAndReplaceAndTranslate(results[1], resultVideoUrls.first, _locale);
-    dbController.insertDatamodel(career);
-    dbController.insertDatamodel(health);
-    return {
-      'career': results[0],
-      'health': results[1],
-    };
-  }
+
+
   void updateLocale(Locale newLocale, int? newIndex) {
     setState(() {
       _locale = newLocale;
@@ -197,14 +115,17 @@ class _MyAppState extends State<MyApp> {
           if (snapshot.connectionState == ConnectionState.waiting) {
             return SplashScreen(selectedLanguage: _selectedLanguage);
           } else if (snapshot.hasData) {
-            if (_selectedLanguage == null) {
+            // This is where we'll implement the navigation logic from HomePage
+            if ( homeController.currentLocale.value == null) {
               return LanguagePage(
-                selectedLanguage: (v) => setState(() {
-                  _selectedLanguage = v;
-                }),
+                selectedLanguage: (value) {
+                  setState(() {
+                    _selectedLanguage = value;
+                  });
+                },
               );
             } else {
-              return HomePage(); // Default route for home screen
+              return MainNavigation(selectedLanguage: _selectedLanguage);
             }
           } else if (snapshot.hasError) {
             return Center(child: Text("Error: ${snapshot.error}"));
@@ -217,14 +138,17 @@ class _MyAppState extends State<MyApp> {
       getPages: [
         GetPage(
           name: '/home',
-          page: () => HomePage(),
+          page: () => MainNavigation(selectedLanguage: _selectedLanguage),
           binding: BindingsBuilder(() {
-            Get.lazyPut<HomePageController>(() => HomePageController());
+            // Make sure controller is available and initialized
+            if (!Get.isRegistered<HomePageController>()) {
+              Get.put(HomePageController(), permanent: true);
+            }
           }),
         ),
         GetPage(
           name: '/chapter',
-          page: () => ChapterPage(category: Get.find<HomePageController>().careerCategory.value!, updateProgress: (bool value) {  }),
+          page: () => ChapterPage(category: Get.find<HomePageController>().careerCategory.value!, updateProgress: (bool value) {}),
         ),
         GetPage(
           name: '/language',
@@ -234,4 +158,76 @@ class _MyAppState extends State<MyApp> {
     );
   }
 }
+// Fixed MainNavigation class with null safety handling
+class MainNavigation extends StatelessWidget {
+  final int? selectedLanguage;
 
+  const MainNavigation({super.key, required this.selectedLanguage});
+
+  @override
+  Widget build(BuildContext context) {
+    final homePageController = Get.find<HomePageController>();
+
+    // Make sure the categories are initialized
+    log("${homePageController.careerCategory.value} ");
+
+    if (homePageController.careerCategory.value == null) {
+        // ||
+        //homePageController.healthCategory.value == null) {
+      // Return a loading indicator while waiting for categories to be initialized
+      return const Scaffold(
+        body: Center(
+          child: CircularProgressIndicator(),
+        ),
+      );
+    }
+
+
+
+    return Scaffold(
+      body: Obx(() => IndexedStack(
+        index: homePageController.currentIndex.value,
+        children: [
+          // Home tab - Using a dedicated home content widget
+          HomePageContent(
+            categories: homePageController.categories,
+            progress: homePageController.progress,
+            updateProgress: homePageController.updateProgress,
+          ),
+          // Career tab
+          ChapterPage(
+            category: homePageController.careerCategory.value!,
+            updateProgress: homePageController.updateProgress,
+          ),
+          // Health tab
+          ChapterPage(
+            category: homePageController.healthCategory.value!,
+            updateProgress: homePageController.updateProgress,
+          ),
+          // Language tab
+          LanguagePageNav(),
+        ],
+      )),
+      bottomNavigationBar: Obx(() => ButtomNavigationBar(
+        selectedTab: homePageController.currentIndex.value,
+        onTap: homePageController.changePage,
+      )),
+    );
+  }
+}
+
+// Simplified HomePage that uses MainNavigation
+class HomePage extends StatelessWidget {
+  final int? selectedLanguage;
+
+  const HomePage({super.key, required this.selectedLanguage});
+
+  @override
+  Widget build(BuildContext context) {
+    if (selectedLanguage == null) {
+      return LanguagePage(selectedLanguage: (int value) {});
+    } else {
+      return MainNavigation(selectedLanguage: selectedLanguage);
+    }
+  }
+}
