@@ -7,7 +7,7 @@ class ListButton extends StatelessWidget {
   bool active;
   Color activeColor;
   Color inactiveColor;
- // int buttonsLength;
+  int buttonsLength;
 
   final VoidCallback onPressed;
   ListButton({super.key,
@@ -16,7 +16,7 @@ class ListButton extends StatelessWidget {
     required this.inactiveColor,
     required this.active,
     required this.onPressed,
-  //  required this.buttonsLength,
+    required this.buttonsLength,
   });
 
   @override
@@ -27,7 +27,7 @@ class ListButton extends StatelessWidget {
           onPressed: onPressed,
           child: Container(
             width: MediaQuery.of(context).size.width,
-       /*    height:
+           height:
             buttonsLength == 5 ?
             MediaQuery.of(context).size.height/ (buttonsLength* 1.6):
             buttonsLength == 11 ?
@@ -46,11 +46,6 @@ class ListButton extends StatelessWidget {
             MediaQuery.of(context).size.height/ (buttonsLength* 1.15):
             MediaQuery.of(context).size.height/ (buttonsLength* 7.1 )
             ,
-
-        */
-
-
-
             decoration: BoxDecoration(
               color: active ? activeColor : inactiveColor,
               borderRadius: BorderRadius.circular(5),

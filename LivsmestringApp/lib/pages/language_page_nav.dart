@@ -26,11 +26,7 @@ static final List localeSet = [
     //{'name': 'ไทย', 'locale': Locale('th', 'TH')}, // Thai
      //{'name': 'አማርኛ', 'locale': Locale('am', 'ET')}, // Amharic
     //{'name': 'ትግሪኛ', 'locale': Locale('ti', 'ET')},
-
   ];
-
-
-
 /*
 
 
@@ -123,7 +119,6 @@ class _LanguagePageNavState extends State<LanguagePageNav> {
         );
       },
     );
-    print('Selected locale: $result');
     return result;
   }
 

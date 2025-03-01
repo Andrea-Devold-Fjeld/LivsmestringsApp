@@ -14,7 +14,6 @@ class LanguagePage extends StatefulWidget {
   State<LanguagePage> createState() => _LanguagesScreenState();
 
   void _handleSelection(int index){
-
   }
 }
 

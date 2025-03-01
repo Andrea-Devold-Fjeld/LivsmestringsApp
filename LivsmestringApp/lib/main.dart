@@ -1,30 +1,27 @@
 import 'dart:developer';
 
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
-import 'package:get/get_core/src/get_main.dart';
-import 'package:get/get_state_manager/src/rx_flutter/rx_obx_widget.dart';
 import 'package:livsmestringapp/pages/chapter-page.dart';
 import 'package:livsmestringapp/pages/home_page.dart';
 import 'package:livsmestringapp/pages/language_page.dart';
 import 'package:livsmestringapp/pages/language_page_nav.dart';
 import 'package:livsmestringapp/pages/splash_screen.dart';
 import 'package:livsmestringapp/services/LocaleString.dart';
-import 'package:livsmestringapp/services/data.dart';
 import 'package:livsmestringapp/styles/theme.dart';
 import 'package:livsmestringapp/widgets/buttom_navigation.dart';
 import 'package:logging/logging.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:sqflite/sqflite.dart';
 
-import 'consumer/FetchData.dart';
 import 'controllers/database-controller.dart';
 import 'controllers/home-page-controller.dart';
 import 'databse/database-helper.dart';
 import 'dto/category_dto.dart';
 import 'models/DataModel.dart';
+
+// Entry point of the app
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
@@ -64,10 +61,10 @@ class MyApp extends StatefulWidget {
   const MyApp({super.key, required this.selectedLanguage, required this.locale, required this.db});
 
   @override
-  _MyAppState createState() => _MyAppState();
+  MyAppState createState() => MyAppState();
 }
 
-class _MyAppState extends State<MyApp> {
+class MyAppState extends State<MyApp> {
   late int? _selectedLanguage;
   late Future<Map<String, Datamodel>> _dataFuture;
   late Locale _locale;
@@ -134,7 +131,7 @@ class _MyAppState extends State<MyApp> {
           }
         },
       ),
-      // Define your pages (routes) here
+      // Routes in the app
       getPages: [
         GetPage(
           name: '/home',
@@ -168,13 +165,8 @@ class MainNavigation extends StatelessWidget {
   Widget build(BuildContext context) {
     final homePageController = Get.find<HomePageController>();
 
-    // Make sure the categories are initialized
-    log("${homePageController.careerCategory.value} ");
-
     if (homePageController.careerCategory.value == null) {
-        // ||
-        //homePageController.healthCategory.value == null) {
-      // Return a loading indicator while waiting for categories to be initialized
+      // show cirluar progression if category is not defined
       return const Scaffold(
         body: Center(
           child: CircularProgressIndicator(),
@@ -182,13 +174,11 @@ class MainNavigation extends StatelessWidget {
       );
     }
 
-
-
     return Scaffold(
       body: Obx(() => IndexedStack(
         index: homePageController.currentIndex.value,
         children: [
-          // Home tab - Using a dedicated home content widget
+          // Home tab
           HomePageContent(
             categories: homePageController.categories,
             progress: homePageController.progress,
@@ -200,10 +190,12 @@ class MainNavigation extends StatelessWidget {
             updateProgress: homePageController.updateProgress,
           ),
           // Health tab
+          /*
           ChapterPage(
             category: homePageController.healthCategory.value!,
             updateProgress: homePageController.updateProgress,
           ),
+           */
           // Language tab
           LanguagePageNav(),
         ],
@@ -213,21 +205,5 @@ class MainNavigation extends StatelessWidget {
         onTap: homePageController.changePage,
       )),
     );
-  }
-}
-
-// Simplified HomePage that uses MainNavigation
-class HomePage extends StatelessWidget {
-  final int? selectedLanguage;
-
-  const HomePage({super.key, required this.selectedLanguage});
-
-  @override
-  Widget build(BuildContext context) {
-    if (selectedLanguage == null) {
-      return LanguagePage(selectedLanguage: (int value) {});
-    } else {
-      return MainNavigation(selectedLanguage: selectedLanguage);
-    }
   }
 }

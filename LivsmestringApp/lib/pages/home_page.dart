@@ -11,6 +11,7 @@ import '../controllers/home-page-controller.dart';
 import '../styles/colors.dart';
 import '../widgets/buttom_navigation.dart';
 import '../widgets/homepage_card.dart';
+
 class HomePage extends StatelessWidget {
   final int? selectedLanguage;
   const HomePage({super.key, required this.selectedLanguage});
@@ -127,7 +128,6 @@ class _HomePageContent extends State<HomePageContent> {
             }
             );
             },
-
         )
       ],
     );
