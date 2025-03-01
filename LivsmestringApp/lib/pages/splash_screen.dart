@@ -27,9 +27,6 @@ class _SplashScreenState extends State<SplashScreen> {
       const Duration(seconds: 3)
     );
 
-
-
-
     return Scaffold(
       body: Center(
         child: Column(

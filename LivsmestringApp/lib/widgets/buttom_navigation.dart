@@ -46,7 +46,6 @@ class ButtomNavigationBarState extends State<ButtomNavigationBar> {
           ),
           label: 'health_nav'.tr,
         ),
-
          */
         BottomNavigationBarItem(
           icon: Icon(
