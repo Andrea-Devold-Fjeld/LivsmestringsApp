@@ -1,6 +1,8 @@
 import 'dart:core';
+import 'dart:developer';
 import 'package:flutter/foundation.dart';
 import 'package:livsmestringapp/dto/category_dto.dart';
+import 'package:livsmestringapp/models/VideoUrl.dart';
 import 'package:sqflite/sqflite.dart';
 import '../dto/chapter_dto.dart';
 import '../dto/task_dto.dart';
@@ -8,7 +10,7 @@ import '../dto/video_dto.dart';
 import '../models/DataModel.dart';
 
 // Updated insert method for the new schema
-Future<void> insertDataModel(Future<Database> futureDb, Datamodel model) async {
+Future<void> insertDataModel(Future<Database> futureDb, Datamodel model, VideoUrls urls) async {
   final Database db = await futureDb;
 
   await db.transaction((txn) async {
@@ -40,6 +42,20 @@ Future<void> insertDataModel(Future<Database> futureDb, Datamodel model) async {
 
       // Insert videos
       for (var video in chapter.videos) {
+        for (var v in urls.videoUrls){
+          if(v.title == video.title){
+            v.url.forEach((x,y) async {
+              final videoId = await txn.insert(
+                  'videos', {
+                  'chapter_id': chapterId,
+                  'title': video.title,
+                  'url': v.url[x],
+                  'watched': video.watched ? 1 : 0,
+                  'language_code': x,
+                  }, conflictAlgorithm: ConflictAlgorithm.ignore);
+              });
+            }
+          }
         final videoId = await txn.insert(
           'videos',
           {
@@ -110,7 +126,6 @@ Future<Datamodel> getDataModel(Future<Database> futureDb, String category) async
               where: 'video_id = ?',
               whereArgs: [video['id']],
             );
-
             return Video(
               title: video['title'],
               url: video['url'],
@@ -121,7 +136,73 @@ Future<Datamodel> getDataModel(Future<Database> futureDb, String category) async
             )..watched = video['watched'] == 1;
           }),
         );
+        log("videoList: $videosList");
+        return Chapter(
+          title: chapter['title'],
+          videos: videosList,
+        );
+      }),
+    );
 
+    return Datamodel(chapters: chaptersList, category: category);
+  }catch(e){
+    if (kDebugMode) {
+      print(e);
+    }
+    throw Exception();
+
+  }
+}
+
+Future<Datamodel> getDatamodelByLanguage(Future<Database> futureDb, String category, String language) async {
+  try{
+    final Database db = await futureDb;
+    // Get category ID
+    final List<Map<String, dynamic>> categoryResult = await db.query(
+      'categories',
+      where: 'name = ?',
+      whereArgs: [category],
+    );
+
+    if (categoryResult.isEmpty) {
+      throw Exception('Category not found: $category');
+    }
+
+    final categoryId = categoryResult.first['id'];
+
+    // Get chapters for this category
+    final List<Map<String, dynamic>> chapters = await db.query(
+      'chapters',
+      where: 'category_id = ?',
+      whereArgs: [categoryId],
+    );
+
+    final List<Chapter> chaptersList = await Future.wait(
+      chapters.map((chapter) async {
+        final List<Map<String, dynamic>> videos = await db.query(
+          'videos',
+          where: 'chapter_id = ? AND language_code = ?',
+          whereArgs: [chapter['id'], language],
+        );
+
+        final List<Video> videosList = await Future.wait(
+          videos.map((video) async {
+            final List<Map<String, dynamic>> tasks = await db.query(
+              'tasks',
+              where: 'video_id = ?',
+              whereArgs: [video['id']],
+            );
+            return Video(
+              title: video['title'],
+              url: video['url'],
+              tasks: tasks.map((task) => Task(
+                title: task['title'],
+                url: task['url'],
+              )..watched = task['watched'] == 1).toList(),
+            )..watched = video['watched'] == 1;
+          }),
+        );
+        log("videoList: $videosList");
         return Chapter(
           title: chapter['title'],
           videos: videosList,

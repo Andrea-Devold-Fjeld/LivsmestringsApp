@@ -1,4 +1,6 @@
 
+import 'dart:developer';
+
 import 'package:auto_size_text/auto_size_text.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -31,6 +33,7 @@ class _ChapterPageState extends State<ChapterPage> with SingleTickerProviderStat
   late String pageTitle;
   late Color pageColor;
   final DatabaseController _databaseController = Get.find<DatabaseController>();
+  final HomePageController _homeController = Get.find<HomePageController>();
 
   void reloadData() {
     _databaseController.getDatamodel(widget.category.name).then((result) {
@@ -58,9 +61,11 @@ class _ChapterPageState extends State<ChapterPage> with SingleTickerProviderStat
         pageColor = Colors.grey;
         break;
     }
-    _databaseController.getDatamodel(widget.category.name).then((result) {
+    _databaseController.getDatamodelWithLAnguage(widget.category.name, _homeController.currentLocale.value!.languageCode).then((result) {
       setState(() {
         data = result;
+        //dataJson = data?.toJson;
+        log("Data: $result");
         _tabController = TabController(length: data!.chapters.length, vsync: this);
       });
     });
