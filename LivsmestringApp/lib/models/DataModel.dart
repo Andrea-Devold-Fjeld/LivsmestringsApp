@@ -1,3 +1,5 @@
+import 'dart:ui';
+
 import 'package:json_annotation/json_annotation.dart';
 
 
@@ -80,12 +82,18 @@ class Video {
   final String title;
   final String url;
   final List<Task>? tasks;
+  String? languageCode;
+  double? totalLength;
+  double? watchedLength;
   bool _watched = false;
 
   Video({
     required this.title,
     required this.url,
     this.tasks,
+    this.languageCode,
+    this.totalLength,
+    this.watchedLength,
   });
 
   bool get watched => _watched;
@@ -101,6 +109,9 @@ class Video {
           .map((task) => Task.fromJson(task))
           .toList()
           : null,
+      languageCode: json['Language_code'],
+      totalLength: json['Total_length'],
+      watchedLength: json['Watched_length'],
     );
   }
 

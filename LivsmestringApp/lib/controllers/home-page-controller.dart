@@ -69,7 +69,7 @@ class HomePageController extends GetxController {
       fetchVideoUrls()
     ]);
 
-    replaceUrls(results[0], resultVideoUrls.first);
+    //replaceUrls(results[0], resultVideoUrls.first);
     //replaceUrls(results[1], resultVideoUrls.first);
   }
 
@@ -78,8 +78,11 @@ class HomePageController extends GetxController {
       fetchData('career'),
       //fetchData('health'),
     ]);
+    final resultVideoUrls = await Future.wait([
+      fetchVideoUrls()
+    ]);
 
-    databaseController.insertDatamodel(results[0]);
+    databaseController.insertDatamodel(results[0], resultVideoUrls.first);
 
 
 
