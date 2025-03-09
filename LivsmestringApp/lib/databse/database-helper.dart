@@ -30,8 +30,8 @@ final String createVideosTable = '''
     url TEXT NOT NULL,
     watched INTEGER NOT NULL DEFAULT 0,
     language_code TEXT NOT NULL,
-    total_length DOUBLE,
-    watched_length DOUBLE, 
+    total_length TEXT,
+    watched_length TEXT, 
     UNIQUE(chapter_id, url),
     FOREIGN KEY (chapter_id) REFERENCES chapters (id)
       ON DELETE CASCADE

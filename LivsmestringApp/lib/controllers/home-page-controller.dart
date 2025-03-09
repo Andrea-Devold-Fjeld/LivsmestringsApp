@@ -1,7 +1,10 @@
+import 'dart:developer';
+
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:get/get.dart';
 import 'package:livsmestringapp/consumer/FetchData.dart';
+import 'package:livsmestringapp/models/DataModelDTO.dart';
 import 'package:livsmestringapp/pages/home_page.dart';
 import 'package:livsmestringapp/pages/language_page_nav.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -33,6 +36,8 @@ class HomePageController extends GetxController {
   var progress = <int, ProgressModel>{}.obs;
   var careerCategory = Rx<CategoryDTO?>(null);
   var healthCategory = Rx<CategoryDTO?>(null);
+  DatamodelDto? careerData;
+  bool isDataLoading = false;
   final DatabaseController databaseController = Get.find<DatabaseController>();
 
   // Variables for language
@@ -42,16 +47,18 @@ class HomePageController extends GetxController {
   @override
   void onInit() {
     super.onInit();
-    // Load initial data when controller initializes
     loadData();
-    ever(currentLocale, (_) {
+
+    // Load initial data when controller initializes
+    ever(currentLocale, (_) async {
       // If currentLocale is set (not null), call loadData
-      if (currentLocale.value != null) {
+      if (currentLocale.value != null && !isDataLoading) {
         Get.updateLocale(currentLocale.value!);
-        updateUrls();
-        loadData();
+        log("In onInit in HomeController ${careerData}"); // Debug the data to ensure it is set
+        //      loadData();
       }
     });
+
   }
 
   void setLocale(Locale locale){
@@ -61,6 +68,7 @@ class HomePageController extends GetxController {
     return databaseController.getCategories();
   }
 
+  /*
   void updateUrls() async {
     final results = await Future.wait([
       fetchData('career'),
@@ -73,25 +81,40 @@ class HomePageController extends GetxController {
     //replaceUrls(results[0], resultVideoUrls.first);
     //replaceUrls(results[1], resultVideoUrls.first);
   }
+*/
 
-  Future<Map<String, Datamodel>> fetchAllData() async {
-    final results = await Future.wait([
-      fetchData('career'),
-      //fetchData('health'),
-    ]);
-    final resultVideoUrls = await Future.wait([
-      fetchVideoUrls()
-    ]);
+  Future<bool> insertData() async {
+    try {
+      final results = await Future.wait([
+        fetchData('career'),
+        //fetchData('health'),
+      ]);
+      final resultVideoUrls = await Future.wait([
+        fetchVideoUrls()
+      ]);
 
-    databaseController.insertDatamodel(results[0], resultVideoUrls.first);
+      databaseController.insertDatamodel(results[0], resultVideoUrls.first);
+      return true;
+    }catch (e){
+      log("Error: $e");
+      return false;
+    }
 
-
-
-    return {
-      'career': results[0],
-      //'health': results[1],
-    };
   }
+  Future<bool> fetchAllData() async {
+    try {
+      var data = await databaseController.getDatamodelWithLAnguage('career', currentLocale.value!.languageCode);
+      careerData = data;
+      return true;
+    }catch (e){
+      log("Error: $e");
+      return false;
+    }
+
+
+  }
+
+
   // Navigation method
   void changePage(int index) {
     currentIndex.value = index;

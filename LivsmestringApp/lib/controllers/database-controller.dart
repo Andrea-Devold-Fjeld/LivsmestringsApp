@@ -1,5 +1,6 @@
 import 'package:get/get_state_manager/src/simple/get_controllers.dart';
 import 'package:livsmestringapp/dto/category_dto.dart';
+import 'package:livsmestringapp/models/DataModelDTO.dart';
 import 'package:livsmestringapp/models/VideoUrl.dart';
 import 'package:sqflite/sqflite.dart';
 
@@ -21,13 +22,15 @@ class DatabaseController extends GetxController {
   Future<void> markTaskWatched(String taskUrl) async {
     await updateTaskWatchStatus(db, taskUrl, true);
   }
-
-  Future<Datamodel> getDatamodel(String category) async {
-    return await getDataModel(db, category);
+/*
+  Future<DatamodelDto> getDatamodel(String category) async {
+    return await getDatamodel(db, category);
   }
 
-  Future<Datamodel> getDatamodelWithLAnguage(String category, String language) async {
-    return await getDatamodelByLanguage(db, category, language);
+ */
+
+  Future<DatamodelDto> getDatamodelWithLAnguage(String category, String language) async {
+    return await getDataModelWithLanguage(db, category, language);
   }
 
   Future<ProgressModel> getVideoProgress(int categoryId) async {
@@ -40,6 +43,14 @@ class DatabaseController extends GetxController {
 
   Future<void> updateUrl(Video video, String url) async {
     return await updateVideoUrl(db, video.title, url);
+  }
+
+  Future<void> updateTotalLength(Duration duration, String url) async {
+    return await updateTotalVideoLength(db, duration, url);
+  }
+
+  Future<void> updateWatchTime(Duration duration, String url) async {
+    return await updateVideoWatchTime(db, duration, url);
   }
 
 }

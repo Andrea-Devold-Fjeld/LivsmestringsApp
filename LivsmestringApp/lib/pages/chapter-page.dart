@@ -10,6 +10,10 @@ import 'package:livsmestringapp/widgets/youtube-video-player.dart';
 import '../controllers/database-controller.dart';
 import '../controllers/home-page-controller.dart';
 import '../models/DataModel.dart';
+import '../models/DataModelDTO.dart';
+import '../models/chapter-db.dart';
+import '../models/task-db.dart';
+import '../models/video-db.dart';
 import '../styles/colors.dart';
 import '../styles/fonts.dart';
 
@@ -29,19 +33,22 @@ class ChapterPage extends StatefulWidget {
 
 class _ChapterPageState extends State<ChapterPage> with SingleTickerProviderStateMixin {
   late TabController _tabController;
-  Datamodel? data;
   late String pageTitle;
   late Color pageColor;
   final DatabaseController _databaseController = Get.find<DatabaseController>();
   final HomePageController _homeController = Get.find<HomePageController>();
+  DatamodelDto? data;
 
   void reloadData() {
-    _databaseController.getDatamodel(widget.category.name).then((result) {
-      setState(() {
-        data = result;
-        widget._updateProgress();
-      });
-    });
+    //_databaseController.getDatamodelWithLAnguage(widget.category.name, _homeController.currentLocale.value!.languageCode).then((result) {
+    _homeController.fetchAllData().then((onValue) {
+      if(onValue){
+        setState(() {
+          data = _homeController.careerData;
+          log("In Chapter page data reload data: $data");
+          widget._updateProgress();
+        });
+    }});
   }
 
   @override
@@ -61,14 +68,15 @@ class _ChapterPageState extends State<ChapterPage> with SingleTickerProviderStat
         pageColor = Colors.grey;
         break;
     }
-    _databaseController.getDatamodelWithLAnguage(widget.category.name, _homeController.currentLocale.value!.languageCode).then((result) {
-      setState(() {
-        data = result;
-        //dataJson = data?.toJson;
-        log("Data: $result");
-        _tabController = TabController(length: data!.chapters.length, vsync: this);
-      });
-    });
+    //_databaseController.getDatamodelWithLAnguage(widget.category.name, _homeController.currentLocale.value!.languageCode).then((result) {
+    _homeController.fetchAllData().then((onValue) {
+      if(onValue){
+        setState(() {
+          data = _homeController.careerData;
+          log("In Chapter page data: $data");
+          widget._updateProgress();
+        });
+      }});
   }
 
   @override
@@ -146,7 +154,7 @@ class _ChapterPageState extends State<ChapterPage> with SingleTickerProviderStat
 
 
 class VideoListPage extends StatelessWidget {
-  final Chapter chapter;
+  final ChapterDto chapter;
   final ValueSetter<bool> updateWatched;
   const VideoListPage({super.key,  required this.chapter, required this.updateWatched});
 
@@ -160,7 +168,7 @@ class VideoListPage extends StatelessWidget {
       physics: const NeverScrollableScrollPhysics(),
       itemCount: chapter.videos.length,
       itemBuilder: (context, videoIndex) {
-        Video video = chapter.videos[videoIndex];
+        VideoDto video = chapter.videos[videoIndex];
         bool hasTasks = video.tasks != null && video.tasks!.isNotEmpty;
 
         return ListTile(
@@ -201,7 +209,7 @@ class VideoListPage extends StatelessWidget {
       },
     );
   }
-  void _markVideoAsWatched(Video video) async {
+  void _markVideoAsWatched(VideoDto video) async {
     final DatabaseController databaseController = Get.find<DatabaseController>();
     await databaseController.markVideoWatched(video.title);
     _onUpdate();
@@ -210,14 +218,14 @@ class VideoListPage extends StatelessWidget {
 }
 
 class TaskListPage extends StatelessWidget {
-  final List<Task> tasks;
+  final List<TaskDto> tasks;
   final ValueSetter<bool> updateWatched;
   const TaskListPage({super.key, required this.tasks, required this.updateWatched});
 
   void _onUpdate(){
     updateWatched(true);
   }
-  void _markTaskAsWatched(Task task) async {
+  void _markTaskAsWatched(TaskDto task) async {
     final DatabaseController databaseController = Get.find<DatabaseController>();
     await databaseController.markTaskWatched(task.title);
     _onUpdate();
@@ -229,7 +237,7 @@ class TaskListPage extends StatelessWidget {
       physics: const NeverScrollableScrollPhysics(),
       itemCount: tasks.length,
       itemBuilder: (context, taskIndex) {
-        Task task = tasks[taskIndex];
+        TaskDto task = tasks[taskIndex];
         return ListTile(
           dense: true,
           contentPadding: const EdgeInsets.only(left: 32.0, right: 16.0),

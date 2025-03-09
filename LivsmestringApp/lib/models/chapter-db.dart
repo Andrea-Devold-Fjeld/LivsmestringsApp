@@ -1,20 +1,21 @@
 import 'video-db.dart';
 
-class Chapter {
+
+class ChapterDto {
   final int? id;
   final int categoryId;
   final String title;
-  List<Video> videos;
+  List<VideoDto> videos;
 
-  Chapter({this.id, required this.categoryId, required this.title, this.videos = const []});
+  ChapterDto({this.id, required this.categoryId, required this.title, this.videos = const []});
 
-  factory Chapter.fromMap(Map<String, dynamic> map) {
-    return Chapter(
+  factory ChapterDto.fromMap(Map<String, dynamic> map) {
+    return ChapterDto(
       id: map['id'],
       categoryId: map['category_id'],
       title: map['title'],
       videos: (map['videos'] as List<dynamic>?)
-          ?.map((videoMap) => Video.fromMap(videoMap))
+          ?.map((videoMap) => VideoDto.fromMap(videoMap))
           .toList() ?? [],
     );
   }

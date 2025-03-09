@@ -2,7 +2,6 @@ import 'dart:ui';
 
 import 'package:json_annotation/json_annotation.dart';
 
-
 @JsonSerializable()
 class Datamodel {
   @JsonKey(name: 'Chapters')
@@ -83,8 +82,8 @@ class Video {
   final String url;
   final List<Task>? tasks;
   String? languageCode;
-  double? totalLength;
-  double? watchedLength;
+  Duration? totalLength;
+  Duration? watchedLength;
   bool _watched = false;
 
   Video({

@@ -1,16 +1,16 @@
 
-class Task {
+class TaskDto {
   final int? id;
   final int videoId;
   final String title;
   final String url;
-  final bool watched;
+  late final bool watched;
 
-  Task({this.id, required this.videoId, required this.title, required this.url, this.watched = false});
+  TaskDto({this.id, required this.videoId, required this.title, required this.url, this.watched = false});
 
 
-  factory Task.fromMap(Map<String, dynamic> map) {
-    return Task(
+  factory TaskDto.fromMap(Map<String, dynamic> map) {
+    return TaskDto(
       id: map['id'],
       videoId: map['video_id'],
       title: map['title'],
