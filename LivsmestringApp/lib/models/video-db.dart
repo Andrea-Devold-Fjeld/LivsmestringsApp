@@ -47,4 +47,20 @@ class VideoDto {
     }
     return map;
   }
+
+  double getVideoProgress(){
+    if(watchedLength == null || totalLength == null){
+        return 0.0;
+    }
+    else{
+      double progress = (watchedLength!.inSeconds.toDouble() / totalLength!.inSeconds.toDouble());
+      if(progress >= 0.99){
+        watched = true;
+        return 1.0;
+      }else {
+        return progress;
+      }
+    }
+
+  }
 }

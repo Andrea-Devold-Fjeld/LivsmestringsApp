@@ -163,6 +163,7 @@ class VideoListPage extends StatelessWidget {
   }
   @override
   Widget build(BuildContext context) {
+
     return ListView.builder(
       shrinkWrap: true,
       physics: const NeverScrollableScrollPhysics(),
@@ -170,16 +171,28 @@ class VideoListPage extends StatelessWidget {
       itemBuilder: (context, videoIndex) {
         VideoDto video = chapter.videos[videoIndex];
         bool hasTasks = video.tasks != null && video.tasks!.isNotEmpty;
-
+        double progress = video.getVideoProgress(); // Add this to your model
+        bool isComplete = progress >= 1.0 || video.watched;
         return ListTile(
           title: Text(video.title.tr),
-          trailing: Icon(
+          trailing: isComplete
+          ? Icon(
             video.watched ? Icons.check_circle : Icons.circle_outlined,
             color: video.watched ? Colors.green : Colors.grey,
+          )
+          : SizedBox(
+            width: 24,
+            height: 24,
+            child: CircularProgressIndicator(
+              value: progress,
+              backgroundColor: Colors.grey,
+              valueColor: AlwaysStoppedAnimation<Color>(Colors.green),
+              strokeWidth: 2.5,
+            ),
           ),
           onTap: () {
             // Navigate to the YouTube video when title is tapped
-            _markVideoAsWatched(video);
+            //_markVideoAsWatched(video);
             Navigator.of(context).push(
               MaterialPageRoute(
                 builder: (context) => YoutubePage(
@@ -187,6 +200,7 @@ class VideoListPage extends StatelessWidget {
                   tasks: video.tasks,
                   title: video.title.tr,
                   updateProgress: (bool value) {},
+                  videoDto: video,
                 ),
               ),
             );

@@ -3,19 +3,22 @@ import 'dart:developer';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:livsmestringapp/controllers/database-controller.dart';
+import 'package:livsmestringapp/models/video-db.dart';
 import 'package:youtube_player_flutter/youtube_player_flutter.dart';
 
 import '../models/DataModel.dart';
 import '../models/task-db.dart';
 
 class YoutubePage extends StatefulWidget {
+  VideoDto? videoDto;
   final String url;
   final String title;
   final List<TaskDto>? tasks;
   final ValueSetter<bool> updateProgress;
 
-  const YoutubePage({
+  YoutubePage({
     super.key,
+    this.videoDto,
     required this.url,
     required this.tasks,
     required this.title,
@@ -83,6 +86,9 @@ class _YoutubePageState extends State<YoutubePage> {
         _videoMetaData = _controller.metadata;
         if(_videoMetaData.duration.inSeconds > 0) {
           _databaseController.updateTotalLength(_videoMetaData.duration, widget.url);
+          if(widget.videoDto != null){
+            widget.videoDto?.totalLength =_videoMetaData.duration;
+          }
         }
       });
     }
@@ -93,6 +99,9 @@ class _YoutubePageState extends State<YoutubePage> {
     _controller.pause();
     _totalWatchTime.stop();
     _databaseController.updateWatchTime(_totalWatchTime.elapsed, widget.url);
+    if(widget.videoDto != null){
+      widget.videoDto?.watchedLength = _totalWatchTime.elapsed;
+    }
     log("in deactivare $_totalWatchTime");
     super.deactivate();
   }
