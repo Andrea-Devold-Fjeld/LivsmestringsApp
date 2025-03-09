@@ -5,15 +5,11 @@ import 'package:flutter/foundation.dart';
 import 'package:get/get.dart';
 import 'package:livsmestringapp/consumer/FetchData.dart';
 import 'package:livsmestringapp/models/DataModelDTO.dart';
-import 'package:livsmestringapp/pages/home_page.dart';
 import 'package:livsmestringapp/pages/language_page_nav.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../databse/database_operation.dart';
 import '../dto/category_dto.dart';
-import '../models/DataModel.dart';
-import '../pages/chapter-page.dart';
-import '../services/data.dart';
 import 'database-controller.dart';
 
 
@@ -55,6 +51,7 @@ class HomePageController extends GetxController {
       if (currentLocale.value != null && !isDataLoading) {
         Get.updateLocale(currentLocale.value!);
         log("In onInit in HomeController ${careerData}"); // Debug the data to ensure it is set
+        await fetchAllData();
         //      loadData();
       }
     });

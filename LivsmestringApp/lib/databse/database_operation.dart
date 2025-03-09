@@ -13,9 +13,12 @@ import '../models/DataModelDTO.dart';
 import '../models/task-db.dart';
 import '../models/video-db.dart';
 
-Duration _parseDuration(String durationString) {
+Duration? _parseDuration(String? durationString) {
   // Format from Duration.toString() is typically "0:00:00.000000"
   // or something similar
+  if(durationString == null){
+    return null;
+  }
 
   // Remove any potential formatting from the toString() method
   durationString = durationString.replaceAll(RegExp(r'[^0-9:]'), '');
@@ -30,7 +33,7 @@ Duration _parseDuration(String durationString) {
     return Duration(
       hours: hours,
       minutes: minutes,
-      seconds: seconds,
+      microseconds: seconds,
     );
   }
 
@@ -182,16 +185,14 @@ Future<DatamodelDto> getDataModelWithLanguage(Future<Database> futureDb, String 
               where: 'video_id = ?',
               whereArgs: [video['id']],
             );
-            log("Video id: ${video['id']}");
-            log("Video title: ${video['title']}");
-            log("Video url: ${video['url']}");
-            log("Video watched: ${video['watched']==1}");
 
             return VideoDto(
               id: video['id'],
               title: video['title'],
               url: video['url'],
               watched: video['watched']==1,
+              totalLength: _parseDuration(video['total_length']),
+              watchedLength: _parseDuration(video['watched_length']),
               tasks: tasks.map((task) => TaskDto(
                 title: task['title'],
                 url: task['url'], videoId: video['id'],
@@ -200,8 +201,7 @@ Future<DatamodelDto> getDataModelWithLanguage(Future<Database> futureDb, String 
             );
           }),
         );
-        log("videoList: $videosList");
-        log("CategoryId as int ${categoryId as int}");
+
         return ChapterDto(
           title: chapter['title'],
           videos: videosList, categoryId: categoryId as int,
