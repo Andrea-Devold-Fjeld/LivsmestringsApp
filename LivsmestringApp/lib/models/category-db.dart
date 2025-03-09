@@ -3,7 +3,7 @@ import 'chapter-db.dart';
 class Category {
   final int? id;
   final String name;
-  List<Chapter> chapters;
+  List<ChapterDto> chapters;
 
   Category({this.id, required this.name, this.chapters = const []});
 
@@ -12,7 +12,7 @@ class Category {
       id: map['id'],
       name: map['name'],
       chapters: (map['chapters'] as List<dynamic>?)
-          ?.map((chapterMap) => Chapter.fromMap(chapterMap))
+          ?.map((chapterMap) => ChapterDto.fromMap(chapterMap))
           .toList() ?? [],
     );
   }

@@ -1,12 +1,17 @@
+import 'dart:developer';
+
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
+import 'package:livsmestringapp/controllers/database-controller.dart';
 import 'package:youtube_player_flutter/youtube_player_flutter.dart';
 
 import '../models/DataModel.dart';
+import '../models/task-db.dart';
 
 class YoutubePage extends StatefulWidget {
   final String url;
   final String title;
-  final List<Task>? tasks;
+  final List<TaskDto>? tasks;
   final ValueSetter<bool> updateProgress;
 
   const YoutubePage({
@@ -25,20 +30,26 @@ class _YoutubePageState extends State<YoutubePage> {
   late YoutubePlayerController _controller;
   late TextEditingController _idController;
   late TextEditingController _seekToController;
+  final DatabaseController _databaseController = Get.find<DatabaseController>();
+
 
   late PlayerState _playerState;
   late YoutubeMetaData _videoMetaData;
-  late String VideoId;
+  late String videoId;
   final double _volume = 100;
-  final bool _muted = false;
-  final bool _isPlayerReady = false;
+  bool _muted = false;
+  bool _isPlayerReady = false;
+  //int? _watchTime;
+  //int? _watchStartTime;
+  Stopwatch _totalWatchTime = Stopwatch();
+  bool _isPlaying = false;
 
   @override
   void initState() {
     super.initState();
-    VideoId = YoutubePlayer.convertUrlToId(widget.url)!;
+    videoId = YoutubePlayer.convertUrlToId(widget.url)!;
     _controller = YoutubePlayerController(
-      initialVideoId: VideoId,
+      initialVideoId: videoId,
       flags: const YoutubePlayerFlags(
         mute: false,
         autoPlay: true,
@@ -53,13 +64,26 @@ class _YoutubePageState extends State<YoutubePage> {
     _seekToController = TextEditingController();
     _videoMetaData = const YoutubeMetaData();
     _playerState = PlayerState.unknown;
+    //_databaseController.updateTotalLength(_videoMetaData.duration, widget.url);
+    _controller.addListener(_trackWatchTime);
+  }
+
+  void _trackWatchTime() {
+    // Check if player state changed to playing
+    if (_controller.value.playerState == PlayerState.playing && !_isPlaying) {
+      _totalWatchTime.start();
+      _isPlaying = true;
+    }
   }
 
   void listener() {
-    if (_isPlayerReady && mounted && !_controller.value.isFullScreen) {
+    if (_isPlayerReady && mounted) { //!_controller.value.isFullScreen)
       setState(() {
         _playerState = _controller.value.playerState;
         _videoMetaData = _controller.metadata;
+        if(_videoMetaData.duration.inSeconds > 0) {
+          _databaseController.updateTotalLength(_videoMetaData.duration, widget.url);
+        }
       });
     }
   }
@@ -67,6 +91,9 @@ class _YoutubePageState extends State<YoutubePage> {
   @override
   void deactivate() {
     _controller.pause();
+    _totalWatchTime.stop();
+    _databaseController.updateWatchTime(_totalWatchTime.elapsed, widget.url);
+    log("in deactivare $_totalWatchTime");
     super.deactivate();
   }
 
@@ -75,6 +102,7 @@ class _YoutubePageState extends State<YoutubePage> {
     _controller.dispose();
     _idController.dispose();
     _seekToController.dispose();
+    _controller.removeListener(_trackWatchTime);
     super.dispose();
   }
 
@@ -102,6 +130,7 @@ class _YoutubePageState extends State<YoutubePage> {
               handleColor: Colors.amberAccent,
             ),
             onReady: () {
+              _isPlayerReady = true;
               _controller.addListener(listener);
             },
           ),
@@ -157,4 +186,6 @@ class _YoutubePageState extends State<YoutubePage> {
       ),
     );
   }
+
+
 }

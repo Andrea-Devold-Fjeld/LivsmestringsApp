@@ -1,25 +1,35 @@
 import 'task-db.dart';
 
-class Video {
+class VideoDto {
   final int? id;
   final int chapterId;
   final String title;
   final String url;
-  final bool watched;
-  List<Task> tasks;
+  late final bool watched;
+  List<TaskDto>? tasks;
+  Duration? totalLength;
+  Duration? watchedLength;
 
-  Video({this.id, required this.chapterId, required this.title, required this.url, this.watched = false, this.tasks = const []});
+  VideoDto({
+    this.id,
+    required this.chapterId,
+    required this.title,
+    required this.url,
+    this.watched = false,
+    this.tasks,
+  this.totalLength,
+  this.watchedLength});
 
 
-  factory Video.fromMap(Map<String, dynamic> map) {
-    return Video(
+  factory VideoDto.fromMap(Map<String, dynamic> map) {
+    return VideoDto(
       id: map['id'],
       chapterId: map['chapter_id'],
       title: map['title'],
       url: map['url'],
       watched: map['watched'] == 1,
       tasks: (map['tasks'] as List<dynamic>?)
-          ?.map((taskMap) => Task.fromMap(taskMap))
+          ?.map((taskMap) => TaskDto.fromMap(taskMap))
           .toList() ?? [],
     );
   }
@@ -30,7 +40,7 @@ class Video {
       'title': title,
       'url': url,
       'watched': watched ? 1 : 0,
-      'tasks': tasks.map((task) => task.toMap()).toList(),
+      'tasks': tasks?.map((task) => task.toMap()).toList(),
     };
     if (id != null) {
       map['id'] = id;

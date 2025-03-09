@@ -3,11 +3,68 @@ import 'dart:developer';
 import 'package:flutter/foundation.dart';
 import 'package:livsmestringapp/dto/category_dto.dart';
 import 'package:livsmestringapp/models/VideoUrl.dart';
+import 'package:livsmestringapp/models/chapter-db.dart';
 import 'package:sqflite/sqflite.dart';
 import '../dto/chapter_dto.dart';
 import '../dto/task_dto.dart';
 import '../dto/video_dto.dart';
 import '../models/DataModel.dart';
+import '../models/DataModelDTO.dart';
+import '../models/task-db.dart';
+import '../models/video-db.dart';
+
+Duration _parseDuration(String durationString) {
+  // Format from Duration.toString() is typically "0:00:00.000000"
+  // or something similar
+
+  // Remove any potential formatting from the toString() method
+  durationString = durationString.replaceAll(RegExp(r'[^0-9:]'), '');
+
+  List<String> parts = durationString.split(':');
+
+  if (parts.length == 3) {
+    int hours = int.parse(parts[0]);
+    int minutes = int.parse(parts[1]);
+    int seconds = int.parse(parts[2]);
+
+    return Duration(
+      hours: hours,
+      minutes: minutes,
+      seconds: seconds,
+    );
+  }
+
+  return Duration.zero; // Return default if parsing fails
+}
+
+Future<void> updateTotalVideoLength(Future<Database> futureDb, Duration duration, String url) async {
+  final Database db = await futureDb;
+
+  await db.transaction((txn) async {
+    int update =await txn.update(
+      'videos',
+      {'total_length': duration.toString()},
+    where: 'url = ?',
+    whereArgs: [url]);
+    if(update == 0){
+      //#tODO check in tasks
+    }
+  });
+}
+
+Future<void> updateVideoWatchTime(Future<Database> futureDb, Duration duration, String url) async {
+  final Database db = await futureDb;
+  log("Watched time $duration");
+  await db.transaction((txn) async {
+    int update = await txn.update('videos',
+        {'watched_length': duration.toString()},
+    where: 'url = ?',
+    whereArgs: [url]);
+    if(update == 0){
+      //#tODO check in tasks
+    }
+  });
+}
 
 // Updated insert method for the new schema
 Future<void> insertDataModel(Future<Database> futureDb, Datamodel model, VideoUrls urls) async {
@@ -87,6 +144,88 @@ Future<void> insertDataModel(Future<Database> futureDb, Datamodel model, VideoUr
   });
 }
 
+Future<DatamodelDto> getDataModelWithLanguage(Future<Database> futureDb, String category, String language) async {
+  try{
+    final Database db = await futureDb;
+    // Get category ID
+    final List<Map<String, dynamic>> categoryResult = await db.query(
+      'categories',
+      where: 'name = ?',
+      whereArgs: [category],
+    );
+
+    if (categoryResult.isEmpty) {
+      throw Exception('Category not found: $category');
+    }
+
+    final categoryId = categoryResult.first['id'];
+
+    // Get chapters for this category
+    final List<Map<String, dynamic>> chapters = await db.query(
+      'chapters',
+      where: 'category_id = ?',
+      whereArgs: [categoryId],
+    );
+
+    final List<ChapterDto> chaptersList = await Future.wait(
+      chapters.map((chapter) async {
+        final List<Map<String, dynamic>> videos = await db.query(
+          'videos',
+          where: 'chapter_id = ? AND language_code = ?',
+          whereArgs: [chapter['id'], language],
+        );
+
+        final List<VideoDto> videosList = await Future.wait(
+          videos.map((video) async {
+            final List<Map<String, dynamic>> tasks = await db.query(
+              'tasks',
+              where: 'video_id = ?',
+              whereArgs: [video['id']],
+            );
+            log("Video id: ${video['id']}");
+            log("Video title: ${video['title']}");
+            log("Video url: ${video['url']}");
+            log("Video watched: ${video['watched']==1}");
+
+            return VideoDto(
+              id: video['id'],
+              title: video['title'],
+              url: video['url'],
+              watched: video['watched']==1,
+              tasks: tasks.map((task) => TaskDto(
+                title: task['title'],
+                url: task['url'], videoId: video['id'],
+              )).toList(),
+              chapterId: video['chapter_id'],
+            );
+          }),
+        );
+        log("videoList: $videosList");
+        log("CategoryId as int ${categoryId as int}");
+        return ChapterDto(
+          title: chapter['title'],
+          videos: videosList, categoryId: categoryId as int,
+        );
+      }),
+    );
+
+    return DatamodelDto(chapters: chaptersList, category: category);
+  }catch(e){
+    if (kDebugMode) {
+      print(e);
+    }
+    throw Exception();
+
+  }
+}
+/*
+                tasks: tasks.map((task) => TaskDto(
+                  title: task['title'],
+                  url: task['url'],
+                  videoId: video['id'],
+                )..watched = task['watched'] == 1).toList(),
+ */
+/*
 // Updated method to retrieve data model with category
 Future<Datamodel> getDataModel(Future<Database> futureDb, String category) async {
   try{
@@ -153,7 +292,9 @@ Future<Datamodel> getDataModel(Future<Database> futureDb, String category) async
 
   }
 }
+*/
 
+/*
 Future<Datamodel> getDatamodelByLanguage(Future<Database> futureDb, String category, String language) async {
   try{
     final Database db = await futureDb;
@@ -219,6 +360,8 @@ Future<Datamodel> getDatamodelByLanguage(Future<Database> futureDb, String categ
 
   }
 }
+
+ */
 
 
 Future<List<ChapterDTO>> getAllWatchedVideosAndTasksByCategory(Future<Database> futureDb, int categoryId) async {

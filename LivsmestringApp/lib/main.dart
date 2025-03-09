@@ -20,6 +20,7 @@ import 'controllers/home-page-controller.dart';
 import 'databse/database-helper.dart';
 import 'dto/category_dto.dart';
 import 'models/DataModel.dart';
+import 'models/DataModelDTO.dart';
 
 // Entry point of the app
 Future<void> main() async {
@@ -66,7 +67,7 @@ class MyApp extends StatefulWidget {
 
 class MyAppState extends State<MyApp> {
   late int? _selectedLanguage;
-  late Future<Map<String, Datamodel>> _dataFuture;
+  late Future<bool> _dataFuture;
   late Locale _locale;
   final dbController = Get.find<DatabaseController>();
   final homeController = Get.find<HomePageController>();
@@ -77,7 +78,7 @@ class MyAppState extends State<MyApp> {
     super.initState();
     var homepageController = Get.find<HomePageController>();
     categories = _getCategories();
-    _dataFuture = homepageController.fetchAllData();
+    _dataFuture = homepageController.insertData();
     _selectedLanguage = widget.selectedLanguage;
     _locale = widget.locale;
     Logger.root.level = Level.ALL; // defaults to Level.INFO
@@ -205,5 +206,24 @@ class MainNavigation extends StatelessWidget {
         onTap: homePageController.changePage,
       )),
     );
+  }
+}
+
+
+// Simplified HomePage that uses MainNavigation
+class HomePage extends StatelessWidget {
+  final int? selectedLanguage;
+
+  const HomePage({super.key, required this.selectedLanguage});
+
+  @override
+  Widget build(BuildContext context) {
+    if (selectedLanguage == null) {
+      return LanguagePage(selectedLanguage: (int value) {});
+    } else {
+      //#TODO if this dont work make this a future or something
+      Get.find<HomePageController>().fetchAllData();
+      return MainNavigation(selectedLanguage: selectedLanguage);
+    }
   }
 }
