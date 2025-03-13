@@ -11,6 +11,12 @@ final String createCategoriesTable = '''
   );
 ''';
 
+final String lastUpdated = '''
+  CREATE TABLE last_updated(
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  last_updated TEXT NOT  NULL
+  );
+''';
 final String createChaptersTable = '''
   CREATE TABLE chapters(
     id INTEGER PRIMARY KEY AUTOINCREMENT,
