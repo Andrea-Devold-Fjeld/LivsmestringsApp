@@ -20,9 +20,7 @@ import 'controllers/home-page-controller.dart';
 import 'databse/database-helper.dart';
 import 'dto/category_dto.dart';
 import 'models/DataModel.dart';
-import 'models/DataModelDTO.dart';
 
-// Entry point of the app
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
 

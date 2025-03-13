@@ -65,20 +65,6 @@ class HomePageController extends GetxController {
     return databaseController.getCategories();
   }
 
-  /*
-  void updateUrls() async {
-    final results = await Future.wait([
-      fetchData('career'),
-      //fetchData('health'),
-    ]);
-    final resultVideoUrls = await Future.wait([
-      fetchVideoUrls()
-    ]);
-
-    //replaceUrls(results[0], resultVideoUrls.first);
-    //replaceUrls(results[1], resultVideoUrls.first);
-  }
-*/
 
   Future<bool> insertData() async {
     try {
