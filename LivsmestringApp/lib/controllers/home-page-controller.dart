@@ -59,7 +59,9 @@ class HomePageController extends GetxController {
   }
 
   void setLocale(Locale locale){
+    _loadProgressWithLocale(locale);
     currentLocale.value = locale;
+    fetchAllData();
   }
   Future<List<CategoryDTO>> getCategories() {
     return databaseController.getCategories();
@@ -87,6 +89,9 @@ class HomePageController extends GetxController {
   Future<bool> fetchAllData() async {
     try {
       var data = await databaseController.getDatamodelWithLAnguage('career', currentLocale.value!.languageCode);
+
+
+      _loadProgress();
       careerData = data;
       return true;
     }catch (e){
@@ -100,7 +105,10 @@ class HomePageController extends GetxController {
 
   // Navigation method
   void changePage(int index) {
+    log("Current index $index");
+    if(index < 0 || index >2) return;
     currentIndex.value = index;
+    log(currentIndex.value.toString());
   }
 
 
@@ -139,14 +147,27 @@ class HomePageController extends GetxController {
       print('Error in loadData: $e');
     }
   }
+  Future<void> _loadProgressWithLocale(Locale locale) async {
+    try {
+      // Create a temporary map to store progress
+      Map<int, ProgressModel> tempProgress = {};
+      for (var c in categories) {
+        tempProgress[c.id] = await databaseController.getVideoProgress(c.id, locale);
+      }
 
+      // Update the observable map
+      progress.value = tempProgress;
+    } catch (e) {
+      print('Error loading progress: $e');
+    }
+  }
   // Load progress for all categories
   Future<void> _loadProgress() async {
     try {
       // Create a temporary map to store progress
       Map<int, ProgressModel> tempProgress = {};
       for (var c in categories) {
-        tempProgress[c.id] = await databaseController.getVideoProgress(c.id);
+        tempProgress[c.id] = await databaseController.getVideoProgress(c.id, currentLocale.value!);
       }
 
       // Update the observable map

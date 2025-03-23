@@ -1,3 +1,5 @@
+import 'dart:ui';
+
 import 'package:get/get_state_manager/src/simple/get_controllers.dart';
 import 'package:livsmestringapp/dto/category_dto.dart';
 import 'package:livsmestringapp/models/DataModelDTO.dart';
@@ -33,16 +35,12 @@ class DatabaseController extends GetxController {
     return await getDataModelWithLanguage(db, category, language);
   }
 
-  Future<ProgressModel> getVideoProgress(int categoryId) async {
-    return await getProgress(db, categoryId);
+  Future<ProgressModel> getVideoProgress(int categoryId, Locale locale) async {
+    return await getProgress(db, categoryId, locale);
   }
 
   Future<List<CategoryDTO>> getCategories() async {
     return await getAllCategories(db);
-  }
-
-  Future<void> updateUrl(Video video, String url) async {
-    return await updateVideoUrl(db, video.title, url);
   }
 
   Future<void> updateTotalLength(Duration duration, String url) async {

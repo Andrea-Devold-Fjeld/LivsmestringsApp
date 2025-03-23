@@ -1,5 +1,6 @@
 import 'package:auto_size_text/auto_size_text.dart';
 import 'package:flutter/material.dart';
+import 'package:livsmestringapp/controllers/home-page-controller.dart';
 import '../styles/colors.dart';
 import '../styles/fonts.dart';
 import 'package:get/get.dart';
@@ -7,7 +8,8 @@ import 'package:get/get.dart';
 
 class HomePageCard extends StatefulWidget {
   final Color backgroundColor;
-  final double progress;
+  final int categoryId;
+  //final double progress;
   final String title;
   final Icon icon;
   final VoidCallback onPressed;
@@ -16,7 +18,8 @@ class HomePageCard extends StatefulWidget {
       {super.key,
       required this.icon,
       required this.backgroundColor,
-      required this.progress,
+        required this.categoryId,
+      //required this.progress,
       required this.title,
       required this.onPressed});
 
@@ -28,24 +31,23 @@ class _HomePageCardState extends State<HomePageCard> {
 
   @override
   Widget build(BuildContext context) {
+    var homepageController = Get.find<HomePageController>();
+    var progress = homepageController.progress[widget.categoryId];
+    double progressValue = progress?.progress.toDouble() ?? 0.0;
     String achievementInPercentage = "";
-    if(widget.progress != 0.0){
-       num achievementInPercentageRounded = (widget.progress * 100).round();
-       achievementInPercentage = () {
-         if  (achievementInPercentageRounded.toString().length == 3) {
-           return '${achievementInPercentageRounded.toString()[0].tr}${achievementInPercentageRounded.toString()[1].tr}${achievementInPercentageRounded.toString()[2].tr} %';
-         }
-         else if (achievementInPercentageRounded.toString().length == 2) {
-           return '${achievementInPercentageRounded.toString()[0].tr}${achievementInPercentageRounded.toString()[1].tr} %';
 
-          }
-         else {
-           return '${achievementInPercentageRounded.toString()[0].tr} %';
-         }
-       }();
-    }
-    else{
-      achievementInPercentage =  '${'0'.tr} %' ;
+// Calculate the percentage value
+    num achievementInPercentageRounded = (progressValue * 100).round();
+
+// Format the percentage string with translations
+    if (progressValue != 0.0) {
+      final percentString = achievementInPercentageRounded.toString();
+      final translatedDigits = percentString.split('')
+          .map((digit) => digit.tr)
+          .join('');
+      achievementInPercentage = '$translatedDigits %';
+    } else {
+      achievementInPercentage = '${'0'.tr} %';
     }
 
     return GestureDetector(
@@ -74,31 +76,52 @@ class _HomePageCardState extends State<HomePageCard> {
                   ),
                 ]),
                 Container(
-                  margin:
-                      const EdgeInsets.only(top: 15, right: 20, left: 20, bottom: 0),
-                  child: Stack(
-                    alignment: Alignment.center,
-                    children: [
-                      LinearProgressIndicator(
-                        value: widget.progress,
-                        minHeight: 30,
-                        backgroundColor: AppColors.white,
-                        valueColor: AlwaysStoppedAnimation<Color>(AppColors.salmon),
-                      ),
-                      AutoSizeText(
-                        achievementInPercentage,
-                        style: const TextStyle(
-                          fontSize: 15,
-                          fontWeight: FontWeight.bold
+                  margin: const EdgeInsets.only(top: 15, right: 20, left: 20, bottom: 0),
+                  // Wrap progress-dependent UI with Obx
+                  child: Obx(() {
+                    var progress = homepageController.progress[widget.categoryId];
+                    double progressValue = progress?.progress.toDouble() ?? 0.0;
+
+                    // Calculate the percentage value
+                    num achievementInPercentageRounded = (progressValue * 100).round();
+
+                    // Format the percentage string with translations
+                    String achievementInPercentage;
+                    if (progressValue != 0.0) {
+                      final percentString = achievementInPercentageRounded.toString();
+                      final translatedDigits = percentString.split('')
+                          .map((digit) => digit.tr)
+                          .join('');
+                      achievementInPercentage = '$translatedDigits %';
+                    } else {
+                      achievementInPercentage = '${'0'.tr} %';
+                    }
+
+                    return Stack(
+                      alignment: Alignment.center,
+                      children: [
+                        LinearProgressIndicator(
+                          value: progressValue,
+                          minHeight: 30,
+                          backgroundColor: AppColors.white,
+                          valueColor: AlwaysStoppedAnimation<Color>(AppColors.salmon),
                         ),
-                        maxLines: 2, // Limit the text to a single line
-                      ),
-                    ],
-                  )
+                        AutoSizeText(
+                          achievementInPercentage,
+                          style: const TextStyle(
+                              fontSize: 15,
+                              fontWeight: FontWeight.bold
+                          ),
+                          maxLines: 2,
+                        ),
+                      ],
+                    );
+                  }),
                 ),
               ],
             ),
-          )),
+          ),
+      ),
     );
   }
 }

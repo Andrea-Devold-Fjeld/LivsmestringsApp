@@ -69,21 +69,15 @@ class MyAppState extends State<MyApp> {
   late Locale _locale;
   final dbController = Get.find<DatabaseController>();
   final homeController = Get.find<HomePageController>();
-  late Future<List<CategoryDTO>> categories;
 
   @override
   void initState() {
     super.initState();
     var homepageController = Get.find<HomePageController>();
-    categories = _getCategories();
     _dataFuture = homepageController.insertData();
     _selectedLanguage = widget.selectedLanguage;
     _locale = widget.locale;
     Logger.root.level = Level.ALL; // defaults to Level.INFO
-  }
-
-  Future<List<CategoryDTO>> _getCategories() {
-    return dbController.getCategories();
   }
 
 
@@ -92,8 +86,6 @@ class MyAppState extends State<MyApp> {
       _locale = newLocale;
       _selectedLanguage = newIndex;
     });
-    // Re-run the app with the updated locale
-    runApp(MyApp(selectedLanguage: newIndex, locale: newLocale, db: widget.db,));
   }
 
   @override
@@ -154,18 +146,50 @@ class MyAppState extends State<MyApp> {
     );
   }
 }
-// Fixed MainNavigation class with null safety handling
-class MainNavigation extends StatelessWidget {
+class MainNavigation extends StatefulWidget {
   final int? selectedLanguage;
 
   const MainNavigation({super.key, required this.selectedLanguage});
 
   @override
-  Widget build(BuildContext context) {
-    final homePageController = Get.find<HomePageController>();
+  State<MainNavigation> createState() => _MainNavigationState();
+}
 
+class _MainNavigationState extends State<MainNavigation> {
+  late PageController pageController;
+  late final HomePageController homePageController;
+  late Worker indexWorker;
+
+  @override
+  void initState() {
+    super.initState();
+    homePageController = Get.find<HomePageController>();
+    pageController = PageController(
+      initialPage: homePageController.currentIndex.value,
+    );
+
+    // Set up a worker to listen for index changes
+    indexWorker = ever(homePageController.currentIndex, (index) {
+      if (pageController.hasClients) {
+        pageController.animateToPage(
+          index,
+          duration: const Duration(milliseconds: 300),
+          curve: Curves.easeInOut,
+        );
+      }
+    });
+  }
+
+  @override
+  void dispose() {
+    pageController.dispose();
+    indexWorker.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
     if (homePageController.careerCategory.value == null) {
-      // show cirluar progression if category is not defined
       return const Scaffold(
         body: Center(
           child: CircularProgressIndicator(),
@@ -174,13 +198,19 @@ class MainNavigation extends StatelessWidget {
     }
 
     return Scaffold(
-      body: Obx(() => IndexedStack(
-        index: homePageController.currentIndex.value,
+      body: PageView(
+        controller: pageController,
+        physics: const PageScrollPhysics(),
+        onPageChanged: (index) {
+          // Only update if different to avoid circular updates
+          if (homePageController.currentIndex.value != index) {
+            homePageController.currentIndex.value = index;
+          }
+        },
         children: [
           // Home tab
           HomePageContent(
             categories: homePageController.categories,
-            progress: homePageController.progress,
             updateProgress: homePageController.updateProgress,
           ),
           // Career tab
@@ -188,26 +218,19 @@ class MainNavigation extends StatelessWidget {
             category: homePageController.careerCategory.value!,
             updateProgress: homePageController.updateProgress,
           ),
-          // Health tab
-          /*
-          ChapterPage(
-            category: homePageController.healthCategory.value!,
-            updateProgress: homePageController.updateProgress,
-          ),
-           */
           // Language tab
           LanguagePageNav(),
         ],
-      )),
+      ),
       bottomNavigationBar: Obx(() => ButtomNavigationBar(
         selectedTab: homePageController.currentIndex.value,
-        onTap: homePageController.changePage,
+        onTap: (index) {
+          homePageController.changePage(index);
+        },
       )),
     );
   }
 }
-
-
 // Simplified HomePage that uses MainNavigation
 class HomePage extends StatelessWidget {
   final int? selectedLanguage;
