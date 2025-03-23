@@ -32,7 +32,7 @@ class ChapterPage extends StatefulWidget {
 
 
 class _ChapterPageState extends State<ChapterPage> with SingleTickerProviderStateMixin {
-  late TabController _tabController;
+  //late TabController _tabController;
   late String pageTitle;
   late Color pageColor;
   final DatabaseController _databaseController = Get.find<DatabaseController>();
@@ -81,7 +81,7 @@ class _ChapterPageState extends State<ChapterPage> with SingleTickerProviderStat
 
   @override
   void dispose() {
-    _tabController.dispose();
+    //_tabController.dispose();
     super.dispose();
   }
 
@@ -98,7 +98,7 @@ class _ChapterPageState extends State<ChapterPage> with SingleTickerProviderStat
               },
               icon: const Icon(
                 Icons.arrow_back,
-                color: AppColors.black,
+                color: AppColors.white,
                 size: 30,
               ),
             ),
@@ -172,7 +172,7 @@ class VideoListPage extends StatelessWidget {
         VideoDto video = chapter.videos[videoIndex];
         bool hasTasks = video.tasks != null && video.tasks!.isNotEmpty;
         double progress = video.getVideoProgress(); // Add this to your model
-        bool isComplete = progress >= 1.0 || video.watched;
+        bool isComplete = progress >= 0.95 || video.watched;
         return ListTile(
           title: Text(video.title.tr),
           trailing: isComplete
@@ -199,7 +199,7 @@ class VideoListPage extends StatelessWidget {
                   url: video.url,
                   tasks: video.tasks,
                   title: video.title.tr,
-                  updateProgress: (bool value) {},
+                  updateProgress: (Duration value) {_onUpdate();},
                   videoDto: video,
                 ),
               ),
@@ -222,12 +222,6 @@ class VideoListPage extends StatelessWidget {
         );
       },
     );
-  }
-  void _markVideoAsWatched(VideoDto video) async {
-    final DatabaseController databaseController = Get.find<DatabaseController>();
-    await databaseController.markVideoWatched(video.title);
-    _onUpdate();
-    video.watched = true;
   }
 }
 
@@ -264,7 +258,7 @@ class TaskListPage extends StatelessWidget {
             _markTaskAsWatched(task);
             Navigator.of(context).push(
               MaterialPageRoute(
-                builder: (context) => YoutubePage(url: task.url, title: task.title.tr, tasks: null, updateProgress: (bool value){_markTaskAsWatched(task);},),
+                builder: (context) => YoutubePage(url: task.url, title: task.title.tr, tasks: null, updateProgress: (Duration value){_markTaskAsWatched(task);},),
               ),
             );
           },

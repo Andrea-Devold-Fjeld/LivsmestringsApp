@@ -30,7 +30,7 @@ class HomePage extends StatelessWidget {
           children: [
             HomePageContent(
               categories: homePageController.categories,
-              progress: homePageController.progress.value,
+              //progress: homePageController.progress,
               updateProgress: homePageController.updateProgress,
             ),
             ChapterPage(
@@ -57,10 +57,10 @@ class HomePage extends StatelessWidget {
 
 class HomePageContent extends StatefulWidget {
   final List<CategoryDTO> categories;
-  final Map<int, ProgressModel> progress;
+  //inal Map<int, ProgressModel> progress;
   final ValueSetter<bool> updateProgress;
 
-  const HomePageContent({super.key, required this.categories, required this.progress, required this.updateProgress});
+  const HomePageContent({super.key, required this.categories, required this.updateProgress});
 
   @override
   State<StatefulWidget> createState() => _HomePageContent();
@@ -71,7 +71,9 @@ class _HomePageContent extends State<HomePageContent> {
   Widget build(BuildContext context) {
     final homePageController = Get.find<HomePageController>();
 
-    return Column(
+    return SizedBox(
+    height: MediaQuery.of(context).size.height,
+    child:Column(
       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
       crossAxisAlignment: CrossAxisAlignment.center,
       children: <Widget>[
@@ -115,7 +117,8 @@ class _HomePageContent extends State<HomePageContent> {
 
           return HomePageCard(
             key: ValueKey(name),
-            progress: widget.progress[id]?.progress ?? 0.0,
+            categoryId: id,
+            //progress: widget.progress[id]?.progress ?? 0.0,
             backgroundColor: backgroundColor,
             title: title,
             icon: icon,
@@ -130,6 +133,6 @@ class _HomePageContent extends State<HomePageContent> {
             },
         )
       ],
-    );
+    ));
   }
 }

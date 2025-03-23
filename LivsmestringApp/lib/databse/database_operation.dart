@@ -1,5 +1,6 @@
 import 'dart:core';
 import 'dart:developer';
+import 'dart:ui';
 import 'package:flutter/foundation.dart';
 import 'package:livsmestringapp/dto/category_dto.dart';
 import 'package:livsmestringapp/models/VideoUrl.dart';
@@ -57,16 +58,65 @@ Future<void> updateTotalVideoLength(Future<Database> futureDb, Duration duration
 
 Future<void> updateVideoWatchTime(Future<Database> futureDb, Duration duration, String url) async {
   final Database db = await futureDb;
-  log("Watched time $duration");
-  await db.transaction((txn) async {
-    int update = await txn.update('videos',
-        {'watched_length': duration.toString()},
-    where: 'url = ?',
-    whereArgs: [url]);
-    if(update == 0){
-      //#tODO check in tasks
+  // check if wideo is watched
+  var result = await db.query(
+      'videos',
+      columns: ['total_length'],
+      where: 'url = ?',
+      whereArgs: [url]
+  );
+
+  if (result.isNotEmpty) {
+    var totalLength = result
+        .first['total_length'] as String; // Ensure the type is String
+    log("Total length $totalLength");
+
+    // Split the total length string into hours, minutes, seconds, and milliseconds
+    var totalLengthSplit = totalLength.split(":");
+
+    if (totalLengthSplit.length == 3) {
+      int hours = int.parse(totalLengthSplit[0]);
+      int minutes = int.parse(totalLengthSplit[1]);
+      var secondsMilli = totalLengthSplit[2].split('.');
+      int seconds = int.parse(secondsMilli[0]);
+      int milliseconds = int.parse(secondsMilli[1].substring(0, 3));
+      int microseconds = int.parse(secondsMilli[1].substring(3));
+
+      Duration watched = Duration(
+          hours: hours,
+          minutes: minutes,
+          seconds: seconds,
+          milliseconds: milliseconds,
+          microseconds: microseconds
+      );
+
+      log("Watched duration: $watched");
+
+      log((duration.inSeconds/watched.inSeconds).toString());
+      // Check if the video is watched 95% or more
+      if ((duration.inSeconds / watched.inSeconds) >= 0.95) {
+        log("Video watched over 95%");
+
+
+        await db.transaction((txn) async {
+          int update = await txn.update(
+              'videos',
+              {'watched': 1},
+              where: 'url = ?',
+              whereArgs: [url]);
+        });
+      }
     }
-  });
+    await db.transaction((txn) async {
+      int update = await txn.update('videos',
+          {'watched_length': duration.toString()},
+          where: 'url = ?',
+          whereArgs: [url]);
+      if (update == 0) {
+        //#tODO check in tasks
+      }
+    });
+  }
 }
 
 // Updated insert method for the new schema
@@ -514,7 +564,7 @@ Future<List<Map<String, dynamic>>> getVideos(Database db, int chapterId){
   );
 }
 
-Future<ProgressModel> getProgress(Future<Database> futureDb, int categoryId) async {
+Future<ProgressModel> getProgress(Future<Database> futureDb, int categoryId, Locale locale) async {
   final Database db = await futureDb;
 
   final totalVideosResult = await db.rawQuery('''
@@ -522,15 +572,17 @@ Future<ProgressModel> getProgress(Future<Database> futureDb, int categoryId) asy
       (SELECT COUNT(*)
        FROM videos
        JOIN chapters ON videos.chapter_id = chapters.id
-       WHERE chapters.category_id = ?) +
+       WHERE chapters.category_id = ? AND videos.language_code = ?) +
       (SELECT COUNT(*)
        FROM tasks
        JOIN videos ON tasks.video_id = videos.id
        JOIN chapters ON videos.chapter_id = chapters.id
        WHERE chapters.category_id = ?) as total
-  ''', [categoryId, categoryId]);
+  ''', [categoryId, locale.languageCode, categoryId]);
 
+  log("Totalvideoresult: $totalVideosResult");
   final totalCount = Sqflite.firstIntValue(totalVideosResult) ?? 0;
+  log("total count$totalCount");
   final query = '''
     SELECT 
       COUNT(DISTINCT videos.id) as watched_videos_count,
@@ -538,11 +590,11 @@ Future<ProgressModel> getProgress(Future<Database> futureDb, int categoryId) asy
     FROM chapters 
     JOIN videos ON chapters.id = videos.chapter_id 
     LEFT JOIN tasks ON videos.id = tasks.video_id
-    WHERE chapters.category_id = ? AND (videos.watched = 1 OR tasks.watched = 1)
+    WHERE chapters.category_id = ? AND videos.language_code = ? AND (videos.watched = 1 OR tasks.watched = 1)
   ''';
 
   // Execute the query
-  final result = await db.rawQuery(query, [categoryId]);
+  final result = await db.rawQuery(query, [categoryId, locale.languageCode]);
 
   // Extract the counts from the result
   final watchedVideosCount = result[0]['watched_videos_count'] as int;
@@ -551,7 +603,7 @@ Future<ProgressModel> getProgress(Future<Database> futureDb, int categoryId) asy
   var watchedCount = watchedTasksCount + watchedVideosCount;
   // Calculate progress percentage
   final double progress = totalCount > 0 ? watchedCount / totalCount : 0.0;
-
+  log("Total videos: $totalCount , wached videos: $watchedCount , prgress: $progress");
   return ProgressModel(totalVideos: totalCount, watchedVideos: watchedCount, categoryId: categoryId, progress: progress);
 }
 

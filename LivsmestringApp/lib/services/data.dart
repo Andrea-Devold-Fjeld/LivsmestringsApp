@@ -7,28 +7,6 @@ import 'package:livsmestringapp/models/VideoUrl.dart';
 
 import '../models/DataModel.dart';
 
-void replaceUrls(Datamodel data, VideoUrls urls){
-  var dbController = Get.find<DatabaseController>();
-  Locale? locale = Get.locale;
-  if(locale == null){
-    log("no locale");
-  }
-  else {
-    for (var chapter in data.chapters){
-      for (var video in chapter.videos){
-        for(var url in urls.videoUrls){
-          if (url.title.toLowerCase().replaceAll("_", " ") ==
-              video.title.toLowerCase().replaceAll("_", " ")) {
-            if(url.url[locale.languageCode] != null){
-              dbController.updateUrl(video, url.url[locale.languageCode]!);
-            }
-          }
-        }
-      }
-    }
-  }
-
-}
 
 Datamodel findAndReplaceAndTranslate(Datamodel data, VideoUrls urls, Locale locale) {
   log("in find and replace for locale: ${locale.languageCode}");

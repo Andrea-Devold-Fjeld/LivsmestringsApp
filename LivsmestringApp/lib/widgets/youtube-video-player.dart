@@ -14,7 +14,7 @@ class YoutubePage extends StatefulWidget {
   final String url;
   final String title;
   final List<TaskDto>? tasks;
-  final ValueSetter<bool> updateProgress;
+  final ValueSetter<Duration> updateProgress;
 
   YoutubePage({
     super.key,
@@ -50,10 +50,11 @@ class _YoutubePageState extends State<YoutubePage> {
   @override
   void initState() {
     super.initState();
+    int startTime = widget.videoDto?.watchedLength?.inSeconds ?? 0;
     videoId = YoutubePlayer.convertUrlToId(widget.url)!;
     _controller = YoutubePlayerController(
       initialVideoId: videoId,
-      flags: const YoutubePlayerFlags(
+      flags: YoutubePlayerFlags(
         mute: false,
         autoPlay: true,
         disableDragSeek: false,
@@ -61,6 +62,7 @@ class _YoutubePageState extends State<YoutubePage> {
         isLive: false,
         forceHD: false,
         enableCaption: true,
+        startAt: startTime,
       ),
     )..addListener(listener);
     _idController = TextEditingController();
@@ -112,6 +114,7 @@ class _YoutubePageState extends State<YoutubePage> {
     _idController.dispose();
     _seekToController.dispose();
     _controller.removeListener(_trackWatchTime);
+    widget.updateProgress(_totalWatchTime.elapsed);
     super.dispose();
   }
 
@@ -142,6 +145,9 @@ class _YoutubePageState extends State<YoutubePage> {
               _isPlayerReady = true;
               _controller.addListener(listener);
             },
+            bottomActions: [
+              CurrentPosition()
+            ],
           ),
 
           // Title under the video player
@@ -175,7 +181,7 @@ class _YoutubePageState extends State<YoutubePage> {
                     color: task.watched ? Colors.green : Colors.grey,
                   ),
                   onTap: () {
-                    widget.updateProgress(true);  // Call updateProgress method here
+                    widget.updateProgress(_totalWatchTime.elapsed);  // Call updateProgress method here
                     Navigator.of(context).push(
                       MaterialPageRoute(
                         builder: (context) => YoutubePage(

@@ -5,7 +5,7 @@ class VideoDto {
   final int chapterId;
   final String title;
   final String url;
-  late final bool watched;
+  bool watched;
   List<TaskDto>? tasks;
   Duration? totalLength;
   Duration? watchedLength;
@@ -54,7 +54,7 @@ class VideoDto {
     }
     else{
       double progress = (watchedLength!.inSeconds.toDouble() / totalLength!.inSeconds.toDouble());
-      if(progress >= 0.99){
+      if(progress >= 0.95){
         watched = true;
         return 1.0;
       }else {
