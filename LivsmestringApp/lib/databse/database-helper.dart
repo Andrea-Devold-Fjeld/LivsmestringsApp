@@ -80,8 +80,9 @@ class DatabaseHelper {
     await db.execute(createTasksTable);
 
     //var category = Category(name: "career", chapters: List.empty());
-    Map.of({"name": "career"});
+    //Map.of({"name": "career"});
     await db.insert("categories", Map.of({"name": "career"}));
+    await db.insert("categories", Map.of({"name": "health"}));
 
     // Create indices for better query performance
     await db.execute('''

@@ -218,6 +218,11 @@ class _MainNavigationState extends State<MainNavigation> {
             category: homePageController.careerCategory.value!,
             updateProgress: homePageController.updateProgress,
           ),
+          ChapterPage(
+              category: homePageController.healthCategory.value!,
+              updateProgress: homePageController.updateProgress
+          ),
+
           // Language tab
           LanguagePageNav(),
         ],
@@ -225,7 +230,7 @@ class _MainNavigationState extends State<MainNavigation> {
       bottomNavigationBar: Obx(() => ButtomNavigationBar(
         selectedTab: homePageController.currentIndex.value,
         onTap: (index) {
-          homePageController.changePage(index);
+          pageController.jumpToPage(index);
         },
       )),
     );
@@ -242,7 +247,6 @@ class HomePage extends StatelessWidget {
     if (selectedLanguage == null) {
       return LanguagePage(selectedLanguage: (int value) {});
     } else {
-      //#TODO if this dont work make this a future or something
       Get.find<HomePageController>().fetchAllData();
       return MainNavigation(selectedLanguage: selectedLanguage);
     }
