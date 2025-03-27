@@ -33,6 +33,7 @@ class HomePageController extends GetxController {
   var careerCategory = Rx<CategoryDTO?>(null);
   var healthCategory = Rx<CategoryDTO?>(null);
   DatamodelDto? careerData;
+  DatamodelDto? healthData;
   bool isDataLoading = false;
   final DatabaseController databaseController = Get.find<DatabaseController>();
 
@@ -89,10 +90,11 @@ class HomePageController extends GetxController {
   Future<bool> fetchAllData() async {
     try {
       var data = await databaseController.getDatamodelWithLAnguage('career', currentLocale.value!.languageCode);
-
+      var healthDat = await databaseController.getDatamodelWithLAnguage('health', currentLocale.value!.languageCode);
 
       _loadProgress();
       careerData = data;
+      healthData = healthDat;
       return true;
     }catch (e){
       log("Error: $e");
