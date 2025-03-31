@@ -100,6 +100,7 @@ class MyAppState extends State<MyApp> {
   Widget build(BuildContext context) {
     return GetMaterialApp(
       debugShowCheckedModeBanner: false,
+      showSemanticsDebugger: true,
       translations: LocaleString(),
       locale: _locale,
       title: 'life_mastery_app'.tr,
