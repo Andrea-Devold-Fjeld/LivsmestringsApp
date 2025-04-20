@@ -19,6 +19,24 @@
       }
     },
     {
+      "Title": "1.3_personal_qualities",
+      "Url":
+      {
+        "en": "https://youtu.be/6cp-8z2md_0",
+        "nb": "https://youtu.be/oQB-1CxXP2k",
+        "ps": "https://youtu.be/1IwtqI7muew"
+      },
+      "Tasks":
+      {
+        "Title": "1.3.1_reflective_task_personal_qualities",
+        "Url":{
+          "en": "https://youtu.be/6cp-8z2md_0",
+          "nb": "https://youtu.be/oQB-1CxXP2k",
+          "ps": "https://youtu.be/1IwtqI7muew"
+        }
+      }
+    },
+    {
       "Title": "2.1_introduction",
       "Url": {
         "en": "https://youtu.be/dDanFYmbTOM",
