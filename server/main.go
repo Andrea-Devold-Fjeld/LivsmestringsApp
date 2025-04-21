@@ -31,7 +31,7 @@ func main() {
 	defer ccl()
 
 	r := chi.NewRouter()
-	r.Get("/{category}", DataHandler)
+	//r.Get("/{category}", DataHandler)
 	r.Get("/video", VideoHandler)
 
 	fmt.Println("Server is running at http://localhost:8080")
@@ -53,6 +53,8 @@ func VideoHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 }
+
+/*
 func DataHandler(w http.ResponseWriter, r *http.Request) {
 	category := chi.URLParam(r, "category")
 	var payload Data
@@ -90,6 +92,8 @@ func DataHandler(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+*/
+
 type Data struct {
 	Chapters []struct {
 		Title  string `json:"Title"`
@@ -106,12 +110,17 @@ type Data struct {
 
 // VideoResponse is the top-level structure for the JSON response
 // Struct to represent the video URL data for each video
-type Video struct {
+type Task struct {
 	Title string            `json:"Title"`
 	Url   map[string]string `json:"Url"`
 }
 
-// Struct to represent the overall structure containing video URLs
+type Video struct {
+	Title string            `json:"Title"`
+	Url   map[string]string `json:"Url"`
+	Tasks *Task             `json:"Tasks,omitempty"` // Use pointer to allow null/missing
+}
+
 type VideoUrls struct {
 	VideoUrls []Video `json:"VideoUrls"`
 }
@@ -120,4 +129,19 @@ type VideoUrls struct {
 type LanguageURL struct {
 	Language string `json:"Language"`
 	URL      string `json:"Url"`
+}
+
+type Comb struct {
+	Category string `json:"Category"`
+	Chapters []struct {
+		Title  string `json:"Title"`
+		Videos []struct {
+			Title        string            `json:"Title"`
+			LanguageUrls map[string]string `json:"LanguageUrls"`
+		}
+		Tasks []struct {
+			Title        string            `json:"Title"`
+			LanguageUrls map[string]string `json:"LanguageUrls"`
+		}
+	}
 }
