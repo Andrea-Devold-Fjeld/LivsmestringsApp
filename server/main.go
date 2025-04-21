@@ -5,23 +5,22 @@ import (
 	_ "embed"
 	"encoding/json"
 	"fmt"
+	"github.com/go-chi/chi/v5"
 	"log"
 	"net/http"
 	"os/signal"
 	"syscall"
-
-	"github.com/go-chi/chi/v5"
 )
 
 //TIP <p>To run your code, right-click the code and select <b>Run</b>.</p> <p>Alternatively, click
 // the <icon src="AllIcons.Actions.Execute"/> icon in the gutter and select the <b>Run</b> menu item from here.</p>
-
+/*
 //go:embed carrer.json
 var carrerFile []byte
 
 //go:embed health.json
 var healthFile []byte
-
+*/
 //go:embed viedos.json
 var videos []byte
 

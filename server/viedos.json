@@ -1,58 +1,69 @@
 {
-  "VideoUrls": [
+  "Category": "career",
+  "Chapters": [
     {
-      "Title": "1.1_introduction",
-      "Url":
-      {
-        "en": "https://youtu.be/LEvsQV9x3Oo",
-        "nb": "https://youtu.be/KOwLhVRP7UY",
-        "ps": "https://youtu.be/I9zQ3BCxEEw"
-      }
-    },
-    {
-      "Title": "1.2_new_words",
-      "Url":
-      {
-        "en": "https://youtu.be/6cp-8z2md_0",
-        "nb": "https://youtu.be/oQB-1CxXP2k",
-        "ps": "https://youtu.be/1IwtqI7muew"
-      }
-    },
-    {
-      "Title": "1.3_personal_qualities",
-      "Url":
-      {
-        "en": "https://youtu.be/6cp-8z2md_0",
-        "nb": "https://youtu.be/oQB-1CxXP2k",
-        "ps": "https://youtu.be/1IwtqI7muew"
-      },
-      "Tasks":
-      {
-        "Title": "1.3.1_reflective_task_personal_qualities",
-        "Url":{
-          "en": "https://youtu.be/6cp-8z2md_0",
-          "nb": "https://youtu.be/oQB-1CxXP2k",
-          "ps": "https://youtu.be/1IwtqI7muew"
+      "Title": "1_me_in_context",
+      "Videos": [
+        {
+          "Title": "1.1_introduction",
+          "LanguageUrls": {
+            "en": "https://youtu.be/LEvsQV9x3Oo",
+            "nb": "https://youtu.be/KOwLhVRP7UY",
+            "ps": "https://youtu.be/I9zQ3BCxEEw"
+          },
+          "Tasks": null
+        },
+        {
+          "Title": "1.2_new_words",
+          "LanguageUrls": {
+            "en": "https://youtu.be/6cp-8z2md_0",
+            "nb": "https://youtu.be/oQB-1CxXP2k",
+            "ps": "https://youtu.be/1IwtqI7muew"
+          },
+          "Tasks": null
+        },
+        {
+          "Title": "1.3_personal_qualities",
+          "LanguageUrls": {
+            "en": "https://youtu.be/6cp-8z2md_0",
+            "nb": "https://youtu.be/oQB-1CxXP2k",
+            "ps": "https://youtu.be/1IwtqI7muew"
+          },
+          "Tasks": [
+            {
+              "Title": "1.3.1_reflective_task_personal_qualities",
+              "LanguageUrls": {
+                "en": "https://youtu.be/6cp-8z2md_0",
+                "nb": "https://youtu.be/oQB-1CxXP2k",
+                "ps": "https://youtu.be/1IwtqI7muew"
+              }
+            }
+          ]
         }
-      }
+      ]
     },
     {
-      "Title": "2.1_introduction",
-      "Url": {
-        "en": "https://youtu.be/dDanFYmbTOM",
-        "nb": "https://youtu.be/iFDXvfv1kyc",
-        "ps": "https://youtu.be/JAiBSiYfEX8"
-      }
-    },
-    {
-      "Title": "2.2_new_words",
-      "Url":
-      {
-        "en": "https://youtu.be/hpdKugixC0g",
-        "nb": "https://youtu.be/37UTzYAXHno",
-        "ps": "https://youtu.be/A-mk6Oua6TE"
-      }
-
+      "Title": "2_possibilties_and_limitations",
+      "Videos": [
+        {
+          "Title": "2.1_introduction",
+          "LanguageUrls": {
+            "en": "https://youtu.be/dDanFYmbTOM",
+            "nb": "https://youtu.be/iFDXvfv1kyc",
+            "ps": "https://youtu.be/JAiBSiYfEX8"
+          },
+          "Tasks": null
+        },
+        {
+          "Title": "2.2_new_words",
+          "LanguageUrls": {
+            "en": "https://youtu.be/hpdKugixC0g",
+            "nb": "https://youtu.be/37UTzYAXHno",
+            "ps": "https://youtu.be/A-mk6Oua6TE"
+          },
+          "Tasks": null
+        }
+      ]
     }
   ]
 }
