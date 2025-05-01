@@ -1,12 +1,11 @@
 import 'video-db.dart';
 
-
+/*
 class ChapterDto {
   final int? id;
   final int categoryId;
   final String title;
   List<VideoDto> videos;
-
   ChapterDto({this.id, required this.categoryId, required this.title, this.videos = const []});
 
   factory ChapterDto.fromMap(Map<String, dynamic> map) {
@@ -32,3 +31,5 @@ class ChapterDto {
     return map;
   }
 }
+
+ */

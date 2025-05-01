@@ -38,7 +38,7 @@ func main() {
 }
 
 func VideoHandler(w http.ResponseWriter, r *http.Request) {
-	var payload VideoUrls
+	var payload Comb
 
 	err := json.Unmarshal(videos, &payload)
 	if err != nil {
@@ -93,54 +93,23 @@ func DataHandler(w http.ResponseWriter, r *http.Request) {
 
 */
 
-type Data struct {
-	Chapters []struct {
-		Title  string `json:"Title"`
-		Videos []struct {
-			Title string `json:"Title"`
-			URL   string `json:"Url"`
-			Tasks []struct {
-				Title string `json:"Title"`
-				URL   string `json:"Url"`
-			}
-		}
-	}
+type Comb struct {
+	Category string    `json:"Category"`
+	Chapters []Chapter `json:"Chapters"`
 }
 
-// VideoResponse is the top-level structure for the JSON response
-// Struct to represent the video URL data for each video
-type Task struct {
-	Title string            `json:"Title"`
-	Url   map[string]string `json:"Url"`
+type Chapter struct {
+	Title  string  `json:"Title"`
+	Videos []Video `json:"Videos"`
 }
 
 type Video struct {
-	Title string            `json:"Title"`
-	Url   map[string]string `json:"Url"`
-	Tasks *Task             `json:"Tasks,omitempty"` // Use pointer to allow null/missing
+	Title        string            `json:"Title"`
+	LanguageUrls map[string]string `json:"LanguageUrls"`
+	Tasks        []Task            `json:"Tasks,omitempty"`
 }
 
-type VideoUrls struct {
-	VideoUrls []Video `json:"VideoUrls"`
-}
-
-// LanguageURL represents a single language option for a video
-type LanguageURL struct {
-	Language string `json:"Language"`
-	URL      string `json:"Url"`
-}
-
-type Comb struct {
-	Category string `json:"Category"`
-	Chapters []struct {
-		Title  string `json:"Title"`
-		Videos []struct {
-			Title        string            `json:"Title"`
-			LanguageUrls map[string]string `json:"LanguageUrls"`
-		}
-		Tasks []struct {
-			Title        string            `json:"Title"`
-			LanguageUrls map[string]string `json:"LanguageUrls"`
-		}
-	}
+type Task struct {
+	Title        string            `json:"Title"`
+	LanguageUrls map[string]string `json:"LanguageUrls"`
 }

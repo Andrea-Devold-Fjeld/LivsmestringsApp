@@ -1,5 +1,6 @@
 import 'task-db.dart';
 
+/*
 class VideoDto {
   final int? id;
   final int chapterId;
@@ -64,3 +65,5 @@ class VideoDto {
 
   }
 }
+
+ */

@@ -2,17 +2,15 @@ import 'dart:core';
 import 'dart:developer';
 import 'dart:ui';
 import 'package:flutter/foundation.dart';
+import 'package:get/get.dart';
 import 'package:livsmestringapp/dto/category_dto.dart';
-import 'package:livsmestringapp/models/VideoUrl.dart';
-import 'package:livsmestringapp/models/chapter-db.dart';
 import 'package:sqflite/sqflite.dart';
 import '../dto/chapter_dto.dart';
 import '../dto/task_dto.dart';
 import '../dto/video_dto.dart';
 import '../models/DataModel.dart';
 import '../models/DataModelDTO.dart';
-import '../models/task-db.dart';
-import '../models/video-db.dart';
+
 
 Duration? _parseDuration(String? durationString) {
   // Format from Duration.toString() is typically "0:00:00.000000"
@@ -119,8 +117,7 @@ Future<void> updateVideoWatchTime(Future<Database> futureDb, Duration duration, 
   }
 }
 
-// Updated insert method for the new schema
-Future<void> insertDataModel(Future<Database> futureDb, Datamodel model, VideoUrls urls) async {
+Future<void> insertDataModel(Future<Database> futureDb, Datamodel model) async {
   final Database db = await futureDb;
 
   await db.transaction((txn) async {
@@ -139,8 +136,9 @@ Future<void> insertDataModel(Future<Database> futureDb, Datamodel model, VideoUr
     )
         : existingCategories.first['id'];
 
-    // Insert chapters with category reference
+    // Process each chapter
     for (var chapter in model.chapters) {
+      // Insert chapter
       final chapterId = await txn.insert(
         'chapters',
         {
@@ -150,46 +148,46 @@ Future<void> insertDataModel(Future<Database> futureDb, Datamodel model, VideoUr
         conflictAlgorithm: ConflictAlgorithm.ignore,
       );
 
-      // Insert videos
+      // Process each video in the chapter
       for (var video in chapter.videos) {
-        for (var v in urls.videoUrls){
-          if(v.title == video.title){
-            v.url.forEach((x,y) async {
-              final videoId = await txn.insert(
-                  'videos', {
-                  'chapter_id': chapterId,
-                  'title': video.title,
-                  'url': v.url[x],
-                  'watched': video.watched ? 1 : 0,
-                  'language_code': x,
-                  }, conflictAlgorithm: ConflictAlgorithm.ignore);
-              });
-            }
-          }
-        final videoId = await txn.insert(
-          'videos',
-          {
-            'chapter_id': chapterId,
-            'title': video.title,
-            'url': video.url,
-            'watched': video.watched ? 1 : 0,
-          },
-          conflictAlgorithm: ConflictAlgorithm.ignore,
-        );
+        // For each language URL in the video
+        for (var entry in video.languageUrls.entries) {
+          final languageCode = entry.key;
+          final videoUrl = entry.value;
 
-        // Insert tasks if they exist
-        if (video.tasks != null) {
-          for (var task in video.tasks!) {
-            await txn.insert(
-              'tasks',
-              {
-                'video_id': videoId,
-                'title': task.title,
-                'url': task.url,
-                'watched': task.watched ? 1 : 0,
-              },
-              conflictAlgorithm: ConflictAlgorithm.ignore,
-            );
+          // Insert the video with language code
+          final videoId = await txn.insert(
+            'videos',
+            {
+              'chapter_id': chapterId,
+              'title': video.title,
+              'url': videoUrl,
+              'watched': video.watched ? 1 : 0,
+              'language_code': languageCode,
+              'total_length': video.totalLength?.toString(),
+              'watched_length': video.watchedLength?.toString(),
+            },
+            conflictAlgorithm: ConflictAlgorithm.ignore,
+          );
+          // If this video has tasks
+          if (video.tasks != null && video.tasks!.isNotEmpty) {
+            for (var task in video.tasks!) {
+              // If the task has this language
+              log("In inser datamodel, task title ${task.title}  url: ${task.languageUrls[languageCode]}");
+              if (task.languageUrls.containsKey(languageCode)) {
+                await txn.insert(
+                  'tasks',
+                  {
+                    'video_id': videoId,
+                    'title': task.title,
+                    'url': task.languageUrls[languageCode],
+                    'watched': task.watched ? 1 : 0,
+                    //'language_code': languageCode,
+                  },
+                  conflictAlgorithm: ConflictAlgorithm.ignore,
+                );
+              }
+            }
           }
         }
       }
@@ -198,7 +196,7 @@ Future<void> insertDataModel(Future<Database> futureDb, Datamodel model, VideoUr
 }
 
 Future<DatamodelDto> getDataModelWithLanguage(Future<Database> futureDb, String category, String language) async {
-  try{
+  try {
     final Database db = await futureDb;
     // Get category ID
     final List<Map<String, dynamic>> categoryResult = await db.query(
@@ -222,6 +220,7 @@ Future<DatamodelDto> getDataModelWithLanguage(Future<Database> futureDb, String 
 
     final List<ChapterDto> chaptersList = await Future.wait(
       chapters.map((chapter) async {
+        // Query videos with the specified language code
         final List<Map<String, dynamic>> videos = await db.query(
           'videos',
           where: 'chapter_id = ? AND language_code = ?',
@@ -230,6 +229,7 @@ Future<DatamodelDto> getDataModelWithLanguage(Future<Database> futureDb, String 
 
         final List<VideoDto> videosList = await Future.wait(
           videos.map((video) async {
+            // Query tasks with the same language code
             final List<Map<String, dynamic>> tasks = await db.query(
               'tasks',
               where: 'video_id = ?',
@@ -240,12 +240,17 @@ Future<DatamodelDto> getDataModelWithLanguage(Future<Database> futureDb, String 
               id: video['id'],
               title: video['title'],
               url: video['url'],
-              watched: video['watched']==1,
+              languageCode: video['language_code'] ?? language,
+              watched: video['watched'] == 1,
               totalLength: _parseDuration(video['total_length']),
               watchedLength: _parseDuration(video['watched_length']),
               tasks: tasks.map((task) => TaskDto(
+                id: task['id'],
                 title: task['title'],
-                url: task['url'], videoId: video['id'],
+                url: task['url'],
+                videoId: video['id'],
+                //languageCode: task['language_code'] ?? language,
+                watched: task['watched'] == 1,
               )).toList(),
               chapterId: video['chapter_id'],
             );
@@ -253,21 +258,28 @@ Future<DatamodelDto> getDataModelWithLanguage(Future<Database> futureDb, String 
         );
 
         return ChapterDto(
+          id: chapter['id'],
           title: chapter['title'],
-          videos: videosList, categoryId: categoryId as int,
+          videos: videosList,
+          categoryId: categoryId,
         );
       }),
     );
 
-    return DatamodelDto(chapters: chaptersList, category: category);
-  }catch(e){
+    return DatamodelDto(
+        id: categoryId,
+        chapters: chaptersList,
+        category: category
+    );
+  } catch(e) {
     if (kDebugMode) {
-      print(e);
+      print('Error fetching data model: $e');
     }
-    throw Exception();
-
+    throw Exception('Failed to load data model: $e');
   }
 }
+
+
 /*
                 tasks: tasks.map((task) => TaskDto(
                   title: task['title'],

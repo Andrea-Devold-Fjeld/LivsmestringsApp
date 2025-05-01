@@ -1,35 +1,33 @@
 import 'dart:ui';
-
 import 'package:json_annotation/json_annotation.dart';
 
 @JsonSerializable()
 class Datamodel {
-  @JsonKey(name: 'Chapters')
   final String category;
-   List<Chapter> chapters;
+  List<Chapter> chapters;
   late final int _totalVideos = totalVideos();
   late int _watchedVideos = initWatchedVideos();
   late double _progress = _watchedVideos/_totalVideos;
 
   Datamodel({required this.chapters, required this.category});
 
-  factory Datamodel.fromJson(Map<String, dynamic> json, String category) {
+  factory Datamodel.fromJson(Map<String, dynamic> json) {
     return Datamodel(
       chapters: (json['Chapters'] as List)
           .map((chapter) => Chapter.fromJson(chapter))
-          .toList(), category: category,
+          .toList(),
+      category: json['Category'],
     );
   }
 
   int totalVideos(){
     var count = 0;
     for (var c in chapters) {
-          count += c.videos.length;
-          for (var v in c.videos) {
-                count += v.tasks?.length ?? 0;
-              }
-        }
-
+      count += c.videos.length;
+      for (var v in c.videos) {
+        count += v.tasks?.length ?? 0;
+      }
+    }
     return count;
   }
 
@@ -37,21 +35,19 @@ class Datamodel {
     _watchedVideos += i;
     _progress = _watchedVideos/_totalVideos;
   }
+
   double get progress => _progress;
 
   int initWatchedVideos() {
     var count = 0;
     for (var c in chapters) {
-          for (var v in c.videos) {
-                if(v.watched) count++;
-                v.tasks?.forEach(
-                        (t){
-                      if(t.watched) count++;
-                    }
-                );
-              }
-        }
-
+      for (var v in c.videos) {
+        if(v.watched) count++;
+        v.tasks?.forEach((t) {
+          if(t.watched) count++;
+        });
+      }
+    }
     return count;
   }
 }
@@ -73,24 +69,22 @@ class Chapter {
           .toList(),
     );
   }
-
-
 }
 
 class Video {
   final String title;
-  final String url;
+  final Map<String, String> languageUrls;
   final List<Task>? tasks;
-  String? languageCode;
+  String? currentLanguage;
   Duration? totalLength;
   Duration? watchedLength;
   bool _watched = false;
 
   Video({
     required this.title,
-    required this.url,
+    required this.languageUrls,
     this.tasks,
-    this.languageCode,
+    this.currentLanguage,
     this.totalLength,
     this.watchedLength,
   });
@@ -99,31 +93,36 @@ class Video {
   set watched(bool v){
     _watched = v;
   }
+
+  String get url => languageUrls[currentLanguage] ?? languageUrls.values.first;
+
   factory Video.fromJson(Map<String, dynamic> json) {
     return Video(
       title: json['Title'],
-      url: json['Url'],
+      languageUrls: json['LanguageUrls'] != null
+          ? Map<String, String>.from(json['LanguageUrls'])
+          : {'en': json['Url'] ?? ''},
       tasks: json['Tasks'] != null
           ? (json['Tasks'] as List)
           .map((task) => Task.fromJson(task))
           .toList()
           : null,
-      languageCode: json['Language_code'],
-      totalLength: json['Total_length'],
-      watchedLength: json['Watched_length'],
+      totalLength: null,
+      watchedLength: null,
     );
   }
-
 }
 
 class Task {
   final String title;
-  final String url;
+  final Map<String, String> languageUrls;
+  String? currentLanguage;
   bool _watched = false;
 
   Task({
     required this.title,
-    required this.url,
+    required this.languageUrls,
+    this.currentLanguage,
   });
 
   bool get watched => _watched;
@@ -131,10 +130,14 @@ class Task {
     _watched = v;
   }
 
+  String get url => languageUrls[currentLanguage] ?? languageUrls.values.first;
+
   factory Task.fromJson(Map<String, dynamic> json) {
     return Task(
       title: json['Title'],
-      url: json['Url'],
+      languageUrls: json['LanguageUrls'] != null
+          ? Map<String, String>.from(json['LanguageUrls'])
+          : {'en': json['Url'] ?? ''},
     );
   }
 }
