@@ -1,3 +1,4 @@
+import 'dart:developer';
 import 'dart:ui';
 
 import 'package:get/get_state_manager/src/simple/get_controllers.dart';
@@ -14,8 +15,8 @@ class DatabaseController extends GetxController {
 
   DatabaseController(this.db);
 
-  Future<void> insertDatamodel(Datamodel data, VideoUrls urls) async {
-    await insertDataModel(db, data, urls);
+  Future<void> insertDatamodel(Datamodel data) async {
+    await insertDataModel(db, data);
   }
   Future<void> markVideoWatched(String videoTitle) async {
     await updateVideoWatchStatus(db, videoTitle, true);
@@ -32,7 +33,17 @@ class DatabaseController extends GetxController {
  */
 
   Future<DatamodelDto> getDatamodelWithLAnguage(String category, String language) async {
-    return await getDataModelWithLanguage(db, category, language);
+    var data = await getDataModelWithLanguage(db, category, language);
+    log("IN getDatamodelWithLanguage: \n${data.category}");
+    data.chapters.forEach((c) {
+      c.videos.forEach((v) {
+        log("Video title: ${v.title}");
+        //if(v.tasks != null){
+        //  log("Task: ${v.tasks?.first.title}");
+        //};
+      });
+    });
+    return data;
   }
 
   Future<ProgressModel> getVideoProgress(int categoryId, Locale locale) async {

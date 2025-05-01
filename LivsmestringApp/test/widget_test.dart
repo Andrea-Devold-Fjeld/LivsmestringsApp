@@ -6,61 +6,69 @@
 // tree, read text, and verify that the values of widget properties are correct.
 
 import 'package:flutter/material.dart';
+import 'package:dio/dio.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:get/get.dart';
 import 'package:get/get_core/src/get_main.dart';
 import 'package:livsmestringapp/controllers/database-controller.dart';
 import 'package:livsmestringapp/controllers/home-page-controller.dart';
-import 'package:livsmestringapp/databse/database-helper.dart';
-import 'package:livsmestringapp/databse/database_operation.dart';
-import 'package:livsmestringapp/dto/category_dto.dart';
-
 import 'package:livsmestringapp/main.dart';
 import 'package:livsmestringapp/models/DataModel.dart';
-import 'package:livsmestringapp/models/DataModelDTO.dart';
-import 'package:livsmestringapp/models/VideoUrl.dart';
-import 'package:sqflite_common/sqlite_api.dart';
+import 'package:mockito/annotations.dart';
+import 'package:sqflite/sqflite.dart';
+import 'MockDatabase.dart';
+import 'MockHttpClient.dart'; // Import the MockDio class from this file
 
 void main() {
-  // Setup group for all widget tests
   group('HomePage accessibility tests', () {
-    // Setup runs once before all tests
-    setUpAll(() {
-      final databaseHelper = DatabaseHelper();
-      final database = databaseHelper.db;
-      // Initialize GetX controllers here
-      final mockDatabaseController = DatabaseController(database);
+    late Future<Database> mockDatabase;
+    late MockDio mockDio;
+    late Future<Database> testDb;
+
+
+    setUpAll( () async {
+      // Initialize sqflite_common_ffi for testing
+      final testDbHelper = TestDatabaseHelper();
+      testDb = testDbHelper.getTestDatabase();
+      //final resolvedTestDb = await testDbHelper.getTestDatabase(); // Resolve the database
+
+      // Initialize the database
+      // Initialize mock database and Dio
+      //mockDatabase = MockDatabaseHelper().db;
+      mockDio = MockDio();
+
+      // Mock database controller
+      //final mockDatabaseController = DatabaseController(Future.value(mockDatabase));
+
+      // Inject mocks into GetX
+      Get.put<DatabaseController>(DatabaseController(testDb));
       final mockHomePageController = HomePageController();
 
-      Get.put<DatabaseController>(mockDatabaseController);
       Get.put<HomePageController>(mockHomePageController);
+
+      // Mock Dio behavior
+      Datamodel mockData = await mockFetchData(mockDio, 'career');
     });
 
-    // Teardown runs after all tests
-    tearDownAll(() {
+    tearDownAll(() async {
+      await testDb.then((db) =>  {db.close()}); // Clean up after each test
       Get.reset();
     });
 
-    testWidgets('HomePage meets androidTapTargetGuideline', (
-        WidgetTester tester) async {
+    testWidgets('HomePage meets androidTapTargetGuideline', (WidgetTester tester) async {
       final SemanticsHandle handle = tester.ensureSemantics();
 
-      await tester.pumpWidget(
-          MaterialApp(
-              home: HomePage(selectedLanguage: 1)));
+      await tester.pumpWidget(MaterialApp(home: HomePage(selectedLanguage: 1)));
 
       await expectLater(tester, meetsGuideline(androidTapTargetGuideline));
 
       handle.dispose();
     });
 
-    testWidgets(
-        'HomePage meets text contrast guidelines', (WidgetTester tester) async {
+    testWidgets('HomePage meets text contrast guidelines', (WidgetTester tester) async {
       final SemanticsHandle handle = tester.ensureSemantics();
 
-      await tester.pumpWidget(
-          MaterialApp(
-              home: HomePage(selectedLanguage: 1)));
+      await tester.pumpWidget(MaterialApp(home: HomePage(selectedLanguage: 1)));
 
       await expectLater(tester, meetsGuideline(textContrastGuideline));
 

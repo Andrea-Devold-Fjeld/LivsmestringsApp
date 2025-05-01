@@ -1,5 +1,6 @@
 import 'chapter-db.dart';
 
+/*
 class Category {
   final int? id;
   final String name;
@@ -29,3 +30,5 @@ class Category {
     return map;
   }
 }
+
+ */

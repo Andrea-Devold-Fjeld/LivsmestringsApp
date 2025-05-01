@@ -1,12 +1,14 @@
 import 'dart:developer';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:livsmestringapp/controllers/database-controller.dart';
 import 'package:livsmestringapp/models/video-db.dart';
 import 'package:youtube_player_flutter/youtube_player_flutter.dart';
 
 import '../models/DataModel.dart';
+import '../models/DataModelDTO.dart';
 import '../models/task-db.dart';
 
 class YoutubePage extends StatefulWidget {
@@ -39,13 +41,12 @@ class _YoutubePageState extends State<YoutubePage> {
   late PlayerState _playerState;
   late YoutubeMetaData _videoMetaData;
   late String videoId;
-  final double _volume = 100;
+  double _volume = 100;
   bool _muted = false;
   bool _isPlayerReady = false;
-  //int? _watchTime;
-  //int? _watchStartTime;
   Stopwatch _totalWatchTime = Stopwatch();
   bool _isPlaying = false;
+  bool _isFullScreen = false;
 
   @override
   void initState() {
@@ -69,7 +70,6 @@ class _YoutubePageState extends State<YoutubePage> {
     _seekToController = TextEditingController();
     _videoMetaData = const YoutubeMetaData();
     _playerState = PlayerState.unknown;
-    //_databaseController.updateTotalLength(_videoMetaData.duration, widget.url);
     _controller.addListener(_trackWatchTime);
   }
 
@@ -79,10 +79,14 @@ class _YoutubePageState extends State<YoutubePage> {
       _totalWatchTime.start();
       _isPlaying = true;
     }
+    if(_controller.value.playerState != PlayerState.playing) {
+      _totalWatchTime.stop();
+      _isPlaying = false;
+    }
   }
 
   void listener() {
-    if (_isPlayerReady && mounted) { //!_controller.value.isFullScreen)
+    if (_isPlayerReady && mounted) {
       setState(() {
         _playerState = _controller.value.playerState;
         _videoMetaData = _controller.metadata;
@@ -110,6 +114,10 @@ class _YoutubePageState extends State<YoutubePage> {
 
   @override
   void dispose() {
+    if (_isFullScreen) {
+      SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]);
+      SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge);
+    }
     _controller.dispose();
     _idController.dispose();
     _seekToController.dispose();
@@ -118,13 +126,147 @@ class _YoutubePageState extends State<YoutubePage> {
     super.dispose();
   }
 
+  void _skipForward() {
+    final currentPosition = _controller.value.position.inSeconds;
+    final newPosition = currentPosition + 10; // Skip forward 10 seconds
+    _controller.seekTo(Duration(seconds: newPosition));
+  }
+
+  void _skipBackward() {
+    final currentPosition = _controller.value.position.inSeconds;
+    final newPosition = currentPosition - 10; // Skip backward 10 seconds
+    if (newPosition < 0) {
+      _controller.seekTo(const Duration(seconds: 0));
+    } else {
+      _controller.seekTo(Duration(seconds: newPosition));
+    }
+  }
+
+  void _toggleFullScreen() {
+    if (_isFullScreen) {
+      // Exit fullscreen
+      _controller.toggleFullScreenMode();
+      SystemChrome.setPreferredOrientations([
+        DeviceOrientation.portraitUp,
+      ]);
+      SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge);
+    } else {
+      // Enter fullscreen
+      _controller.toggleFullScreenMode();
+      SystemChrome.setPreferredOrientations([
+        DeviceOrientation.landscapeLeft,
+        DeviceOrientation.landscapeRight,
+      ]);
+      SystemChrome.setEnabledSystemUIMode(SystemUiMode.immersiveSticky);
+    }
+
+    setState(() {
+      _isFullScreen = !_isFullScreen;
+    });
+  }
+
+  void _showSettingsDialog() {
+    showModalBottomSheet(
+      context: context,
+      builder: (BuildContext context) {
+        return StatefulBuilder(
+          builder: (BuildContext context, StateSetter setModalState) {
+            return Container(
+              padding: const EdgeInsets.all(16.0),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  const Text(
+                    'Settings',
+                    style: TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+                  Row(
+                    children: [
+                      const Text('Volume:'),
+                      Expanded(
+                        child: Slider(
+                          value: _volume,
+                          min: 0,
+                          max: 100,
+                          onChanged: (value) {
+                            setModalState(() {
+                              _volume = value;
+                              _controller.setVolume(_volume.toInt());
+                            });
+                          },
+                        ),
+                      ),
+                      Text('${_volume.toInt()}%'),
+                    ],
+                  ),
+                  Row(
+                    children: [
+                      const Text('Mute:'),
+                      Switch(
+                        value: _muted,
+                        onChanged: (value) {
+                          setModalState(() {
+                            _muted = value;
+                            _controller.setVolume(_muted ? 0 : _volume.toInt());
+                          });
+                        },
+                      ),
+                    ],
+                  ),
+                  ListTile(
+                    title: const Text('Playback Speed'),
+                    trailing: DropdownButton<double>(
+                      value: _controller.value.playbackRate,
+                      items: const [
+                        DropdownMenuItem(value: 0.25, child: Text('0.25x')),
+                        DropdownMenuItem(value: 0.5, child: Text('0.5x')),
+                        DropdownMenuItem(value: 0.75, child: Text('0.75x')),
+                        DropdownMenuItem(value: 1.0, child: Text('Normal')),
+                        DropdownMenuItem(value: 1.25, child: Text('1.25x')),
+                        DropdownMenuItem(value: 1.5, child: Text('1.5x')),
+                        DropdownMenuItem(value: 1.75, child: Text('1.75x')),
+                        DropdownMenuItem(value: 2.0, child: Text('2x')),
+                      ],
+                      onChanged: (double? value) {
+                        if (value != null) {
+                          _controller.setPlaybackRate(value);
+                          Navigator.pop(context);
+                        }
+                      },
+                    ),
+                  ),
+                  /*
+                  ListTile(
+                    title: const Text('Captions'),
+                    trailing: Switch(
+                      value: _controller.value.flags.enableCaption,
+                      onChanged: (value) {
+                        _controller..toggleCaptions();
+                        Navigator.pop(context);
+                      },
+                    ),
+                  ),
+                  */
+                ],
+              ),
+            );
+          },
+        );
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Colors.black,
         leading: IconButton(
-          icon: Icon(Icons.close, color: Colors.white),
+          icon: const Icon(Icons.close, color: Colors.white),
           onPressed: () {
             Navigator.of(context).pop();
           },
@@ -137,7 +279,7 @@ class _YoutubePageState extends State<YoutubePage> {
             controller: _controller,
             showVideoProgressIndicator: true,
             progressIndicatorColor: Colors.amber,
-            progressColors: ProgressBarColors(
+            progressColors: const ProgressBarColors(
               playedColor: Colors.amber,
               handleColor: Colors.amberAccent,
             ),
@@ -145,8 +287,40 @@ class _YoutubePageState extends State<YoutubePage> {
               _isPlayerReady = true;
               _controller.addListener(listener);
             },
+            topActions: [
+              Expanded(
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 12.0),
+                  child: Text(
+                    _controller.metadata.title,
+                    style: const TextStyle(
+                      color: Colors.white,
+                      fontSize: 14.0,
+                    ),
+                    overflow: TextOverflow.ellipsis,
+                    maxLines: 1,
+                  ),
+                ),
+              ),
+            ],
             bottomActions: [
-              CurrentPosition()
+              CurrentPosition(),
+              ProgressBar(isExpanded: true,),
+              IconButton(
+                icon: const Icon(
+                  Icons.settings,
+                  color: Colors.white,
+                ),
+                onPressed: _showSettingsDialog,
+              ),
+              IconButton(
+                icon: Icon(
+                  _isFullScreen ? Icons.fullscreen_exit : Icons.fullscreen,
+                  color: Colors.white,
+                  size: 20,
+                ),
+                onPressed: _toggleFullScreen,
+              ),
             ],
           ),
 
@@ -155,7 +329,7 @@ class _YoutubePageState extends State<YoutubePage> {
             padding: const EdgeInsets.all(16.0),
             child: Text(
               widget.title, // Use the passed title from the widget constructor
-              style: TextStyle(
+              style: const TextStyle(
                 fontSize: 18,
                 fontWeight: FontWeight.bold,
                 color: Colors.black, // You can change the color if needed
@@ -166,41 +340,40 @@ class _YoutubePageState extends State<YoutubePage> {
 
           // ListView if tasks are provided
           if (widget.tasks != null && widget.tasks!.isNotEmpty) ...[
-            ListView.builder(
-              shrinkWrap: true,
-              physics: const NeverScrollableScrollPhysics(),
-              itemCount: widget.tasks!.length,
-              itemBuilder: (context, taskIndex) {
-                final task = widget.tasks![taskIndex];
-                return ListTile(
-                  dense: true,
-                  contentPadding: const EdgeInsets.only(left: 32.0, right: 16.0),
-                  title: Text(task.title),
-                  trailing: Icon(
-                    task.watched ? Icons.check_circle : Icons.circle_outlined,
-                    color: task.watched ? Colors.green : Colors.grey,
-                  ),
-                  onTap: () {
-                    widget.updateProgress(_totalWatchTime.elapsed);  // Call updateProgress method here
-                    Navigator.of(context).push(
-                      MaterialPageRoute(
-                        builder: (context) => YoutubePage(
-                          url: task.url,
-                          title: task.title,
-                          tasks: null,
-                          updateProgress: widget.updateProgress, // Pass the updateProgress function
+            Expanded(
+              child: ListView.builder(
+                shrinkWrap: true,
+                itemCount: widget.tasks!.length,
+                itemBuilder: (context, taskIndex) {
+                  final task = widget.tasks![taskIndex];
+                  return ListTile(
+                    dense: true,
+                    contentPadding: const EdgeInsets.only(left: 32.0, right: 16.0),
+                    title: Text(task.title.tr),
+                    trailing: Icon(
+                      task.watched ? Icons.check_circle : Icons.circle_outlined,
+                      color: task.watched ? Colors.green : Colors.grey,
+                    ),
+                    onTap: () {
+                      widget.updateProgress(_totalWatchTime.elapsed);  // Call updateProgress method here
+                      Navigator.of(context).push(
+                        MaterialPageRoute(
+                          builder: (context) => YoutubePage(
+                            url: task.url,
+                            title: task.title,
+                            tasks: null,
+                            updateProgress: widget.updateProgress, // Pass the updateProgress function
+                          ),
                         ),
-                      ),
-                    );
-                  },
-                );
-              },
+                      );
+                    },
+                  );
+                },
+              ),
             ),
           ],
         ],
       ),
     );
   }
-
-
 }

@@ -7,7 +7,7 @@ import 'package:livsmestringapp/models/VideoUrl.dart';
 
 import '../models/DataModel.dart';
 
-
+/*
 Datamodel findAndReplaceAndTranslate(Datamodel data, VideoUrls urls, Locale locale) {
   log("in find and replace for locale: ${locale.languageCode}");
 
@@ -107,3 +107,5 @@ List<String> getCareerModulesTitles(String state, Datamodel data) {
   }
   return newModuleTitle;
 }
+
+ */

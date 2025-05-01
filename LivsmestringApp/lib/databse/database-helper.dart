@@ -39,12 +39,11 @@ final String createVideosTable = '''
     language_code TEXT NOT NULL,
     total_length TEXT,
     watched_length TEXT, 
-    UNIQUE(chapter_id, url),
     FOREIGN KEY (chapter_id) REFERENCES chapters (id)
       ON DELETE CASCADE
   );
 ''';
-
+//     UNIQUE(chapter_id, url),
 final String createTasksTable = '''
   CREATE TABLE tasks(
     id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -52,6 +51,8 @@ final String createTasksTable = '''
     title TEXT NOT NULL,
     url TEXT NOT NULL,
     watched INTEGER NOT NULL DEFAULT 0,
+    total_length TEXT,
+    watched_length TEXT, 
     UNIQUE(video_id, title),
     FOREIGN KEY (video_id) REFERENCES videos (id)
       ON DELETE CASCADE

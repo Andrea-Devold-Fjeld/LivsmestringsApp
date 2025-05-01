@@ -1,358 +1,194 @@
-import 'dart:ui';
-import 'package:flutter/foundation.dart';
-import 'package:json_annotation/json_annotation.dart';
-
-import 'DataModel.dart';
-import 'chapter-db.dart';
-
-
 class DatamodelDto {
+  final int? id;
+  final String category;
   final List<ChapterDto> chapters;
-  final String category;
+  late final int _totalVideos;
+  late int _watchedVideos;
+  late double _progress;
 
-  DatamodelDto({required this.chapters, required this.category});
-
-}
-
-/*
-@JsonSerializable()
-class DatamodelDTO {
-  final int id;
-  @JsonKey(name: 'Chapters')
-  final String category;
-  List<ChapterDTO> chapters;
-  final int totalVideos;
-  int watchedVideos;
-  double progress;
-
-  DatamodelDTO({
-    required this.id,
-    required this.chapters,
+  DatamodelDto({
+    this.id,
     required this.category,
-    required this.totalVideos,
-    required this.watchedVideos,
-    required this.progress,
-  });
-
-  factory DatamodelDTO.fromJson(Map<String, dynamic> json, String category, {int? id}) {
-    final modelId = id ?? json['id'] ?? DateTime.now().millisecondsSinceEpoch;
-
-    List<ChapterDTO> chapterDTOs = [];
-    if (json['chapters'] != null) {
-      chapterDTOs = (json['chapters'] as List)
-          .map((chapter) => ChapterDTO.fromJson(chapter))
-          .toList();
-    }
-
-    int totalVideosCount = json['totalVideos'] ?? _calculateTotalVideos(chapterDTOs);
-    int watchedVideosCount = json['watchedVideos'] ?? _calculateWatchedVideos(chapterDTOs);
-    double progressValue = json['progress'] ?? (totalVideosCount > 0 ? watchedVideosCount / totalVideosCount : 0.0);
-
-    return DatamodelDTO(
-      id: modelId,
-      chapters: chapterDTOs,
-      category: category,
-      totalVideos: totalVideosCount,
-      watchedVideos: watchedVideosCount,
-      progress: progressValue,
-    );
+    required this.chapters,
+  }) {
+    _totalVideos = _calculateTotalVideos();
+    _watchedVideos = _calculateWatchedVideos();
+    _progress = _watchedVideos / (_totalVideos > 0 ? _totalVideos : 1);
   }
 
-  Map<String, dynamic> toJson() {
-    return {
-      'id': id,
-      'category': category,
-      'Chapters': chapters.map((chapter) => chapter.toJson()).toList(),
-      'totalVideos': totalVideos,
-      'watchedVideos': watchedVideos,
-      'progress': progress,
-    };
-  }
-
-  void updateProgress() {
-    watchedVideos = _calculateWatchedVideos(chapters);
-    progress = totalVideos > 0 ? watchedVideos / totalVideos : 0.0;
-  }
-
-  Datamodel toDatamodel() {
-    Datamodel model = Datamodel(
-      chapters: chapters.map((chapterDTO) => chapterDTO.toChapter()).toList(),
-      category: category,
-    );
-    return model;
-  }
-
-  static int _calculateTotalVideos(List<ChapterDTO> chapters) {
+  int _calculateTotalVideos() {
     var count = 0;
-    for (var c in chapters) {
-      count += c.videos.length;
-      for (var v in c.videos) {
-        count += v.tasks?.length ?? 0;
+    for (var chapter in chapters) {
+      count += chapter.videos.length;
+      for (var video in chapter.videos) {
+        count += video.tasks?.length ?? 0;
       }
     }
     return count;
   }
 
-  static int _calculateWatchedVideos(List<ChapterDTO> chapters) {
+  int _calculateWatchedVideos() {
     var count = 0;
-    for (var c in chapters) {
-      for (var v in c.videos) {
-        if (v.watched) count++;
-        v.tasks?.forEach((t) {
-          if (t.watched) count++;
+    for (var chapter in chapters) {
+      for (var video in chapter.videos) {
+        if (video.watched) count++;
+        video.tasks?.forEach((task) {
+          if (task.watched) count++;
         });
       }
     }
     return count;
   }
 
-  // Query methods
-  VideoDTO? findVideoById(int videoId) {
-    for (var chapter in chapters) {
-      for (var video in chapter.videos) {
-        if (video.id == videoId) {
-          return video;
-        }
-      }
-    }
-    return null;
-  }
-
-  TaskDTO? findTaskById(int taskId) {
-    for (var chapter in chapters) {
-      for (var video in chapter.videos) {
-        if (video.tasks != null) {
-          for (var task in video.tasks!) {
-            if (task.id == taskId) {
-              return task;
-            }
-          }
-        }
-      }
-    }
-    return null;
-  }
-
-  ChapterDTO? findChapterById(int chapterId) {
-    try {
-      return chapters.firstWhere((chapter) => chapter.id == chapterId);
-    } catch (e) {
-      return null;
-    }
-  }
-
-  ChapterDTO? findChapterByVideoId(int videoId) {
-    for (var chapter in chapters) {
-      for (var video in chapter.videos) {
-        if (video.id == videoId) {
-          return chapter;
-        }
-      }
-    }
-    return null;
-  }
-
-  VideoDTO? findVideoByUrl(String url) {
-    for (var chapter in chapters) {
-      for (var video in chapter.videos) {
-        if (video.url == url) {
-          return video;
-        }
-      }
-    }
-    return null;
-  }
-
-  TaskDTO? findTaskByUrl(String url) {
-    for (var chapter in chapters) {
-      for (var video in chapter.videos) {
-        if (video.tasks != null) {
-          for (var task in video.tasks!) {
-            if (task.url == url) {
-              return task;
-            }
-          }
-        }
-      }
-    }
-    return null;
-  }
-
-  List<VideoDTO> findUnwatchedVideos() {
-    List<VideoDTO> result = [];
-    for (var chapter in chapters) {
-      for (var video in chapter.videos) {
-        if (!video.watched) {
-          result.add(video);
-        }
-      }
-    }
-    return result;
-  }
-
-  List<TaskDTO> findUnwatchedTasks() {
-    List<TaskDTO> result = [];
-    for (var chapter in chapters) {
-      for (var video in chapter.videos) {
-        if (video.tasks != null) {
-          for (var task in video.tasks!) {
-            if (!task.watched) {
-              result.add(task);
-            }
-          }
-        }
-      }
-    }
-    return result;
-  }
+  double get progress => _progress;
 }
 
-class ChapterDTO {
-  final int id;
+class ChapterDto {
+  final int? id;
+  final int categoryId;
   final String title;
-  List<VideoDTO> videos;
+  final List<VideoDto> videos;
 
-  ChapterDTO({
-    required this.id,
+  ChapterDto({
+    this.id,
+    required this.categoryId,
     required this.title,
     required this.videos,
   });
-
-
-  factory ChapterDTO.fromJson(Map<String, dynamic> json) {
-
-    return ChapterDTO(
-      id: json['id'],
-      title: json['yitle'],
-      videos: (json['videos'] as List)
-          .map((video) => VideoDTO.fromJson(video))
-          .toList(),
-    );
-  }
-
-  Map<String, dynamic> toJson() {
-    return {
-      'id': id,
-      'title': title,
-      'videos': videos.map((video) => video.toJson()).toList(),
-    };
-  }
-
-  Chapter toChapter() {
-    return Chapter(
-      title: title,
-      videos: videos.map((videoDTO) => videoDTO.toVideo()).toList(),
-    );
-  }
 }
 
-class VideoDTO {
-  final int id;
+class VideoDto {
+  final int? id;
+  final int chapterId;
   final String title;
   final String url;
-  final List<TaskDTO>? tasks;
-  String? languageCode;
+  final String? languageCode;
+  bool watched;
+  List<TaskDto>? tasks;
   Duration? totalLength;
   Duration? watchedLength;
-  bool watched;
 
-  VideoDTO({
-    required this.id,
+  VideoDto({
+    this.id,
+    required this.chapterId,
     required this.title,
     required this.url,
-    this.tasks,
     this.languageCode,
+    this.watched = false,
+    this.tasks,
     this.totalLength,
     this.watchedLength,
-    required this.watched,
   });
 
-
-  factory VideoDTO.fromJson(Map<String, dynamic> json) {
-    return VideoDTO(
-      id: json['id'],
-      title: json['title'],
-      url: json['url'],
-      tasks: json['tasks'] != null
-          ? (json['tasks'] as List)
-          .map((task) => TaskDTO.fromJson(task))
-          .toList()
-          : null,
-      languageCode: json['language_code'],
-      totalLength: json['total_length'],
-      watchedLength: json['watched_length'],
-      watched: json['watched'] ?? false,
+  factory VideoDto.fromMap(Map<String, dynamic> map) {
+    return VideoDto(
+      id: map['id'],
+      chapterId: map['chapter_id'],
+      title: map['title'],
+      url: map['url'],
+      languageCode: map['language_code'] ?? 'en',
+      watched: map['watched'] == 1,
+      totalLength: _parseDuration(map['total_length']),
+      watchedLength: _parseDuration(map['watched_length']),
+      tasks: null, // Will be populated separately
     );
   }
 
-  Map<String, dynamic> toJson() {
-    return {
-      'id': id,
+  Map<String, dynamic> toMap() {
+    final map = <String, dynamic>{
+      'chapter_id': chapterId,
       'title': title,
       'url': url,
-      'tasks': tasks?.map((task) => task.toJson()).toList(),
       'language_code': languageCode,
-      'total_length': totalLength,
-      'watched_length': watchedLength,
-      'watched': watched,
+      'watched': watched ? 1 : 0,
+      'total_length': totalLength?.toString(),
+      'watched_length': watchedLength?.toString(),
     };
+    if (id != null) {
+      map['id'] = id;
+    }
+    return map;
   }
 
-  Video toVideo() {
-    Video video = Video(
-      title: title,
-      url: url,
-      tasks: tasks?.map((taskDTO) => taskDTO.toTask()).toList(),
-      languageCode: languageCode,
-      totalLength: totalLength,
-      watchedLength: watchedLength,
-    );
-    video.watched = watched;
-    return video;
+  double getVideoProgress() {
+    if (watchedLength == null || totalLength == null) {
+      return 0.0;
+    } else {
+      double progress = (watchedLength!.inSeconds.toDouble() / totalLength!.inSeconds.toDouble());
+      if (progress >= 0.95) {
+        watched = true;
+        return 1.0;
+      } else {
+        return progress;
+      }
+    }
   }
-
 }
 
-class TaskDTO {
-  final int id;
+class TaskDto {
+  final int? id;
+  final int videoId;
   final String title;
   final String url;
+  final String? languageCode;
   bool watched;
 
-  TaskDTO({
-    required this.id,
+  TaskDto({
+    this.id,
+    required this.videoId,
     required this.title,
     required this.url,
-    required this.watched,
+    this.languageCode,
+    this.watched = false,
   });
 
-
-  factory TaskDTO.fromJson(Map<String, dynamic> json) {
-    return TaskDTO(
-      id: json['id'],
-      title: json['title'],
-      url: json['url'],
-      watched: json['watched'] ?? false,
+  factory TaskDto.fromMap(Map<String, dynamic> map) {
+    return TaskDto(
+      id: map['id'],
+      videoId: map['video_id'],
+      title: map['title'],
+      url: map['url'],
+      languageCode: map['language_code'] ?? 'en',
+      watched: map['watched'] == 1,
     );
   }
 
-  Map<String, dynamic> toJson() {
-    return {
-      'id': id,
+  Map<String, dynamic> toMap() {
+    final map = <String, dynamic>{
+      'video_id': videoId,
       'title': title,
       'url': url,
-      'watched': watched,
+      'language_code': languageCode,
+      'watched': watched ? 1 : 0,
     };
-  }
-
-  Task toTask() {
-    Task task = Task(
-      title: title,
-      url: url,
-    );
-    task.watched = watched;
-    return task;
+    if (id != null) {
+      map['id'] = id;
+    }
+    return map;
   }
 }
 
- */
+// Helper function to parse duration strings
+Duration? _parseDuration(String? durationStr) {
+  if (durationStr == null) return null;
+
+  try {
+    final parts = durationStr.split(':');
+    if (parts.length == 3) {
+      return Duration(
+        hours: int.parse(parts[0]),
+        minutes: int.parse(parts[1]),
+        seconds: int.parse(parts[2]),
+      );
+    } else if (parts.length == 2) {
+      return Duration(
+        minutes: int.parse(parts[0]),
+        seconds: int.parse(parts[1]),
+      );
+    } else {
+      return Duration(seconds: int.parse(durationStr));
+    }
+  } catch (e) {
+    return null;
+  }
+}
