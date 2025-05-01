@@ -23,7 +23,6 @@ class TestDatabaseHelper {
 
         await db.insert("categories", Map.of({"name": "career"}));
         await db.insert("categories", Map.of({"name": "health"}));
-
       },
     );
   }
