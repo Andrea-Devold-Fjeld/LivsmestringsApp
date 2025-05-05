@@ -102,3 +102,4 @@ class MockDatabase extends Mock implements Database {
     _tables.clear(); // Simulate closing the database
   }
 }
+
