@@ -65,10 +65,9 @@ class _ChapterPageState extends State<ChapterPage> with SingleTickerProviderStat
         break;
       default:
         pageTitle = "Unknown";
-        pageColor = Colors.grey;
+        pageColor = Colors.grey[800]!;
         break;
     }
-    //_databaseController.getDatamodelWithLAnguage(widget.category.name, _homeController.currentLocale.value!.languageCode).then((result) {
     _homeController.fetchAllData().then((onValue) {
       if(onValue){
         setState(() {
@@ -94,9 +93,10 @@ class _ChapterPageState extends State<ChapterPage> with SingleTickerProviderStat
           children: [
             IconButton(
               onPressed: () {
-                homePageController.changePage(0);  // You can change 0 to any other tab index if needed
+                homePageController.changePage(0);
               },
               icon: const Icon(
+                semanticLabel: "Back",
                 Icons.arrow_back,
                 color: AppColors.white,
                 size: 30,
@@ -113,7 +113,7 @@ class _ChapterPageState extends State<ChapterPage> with SingleTickerProviderStat
         ),
         backgroundColor: pageColor,
       ),
-      body: data != null ? SingleChildScrollView( // Wrap the entire body in SingleChildScrollView
+      body: data != null ? SingleChildScrollView(
         child: Column(
           children: data!.chapters.map((chapter) {
             return Column(
@@ -138,7 +138,6 @@ class _ChapterPageState extends State<ChapterPage> with SingleTickerProviderStat
                     ),
                     textColor: Colors.purple[600],
                     children: [
-                      // Nested ListView.builder for videos inside the ExpansionTile
                       VideoListPage(chapter: chapter, updateWatched: (bool value) { reloadData(); }),
                     ],
                   ),

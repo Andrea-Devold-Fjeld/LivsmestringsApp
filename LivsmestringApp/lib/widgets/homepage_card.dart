@@ -68,6 +68,7 @@ class _HomePageCardState extends State<HomePageCard> {
                   widget.icon,
                   const SizedBox(width: 10),
                   AutoSizeText(
+                    semanticsLabel: widget.title,
                     widget.title,
                     style: Fonts.homePageCardLabel,
                     minFontSize: 16, // Set the minimum font size
