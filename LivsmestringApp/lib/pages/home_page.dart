@@ -80,6 +80,7 @@ class _HomePageContent extends State<HomePageContent> {
         Image.asset(
           'assets/logo_black.png',
           width: 300,
+          semanticLabel: "Logo of Oslo skolen",
         ),
         ...widget.categories.map((entry) {
           int id = entry.id;
@@ -94,6 +95,7 @@ class _HomePageContent extends State<HomePageContent> {
                 Icons.work,
                 size: 40,
                 color: AppColors.white,
+                semanticLabel: "Career",
               );
               backgroundColor = AppColors.weakedGreen;
               break;
@@ -102,6 +104,7 @@ class _HomePageContent extends State<HomePageContent> {
                 Icons.local_hospital,
                 size: 40,
                 color: AppColors.white,
+                semanticLabel: "Health",
               );
               backgroundColor = AppColors.spaceCadet;
               break;
@@ -110,26 +113,25 @@ class _HomePageContent extends State<HomePageContent> {
                 Icons.help,
                 size: 40,
                 color: AppColors.white,
+                semanticLabel: "Unknown",
               );
               backgroundColor = Colors.grey;
               break;
           }
-
-          return HomePageCard(
-            key: ValueKey(name),
-            categoryId: id,
-            //progress: widget.progress[id]?.progress ?? 0.0,
-            backgroundColor: backgroundColor,
-            title: title,
-            icon: icon,
-            onPressed: () {
-              log("In onTap homepagecard title: $title");
-              var route = "/${title.toLowerCase()}";
-              log("route is $route");
-              homePageController.changePage(1);
-
-            }
-            );
+          return Semantics(
+            label: 'Navigate to $title',
+            button: true,
+            child: HomePageCard(
+              key: ValueKey(name),
+              categoryId: id,
+              backgroundColor: backgroundColor,
+              title: title,
+              icon: icon,
+              onPressed: () {
+                homePageController.changePage(1);
+              },
+            ),
+          );
             },
         )
       ],

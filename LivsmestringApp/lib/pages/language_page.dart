@@ -79,6 +79,7 @@ class _LanguagesScreenState extends State<LanguagePage> {
                   Image.asset(
                     'assets/logo_black.png',
                     width: 200,
+                    semanticLabel: "Logo of Oslo skolen",
                   ),
                 ],
               ),
@@ -136,6 +137,7 @@ class _LanguagesScreenState extends State<LanguagePage> {
                   Icons.arrow_downward,
                   size: 45,
                   color: Colors.purple[600],
+                  semanticLabel: "Scroll down",
                 ),
               )
                   : GestureDetector(
@@ -153,6 +155,7 @@ class _LanguagesScreenState extends State<LanguagePage> {
                   Icons.arrow_upward,
                   size: 45,
                   color: Colors.purple[600],
+                  semanticLabel: "Scroll up",
                 ),
               ),
             ],
