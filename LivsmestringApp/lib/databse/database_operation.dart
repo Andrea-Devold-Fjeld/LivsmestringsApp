@@ -592,9 +592,7 @@ Future<ProgressModel> getProgress(Future<Database> futureDb, int categoryId, Loc
        WHERE chapters.category_id = ?) as total
   ''', [categoryId, locale.languageCode, categoryId]);
 
-  log("Totalvideoresult: $totalVideosResult");
   final totalCount = Sqflite.firstIntValue(totalVideosResult) ?? 0;
-  log("total count$totalCount");
   final query = '''
     SELECT 
       COUNT(DISTINCT videos.id) as watched_videos_count,
@@ -615,7 +613,6 @@ Future<ProgressModel> getProgress(Future<Database> futureDb, int categoryId, Loc
   var watchedCount = watchedTasksCount + watchedVideosCount;
   // Calculate progress percentage
   final double progress = totalCount > 0 ? watchedCount / totalCount : 0.0;
-  log("Total videos: $totalCount , wached videos: $watchedCount , prgress: $progress");
   return ProgressModel(totalVideos: totalCount, watchedVideos: watchedCount, categoryId: categoryId, progress: progress);
 }
 

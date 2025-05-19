@@ -11,7 +11,7 @@ import 'package:livsmestringapp/pages/language_page_nav.dart';
 import 'package:livsmestringapp/pages/splash_screen.dart';
 import 'package:livsmestringapp/services/LocaleString.dart';
 import 'package:livsmestringapp/styles/theme.dart';
-import 'package:livsmestringapp/widgets/buttom_navigation.dart';
+import 'package:livsmestringapp/widgets/navigation_bar.dart';
 import 'package:logging/logging.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:sqflite/sqflite.dart';
@@ -171,6 +171,7 @@ class _MainNavigationState extends State<MainNavigation> {
 
     // Set up a worker to listen for index changes
     indexWorker = ever(homePageController.currentIndex, (index) {
+      // animateTpPage must not be called if the pageController not have any subscribed
       if (pageController.hasClients) {
         pageController.animateToPage(
           index,
@@ -202,12 +203,6 @@ class _MainNavigationState extends State<MainNavigation> {
       body: PageView(
         controller: pageController,
         physics: const PageScrollPhysics(),
-        onPageChanged: (index) {
-          // Only update if different to avoid circular updates
-          if (homePageController.currentIndex.value != index) {
-            homePageController.currentIndex.value = index;
-          }
-        },
         children: [
           // Home tab
           HomePageContent(
@@ -228,7 +223,7 @@ class _MainNavigationState extends State<MainNavigation> {
           LanguagePageNav(),
         ],
       ),
-      bottomNavigationBar: Obx(() => ButtomNavigationBar(
+      bottomNavigationBar: Obx(() => NavigationBarWrapper(
         selectedTab: homePageController.currentIndex.value,
         onTap: (index) {
           pageController.jumpToPage(index);

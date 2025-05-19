@@ -4,14 +4,16 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:livsmestringapp/databse/database_operation.dart';
 import 'package:livsmestringapp/dto/category_dto.dart';
+import 'package:livsmestringapp/models/page_enum.dart';
 import 'package:livsmestringapp/pages/chapter-page.dart';
 import 'package:livsmestringapp/pages/language_page.dart';
 import 'package:livsmestringapp/pages/language_page_nav.dart';
 import '../controllers/home-page-controller.dart';
 import '../styles/colors.dart';
-import '../widgets/buttom_navigation.dart';
+import '../widgets/navigation_bar.dart';
 import '../widgets/homepage_card.dart';
 
+/*
 class HomePage extends StatelessWidget {
   final int? selectedLanguage;
   const HomePage({super.key, required this.selectedLanguage});
@@ -45,7 +47,7 @@ class HomePage extends StatelessWidget {
           ],
         )
         ,
-        bottomNavigationBar: ButtomNavigationBar(
+        bottomNavigationBar: NavigationBarWrapper(
           selectedTab: homePageController.currentIndex.value,
           onTap: homePageController.changePage,
         ),
@@ -54,10 +56,9 @@ class HomePage extends StatelessWidget {
 
   }
 }
-
+*/
 class HomePageContent extends StatefulWidget {
   final List<CategoryDTO> categories;
-  //inal Map<int, ProgressModel> progress;
   final ValueSetter<bool> updateProgress;
 
   const HomePageContent({super.key, required this.categories, required this.updateProgress});
@@ -88,7 +89,8 @@ class _HomePageContent extends State<HomePageContent> {
           String title = name.tr;
           Icon icon;
           Color backgroundColor;
-
+          Pages page = Pages.home; // need to have a fallback value
+          log("In homepage tih name: $name");
           switch (name) {
             case 'career':
               icon = Icon(
@@ -97,6 +99,7 @@ class _HomePageContent extends State<HomePageContent> {
                 color: AppColors.white,
                 semanticLabel: "Career",
               );
+              page = Pages.career;
               backgroundColor = AppColors.weakedGreen;
               break;
             case 'health':
@@ -106,6 +109,7 @@ class _HomePageContent extends State<HomePageContent> {
                 color: AppColors.white,
                 semanticLabel: "Health",
               );
+              page = Pages.health;
               backgroundColor = AppColors.spaceCadet;
               break;
             default:
@@ -128,7 +132,11 @@ class _HomePageContent extends State<HomePageContent> {
               title: title,
               icon: icon,
               onPressed: () {
-                homePageController.changePage(1);
+                log("In HomePage page index: ${page.index}");
+                log("In ONPRESSED $name");
+                homePageController.currentIndex.value = page.index;
+                //homePageController.changePage(page.index);
+
               },
             ),
           );
@@ -138,3 +146,5 @@ class _HomePageContent extends State<HomePageContent> {
     ));
   }
 }
+
+

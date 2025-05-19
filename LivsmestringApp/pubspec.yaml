@@ -36,8 +36,6 @@ dependencies:
   cupertino_icons: ^1.0.8
   video_player: ^2.9.2
   shared_preferences: ^2.4.0
-  firebase_storage: ^12.4.1
-  firebase_core: ^3.10.1
   percent_indicator: ^4.2.4
   auto_size_text: ^3.0.0
   get: ^4.6.6
@@ -52,6 +50,7 @@ dependencies:
   path: ^1.9.0
   mockito: ^5.4.5
   sqflite_common_ffi: ^2.3.4+4
+  flutter_inappwebview: ^6.1.5
 
 
 dev_dependencies:
