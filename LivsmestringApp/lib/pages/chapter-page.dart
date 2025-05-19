@@ -151,18 +151,115 @@ class _ChapterPageState extends State<ChapterPage> with SingleTickerProviderStat
   }
 }
 
+class VideoTile extends StatefulWidget {
+  final VideoDto video;
+  final Function() onUpdate;
 
+  const VideoTile({
+    required this.video,
+    required this.onUpdate,
+    super.key,
+  });
+
+  @override
+  State<VideoTile> createState() => _VideoTileState();
+}
+class _VideoTileState extends State<VideoTile> {
+  bool _expanded = false;
+
+  @override
+  Widget build(BuildContext context) {
+    final video = widget.video;
+    final hasTasks = video.tasks != null && video.tasks!.isNotEmpty;
+    final progress = video.getVideoProgress();
+    final isComplete = progress >= 0.95 || video.watched;
+
+    return Column(
+      children: [
+        ListTile(
+          title: Text(video.title.tr),
+          trailing: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              if (hasTasks) const SizedBox(width: 8),
+              if (hasTasks)
+                GestureDetector(
+                  onTap: () {
+                    setState(() {
+                      _expanded = !_expanded;
+                    });
+                  },
+                  child: Icon(
+                    _expanded ? Icons.expand_less : Icons.chevron_right,
+                    color: Colors.grey,
+                  ),
+                ),
+              isComplete
+                  ? Icon(
+                video.watched ? Icons.check_circle : Icons.circle_outlined,
+                color: video.watched ? Colors.green : Colors.grey,
+              )
+                  : SizedBox(
+                width: 24,
+                height: 24,
+                child: CircularProgressIndicator(
+                  value: progress,
+                  backgroundColor: Colors.grey,
+                  valueColor: AlwaysStoppedAnimation(Colors.green),
+                  strokeWidth: 2.5,
+                ),
+              ),
+
+            ],
+          ),
+          onTap: () {
+            // Navigate to video
+            Navigator.of(context).push(
+              MaterialPageRoute(
+                builder: (context) => YoutubePage(
+                  url: video.url,
+                  tasks: video.tasks,
+                  title: video.title.tr,
+                  updateProgress: (Duration value) {
+                    widget.onUpdate();
+                  },
+                  videoDto: video,
+                ),
+              ),
+            );
+          },
+        ),
+        if (_expanded && hasTasks)
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 0),
+            child: TaskListPage(
+              tasks: video.tasks!,
+              updateWatched: (bool value) {
+                widget.onUpdate();
+              },
+            ),
+          ),
+    //const SizedBox(height: 8), // Instead of just Divider
+    //Divider(thickness: 1, height: 1),
+    //const SizedBox(height: 8),
+
+      ],
+    );
+  }
+}
 class VideoListPage extends StatelessWidget {
   final ChapterDto chapter;
   final ValueSetter<bool> updateWatched;
-  const VideoListPage({super.key,  required this.chapter, required this.updateWatched});
 
-  void _onUpdate(){
+  const VideoListPage(
+      {super.key, required this.chapter, required this.updateWatched});
+
+  void _onUpdate() {
     updateWatched(true);
   }
+
   @override
   Widget build(BuildContext context) {
-
     return ListView.builder(
       shrinkWrap: true,
       physics: const NeverScrollableScrollPhysics(),
@@ -170,60 +267,115 @@ class VideoListPage extends StatelessWidget {
       itemBuilder: (context, videoIndex) {
         VideoDto video = chapter.videos[videoIndex];
         bool hasTasks = video.tasks != null && video.tasks!.isNotEmpty;
-        double progress = video.getVideoProgress(); // Add this to your model
+        double progress = video.getVideoProgress();
         bool isComplete = progress >= 0.95 || video.watched;
-        return ListTile(
+
+        return Container(
+          margin: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 4.0),
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(8),
+            boxShadow: [
+              BoxShadow(color: Colors.black12, blurRadius: 4, offset: Offset(0, 2))
+            ],
+          ),
+          child: VideoTile(
+            video: chapter.videos[videoIndex],
+            onUpdate: _onUpdate,
+          ),
+        );});}}
+          /*ExpansionTile(
           title: Text(video.title.tr),
-          trailing: isComplete
-          ? Icon(
+          trailing: Row(
+            mainAxisSize: MainAxisSize.min, // So the row doesn't take full width
+            children: [
+              // Check mark or progress indicator
+              isComplete
+                  ? Icon(
+                video.watched ? Icons.check_circle : Icons.circle_outlined,
+                color: video.watched ? Colors.green : Colors.grey,
+              )
+                  : SizedBox(
+                width: 24,
+                height: 24,
+                child: CircularProgressIndicator(
+                  value: progress,
+                  backgroundColor: Colors.grey,
+                  valueColor: AlwaysStoppedAnimation(Colors.green),
+                  strokeWidth: 2.5,
+                ),
+              ),
+
+              // Optional spacing between icons
+              if (hasTasks) const SizedBox(width: 8),
+
+              // Task icon or arrow if there are tasks
+              if (hasTasks)
+                const Icon(
+                  Icons.chevron_right, // or use Icons.assignment / Icons.task_alt
+                  color: Colors.grey,
+                  size: 20,
+                ),
+            ],
+          ),
+          /*? Icon(
             video.watched ? Icons.check_circle : Icons.circle_outlined,
             color: video.watched ? Colors.green : Colors.grey,
           )
-          : SizedBox(
+              : SizedBox(
             width: 24,
             height: 24,
             child: CircularProgressIndicator(
               value: progress,
               backgroundColor: Colors.grey,
-              valueColor: AlwaysStoppedAnimation<Color>(Colors.green),
+              valueColor: AlwaysStoppedAnimation(Colors.green),
               strokeWidth: 2.5,
             ),
-          ),
-          onTap: () {
-            // Navigate to the YouTube video when title is tapped
-            //_markVideoAsWatched(video);
-            Navigator.of(context).push(
-              MaterialPageRoute(
-                builder: (context) => YoutubePage(
-                  url: video.url,
-                  tasks: video.tasks,
-                  title: video.title.tr,
-                  updateProgress: (Duration value) {_onUpdate();},
-                  videoDto: video,
-                ),
-              ),
-            );
+          ),*/
+          onExpansionChanged: (isExpanded) {
+            if (isExpanded) {
+              // Optional logic on expand
+            }
           },
-          subtitle: hasTasks
-              ? ExpansionTile(
-            title: Text("Tasks"),
-            children: [
-              // Show tasks when ExpansionTile is expanded
-              TaskListPage(
-                tasks: video.tasks!,
-                updateWatched: (bool value) {
-                  _onUpdate();
-                },
+          children: [
+            ListTile(
+              title: Text("Watch Video"),
+              onTap: () {
+                Navigator.of(context).push(
+                  MaterialPageRoute(
+                    builder: (context) =>
+                        YoutubePage(
+                          url: video.url,
+                          tasks: video.tasks,
+                          title: video.title.tr,
+                          updateProgress: (Duration value) {
+                            _onUpdate();
+                          },
+                          videoDto: video,
+                        ),
+                  ),
+                );
+              },
+            ),
+            if (hasTasks)
+              ExpansionTile(
+                title: Text("Tasks"),
+                children: [
+                  TaskListPage(
+                    tasks: video.tasks!,
+                    updateWatched: (bool value) {
+                      _onUpdate();
+                    },
+                  ),
+                ],
               ),
-            ],
-          )
-              : null,  // No tasks, so subtitle is null
+          ],
         );
       },
     );
   }
 }
-
+*/
 class TaskListPage extends StatelessWidget {
   final List<TaskDto> tasks;
   final ValueSetter<bool> updateWatched;
@@ -239,7 +391,9 @@ class TaskListPage extends StatelessWidget {
   }
   @override
   Widget build(BuildContext context) {
-    return ListView.builder(
+    return Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 16.0),
+    child: ListView.builder(
       shrinkWrap: true,
       physics: const NeverScrollableScrollPhysics(),
       itemCount: tasks.length,
@@ -247,7 +401,7 @@ class TaskListPage extends StatelessWidget {
         TaskDto task = tasks[taskIndex];
         return ListTile(
           dense: true,
-          contentPadding: const EdgeInsets.only(left: 32.0, right: 16.0),
+          //contentPadding: const EdgeInsets.only(left: 32.0, right: 16.0),
           title: Text(task.title.tr),
           trailing: Icon(
             task.watched ? Icons.check_circle : Icons.circle_outlined,
@@ -263,7 +417,7 @@ class TaskListPage extends StatelessWidget {
           },
         );
       },
-    );
+    ),);
   }
 
 }
