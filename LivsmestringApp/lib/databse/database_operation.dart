@@ -137,6 +137,9 @@ Future<void> insertDataModel(Future<Database> futureDb, Datamodel model) async {
         : existingCategories.first['id'];
 
     // Process each chapter
+    if(model.chapters.isEmpty){
+      return;
+    }
     for (var chapter in model.chapters) {
       // Insert chapter
       final chapterId = await txn.insert(

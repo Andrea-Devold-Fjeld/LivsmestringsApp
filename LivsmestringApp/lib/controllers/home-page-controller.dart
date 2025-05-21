@@ -75,7 +75,8 @@ class HomePageController extends GetxController {
 
   Future<bool> insertData() async {
     try {
-      final results = await fetchData('video');
+      final careerResults = await fetchData('career');
+      final healthResult = await fetchData('health');
       //Future.wait([
         //fetchData('career'),
         //fetchData('health'),
@@ -83,7 +84,8 @@ class HomePageController extends GetxController {
       //  fetchVideoUrls()
       //]);
 
-      databaseController.insertDatamodel(results);
+      databaseController.insertDatamodel(careerResults);
+      databaseController.insertDatamodel(healthResult);
       return true;
     }catch (e){
       log("Error: $e");
