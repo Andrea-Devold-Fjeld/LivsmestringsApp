@@ -88,7 +88,7 @@ class _ChapterPageState extends State<ChapterPage> with SingleTickerProviderStat
           children: [
             IconButton(
               onPressed: () {
-                homePageController.changePage(0);
+                homePageController.currentIndex.value = Pages.home.index;
               },
               icon: const Icon(
                 semanticLabel: "Back",

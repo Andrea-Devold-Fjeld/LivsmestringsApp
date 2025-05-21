@@ -66,14 +66,14 @@ class HomePageController extends GetxController {
         Get.updateLocale(currentLocale.value!);
         log("In onInit in HomeController ${careerData}"); // Debug the data to ensure it is set
         await fetchAllData();
-        //      loadData();
+        _loadProgress();
+        update();
       }
     });
 
   }
 
   void setLocale(Locale locale){
-    _loadProgressWithLocale(locale);
     currentLocale.value = locale;
     fetchAllData();
   }
@@ -123,14 +123,6 @@ class HomePageController extends GetxController {
     return data;
   }
 
-  // Navigation method
-  void changePage(int index) {
-    log("Current index $index");
-    var listPages = Pages.values;
-    if(index < 0  && index > listPages.length) return;
-    currentIndex.value = index;
-    log("IN change page in homeController ${currentIndex.value.toString()}");
-  }
 
 
   // Main data loading method
@@ -168,20 +160,7 @@ class HomePageController extends GetxController {
       print('Error in loadData: $e');
     }
   }
-  Future<void> _loadProgressWithLocale(Locale locale) async {
-    try {
-      // Create a temporary map to store progress
-      Map<int, ProgressModel> tempProgress = {};
-      for (var c in categories) {
-        tempProgress[c.id] = await databaseController.getVideoProgress(c.id, locale);
-      }
 
-      // Update the observable map
-      progress.value = tempProgress;
-    } catch (e) {
-      print('Error loading progress: $e');
-    }
-  }
   // Load progress for all categories
   Future<void> _loadProgress() async {
     try {
@@ -205,11 +184,7 @@ class HomePageController extends GetxController {
 
     // Save to shared preferences
     await _saveLanguagePreference(languageCode);
-
-    // Refresh data that depends on language
-    await refreshLanguageDependentData();
-
-    update(); // Notify all listeners that the controller has been updated
+    update();
   }
 
 
@@ -224,19 +199,6 @@ class HomePageController extends GetxController {
       }
     }
   }
-
-  // Refresh data that depends on language
-  Future<void> refreshLanguageDependentData() async {
-    try {
-      // Reload all data when language changes
-      await loadData();
-    } catch (e) {
-      if (kDebugMode) {
-        print("Error refreshing language-dependent data: $e");
-      }
-    }
-  }
-
   // Method to update progress
   void updateProgress(bool value) {
     if (value) {
@@ -244,17 +206,5 @@ class HomePageController extends GetxController {
     }
   }
 
-  // Helper method to check for a specific category
-  CategoryDTO? checkCategory(String name) {
-    try {
-      return categories.firstWhere(
-            (element) => element.name.toLowerCase() == name.toLowerCase(),
-      );
-    } catch (e) {
-      if (kDebugMode) {
-        print('Error in checkCategory: $e');
-      }
-      return null;
-    }
-  }
+
 }

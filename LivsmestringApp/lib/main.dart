@@ -45,15 +45,13 @@ Future<void> main() async {
   // Run the app with the new navigation structure
   runApp(MyApp(
       selectedLanguage: getLanguage,
-      locale: locale,
   ));
 }
 
 class MyApp extends StatefulWidget {
   final String? selectedLanguage;
-  final Locale? locale;
 
-  const MyApp({super.key, required this.selectedLanguage, required this.locale});
+  const MyApp({super.key, required this.selectedLanguage});
 
   @override
   MyAppState createState() => MyAppState();
@@ -62,9 +60,9 @@ class MyApp extends StatefulWidget {
 class MyAppState extends State<MyApp> {
   late String? _selectedLanguage;
   late Future<bool> _dataFuture;
-  late Locale? _locale;
   final dbController = Get.find<DatabaseController>();
   final homeController = Get.find<HomePageController>();
+
 
   @override
   void initState() {
@@ -72,17 +70,17 @@ class MyAppState extends State<MyApp> {
     var homepageController = Get.find<HomePageController>();
     _dataFuture = homepageController.insertData();
     _selectedLanguage = widget.selectedLanguage;
-    _locale = widget.locale;
-    Logger.root.level = Level.ALL; // defaults to Level.INFO
+    Logger.root.level = Level.INFO; // defaults to Level.INFO
   }
 
 
   @override
   Widget build(BuildContext context) {
     return GetMaterialApp(
+      locale: homeController.currentLocale.value,
+      fallbackLocale: Locale('en'),
       debugShowCheckedModeBanner: false,
       translations: LocaleString(),
-      locale: _locale,
       title: 'life_mastery_app'.tr,
       theme: lightMode,
       darkTheme: darkMode,
@@ -258,21 +256,13 @@ class _HomePageState extends State<HomePage> {
 
     if (selectedLocale != null) {
       // Update state or navigate as needed
-      await homePageController.updateLanguage(selectedLocale.languageCode);
       homePageController.currentLocale.value = selectedLocale;
-      homePageController.changePage(Pages.home.index); // Only once app is ready
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    //if (widget.selectedLanguage == null && _selectedLocale == null) {
-    //  return const Scaffold(
-    //    body: Center(child: Text("Please select a language...")),
-    //  );
-    //} else {
       return MainNavigation();
-    //}
   }
 
   Future<Locale?> buildLanguageDialog(BuildContext context) async {
