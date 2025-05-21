@@ -18,7 +18,7 @@ import 'database-controller.dart';
 
 
 class HomeBinding extends Bindings {
-  final int? selectedLanguage;
+  final String? selectedLanguage;
 
   HomeBinding({this.selectedLanguage});
 
@@ -42,18 +42,27 @@ class HomePageController extends GetxController {
   final DatabaseController databaseController = Get.find<DatabaseController>();
 
   // Variables for language
-  var selectedLanguage = Rx<int?>(null);
+  var selectedLanguage = Rx<String?>(null);
   var currentLocale = Rx<Locale?>(null); // Default locale
 
   @override
-  void onInit() {
+  Future<void> onInit() async {
     super.onInit();
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    String? getLanguage = prefs.getString('selectedLanguage');
+    if (getLanguage == null){
+      log("getLanguage is null");
+      return;
+    }
+    selectedLanguage.value = getLanguage;
+    currentLocale.value = Locale.fromSubtags(languageCode: getLanguage);
     loadData();
 
     // Load initial data when controller initializes
     ever(currentLocale, (_) async {
       // If currentLocale is set (not null), call loadData
       if (currentLocale.value != null && !isDataLoading) {
+
         Get.updateLocale(currentLocale.value!);
         log("In onInit in HomeController ${careerData}"); // Debug the data to ensure it is set
         await fetchAllData();
@@ -88,13 +97,14 @@ class HomePageController extends GetxController {
       databaseController.insertDatamodel(healthResult);
       return true;
     }catch (e){
-      log("Error: $e");
+      log("Error insertData HomeController: $e");
       return false;
     }
 
   }
   Future<bool> fetchAllData() async {
     try {
+      log("In fetchAllData in homeController currentLocale: ${currentLocale.value}");
       var data = await databaseController.getDatamodelWithLAnguage('career', currentLocale.value!.languageCode);
       var healthDat = await databaseController.getDatamodelWithLAnguage('health', currentLocale.value!.languageCode);
 
@@ -106,8 +116,11 @@ class HomePageController extends GetxController {
       log("Error: $e");
       return false;
     }
+  }
 
-
+  Future<DatamodelDto> fetchDataFromCategory(String category) async {
+    var data = await databaseController.getDatamodelWithLAnguage(category, currentLocale.value!.languageCode);
+    return data;
   }
 
   // Navigation method
@@ -186,12 +199,12 @@ class HomePageController extends GetxController {
   }
 
   // Update language and locale
-  Future<void> updateLanguage(int index) async {
-    selectedLanguage.value = index;
-    _updateLocaleFromLanguageIndex(index);
+  Future<void> updateLanguage(String languageCode) async {
+    selectedLanguage.value = languageCode;
+    currentLocale.value = (Locale.fromSubtags(languageCode: languageCode));
 
     // Save to shared preferences
-    await _saveLanguagePreference(index);
+    await _saveLanguagePreference(languageCode);
 
     // Refresh data that depends on language
     await refreshLanguageDependentData();
@@ -199,22 +212,12 @@ class HomePageController extends GetxController {
     update(); // Notify all listeners that the controller has been updated
   }
 
-  // Helper method to update locale from language index
-  void _updateLocaleFromLanguageIndex(int index) {
-    try {
-      currentLocale.value = LanguagePageNav.localeSet[index]['locale'];
-    } catch (e) {
-      print("Error setting locale: $e");
-      // Fallback to default locale
-      currentLocale.value = Locale('nb', 'NO');
-    }
-  }
 
   // Save language preference to SharedPreferences
-  Future<void> _saveLanguagePreference(int index) async {
+  Future<void> _saveLanguagePreference(String languageCode) async {
     try {
       SharedPreferences prefs = await SharedPreferences.getInstance();
-      await prefs.setInt('selectedLanguage', index);
+      await prefs.setString('selectedLanguage', languageCode);
     } catch (e) {
       if (kDebugMode) {
         print("Error saving language preference: $e");

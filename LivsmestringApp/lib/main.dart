@@ -3,10 +3,8 @@ import 'dart:developer';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
-import 'package:livsmestringapp/models/video-db.dart';
 import 'package:livsmestringapp/pages/chapter-page.dart';
 import 'package:livsmestringapp/pages/home_page.dart';
-import 'package:livsmestringapp/pages/language_page.dart';
 import 'package:livsmestringapp/pages/language_page_nav.dart';
 import 'package:livsmestringapp/pages/splash_screen.dart';
 import 'package:livsmestringapp/services/LocaleString.dart';
@@ -19,8 +17,6 @@ import 'package:sqflite/sqflite.dart';
 import 'controllers/database-controller.dart';
 import 'controllers/home-page-controller.dart';
 import 'databse/database-helper.dart';
-import 'dto/category_dto.dart';
-import 'models/DataModel.dart';
 import 'models/page_enum.dart';
 
 Future<void> main() async {
@@ -41,34 +37,32 @@ Future<void> main() async {
 
   // Get language preferences
   SharedPreferences prefs = await SharedPreferences.getInstance();
-  int? getLanguage = prefs.getInt('selectedLanguage');
-  Locale locale = getLanguage != null
-      ? LanguagePageNav.localeSet[getLanguage]['locale']
-      : Locale('nb', 'NO');
+  String? getLanguage = prefs.getString('selectedLanguage');
+  Locale? locale = getLanguage != null
+      ? Locale.fromSubtags(languageCode: getLanguage)
+      : null;
 
   // Run the app with the new navigation structure
   runApp(MyApp(
       selectedLanguage: getLanguage,
       locale: locale,
-      db: database
   ));
 }
 
 class MyApp extends StatefulWidget {
-  final int? selectedLanguage;
-  final Locale locale;
-  final Future<Database> db;
+  final String? selectedLanguage;
+  final Locale? locale;
 
-  const MyApp({super.key, required this.selectedLanguage, required this.locale, required this.db});
+  const MyApp({super.key, required this.selectedLanguage, required this.locale});
 
   @override
   MyAppState createState() => MyAppState();
 }
 
 class MyAppState extends State<MyApp> {
-  late int? _selectedLanguage;
+  late String? _selectedLanguage;
   late Future<bool> _dataFuture;
-  late Locale _locale;
+  late Locale? _locale;
   final dbController = Get.find<DatabaseController>();
   final homeController = Get.find<HomePageController>();
 
@@ -83,13 +77,6 @@ class MyAppState extends State<MyApp> {
   }
 
 
-  void updateLocale(Locale newLocale, int? newIndex) {
-    setState(() {
-      _locale = newLocale;
-      _selectedLanguage = newIndex;
-    });
-  }
-
   @override
   Widget build(BuildContext context) {
     return GetMaterialApp(
@@ -103,28 +90,14 @@ class MyAppState extends State<MyApp> {
         future: _dataFuture,
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
-            return SplashScreen(selectedLanguage: _selectedLanguage);
+            return SplashScreen();
           } else if (snapshot.hasData) {
-            /*
-            // This is where we'll implement the navigation logic from HomePage
-            if ( homeController.currentLocale.value != null ) {
-              return LanguagePage(
-                selectedLanguage: (value) {
-                  setState(() {
-                    _selectedLanguage = value;
-                  });
-                },
-              );
-            } else {
-              return MainNavigation(selectedLanguage: _selectedLanguage);
-            }
-            */
-
+            log("In MyAppState selected language: ${_selectedLanguage}");
             return HomePage(selectedLanguage: _selectedLanguage);
 
 
           } else if (snapshot.hasError) {
-            return Center(child: Text("Error: ${snapshot.error}"));
+            return Center(child: Text("Error with snapshot: ${snapshot.error}"));
           } else {
             return Center(child: Text("No data available"));
           }
@@ -134,7 +107,7 @@ class MyAppState extends State<MyApp> {
       getPages: [
         GetPage(
           name: '/home',
-          page: () => MainNavigation(selectedLanguage: _selectedLanguage),
+          page: () => MainNavigation(),
           binding: BindingsBuilder(() {
             // Make sure controller is available and initialized
             if (!Get.isRegistered<HomePageController>()) {
@@ -155,9 +128,8 @@ class MyAppState extends State<MyApp> {
   }
 }
 class MainNavigation extends StatefulWidget {
-  final int? selectedLanguage;
 
-  const MainNavigation({super.key, required this.selectedLanguage});
+  const MainNavigation({super.key});
 
   @override
   State<MainNavigation> createState() => _MainNavigationState();
@@ -175,11 +147,14 @@ class _MainNavigationState extends State<MainNavigation> {
     pageController = PageController(
       initialPage: homePageController.currentIndex.value,
     );
+    log("In init navigationstate : ${pageController.initialPage}");
 
     // Set up a worker to listen for index changes
     indexWorker = ever(homePageController.currentIndex, (index) {
-      // animateTpPage must not be called if the pageController not have any subscribed
-      if (pageController.hasClients) {
+      log("In index worker ${index}");
+      log("Has clients: ${pageController.hasClients}");
+      // Only animate if the pageController has clients and the page is different
+      if (pageController.hasClients && pageController.page?.round() != index) {
         pageController.animateToPage(
           index,
           duration: const Duration(milliseconds: 300),
@@ -210,6 +185,12 @@ class _MainNavigationState extends State<MainNavigation> {
       body: PageView(
         controller: pageController,
         physics: const PageScrollPhysics(),
+        onPageChanged: (index) {
+          log("Page changed to index: $index");
+          if (homePageController.currentIndex.value != index) {
+            homePageController.currentIndex.value = index;
+          }
+        },
         children: [
           // Home tab
           HomePageContent(
@@ -225,7 +206,6 @@ class _MainNavigationState extends State<MainNavigation> {
               category: homePageController.healthCategory.value!,
               updateProgress: homePageController.updateProgress
           ),
-
           // Language tab
           LanguagePageNav(),
         ],
@@ -233,32 +213,17 @@ class _MainNavigationState extends State<MainNavigation> {
       bottomNavigationBar: Obx(() => NavigationBarWrapper(
         selectedTab: homePageController.currentIndex.value,
         onTap: (index) {
-          pageController.jumpToPage(index);
+          log("Navigation bar onTap called with index: $index");
+          // The worker will handle the page animation, so we don't need to do anything here
+          // unless you want to override the animation behavior
         },
       )),
     );
   }
 }
-/*
-// Simplified HomePage that uses MainNavigation
-class HomePage extends StatelessWidget {
-  final int? selectedLanguage;
 
-  const HomePage({super.key, required this.selectedLanguage});
-
-  @override
-  Widget build(BuildContext context) {
-    //if (selectedLanguage == null) {
-      return LanguagePage(selectedLanguage: (int value) {});
-    //} else {
-      Get.find<HomePageController>().fetchAllData();
-      return MainNavigation(selectedLanguage: selectedLanguage);
-    //}
-  }
-}
-*/
 class HomePage extends StatefulWidget {
-  final int? selectedLanguage;
+  final String? selectedLanguage;
 
   const HomePage({super.key, required this.selectedLanguage});
 
@@ -267,13 +232,12 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
-  Locale? _selectedLocale;
   bool _dialogShown = false;
+  var homePageController = Get.find<HomePageController>();
 
   @override
   void initState() {
     super.initState();
-
     // Only show the language dialog if no language is selected
     if (widget.selectedLanguage == null) {
       // Delay to ensure context is available
@@ -282,7 +246,7 @@ class _HomePageState extends State<HomePage> {
       });
     } else {
       // Load data if language is already selected
-      Get.find<HomePageController>().fetchAllData();
+      homePageController.fetchAllData();
     }
   }
 
@@ -294,12 +258,9 @@ class _HomePageState extends State<HomePage> {
 
     if (selectedLocale != null) {
       // Update state or navigate as needed
-      setState(() {
-        _selectedLocale = selectedLocale;
-      });
-
-      Get.find<HomePageController>().currentLocale.value = selectedLocale;
-      Get.find<HomePageController>().changePage(Pages.home.index);
+      await homePageController.updateLanguage(selectedLocale.languageCode);
+      homePageController.currentLocale.value = selectedLocale;
+      homePageController.changePage(Pages.home.index); // Only once app is ready
     }
   }
 
@@ -310,7 +271,7 @@ class _HomePageState extends State<HomePage> {
     //    body: Center(child: Text("Please select a language...")),
     //  );
     //} else {
-      return MainNavigation(selectedLanguage: widget.selectedLanguage);
+      return MainNavigation();
     //}
   }
 

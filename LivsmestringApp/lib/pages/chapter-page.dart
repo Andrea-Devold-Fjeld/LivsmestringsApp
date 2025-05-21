@@ -12,6 +12,7 @@ import '../controllers/home-page-controller.dart';
 import '../models/DataModel.dart';
 import '../models/DataModelDTO.dart';
 import '../models/chapter-db.dart';
+import '../models/page_enum.dart';
 import '../models/task-db.dart';
 import '../models/video-db.dart';
 import '../styles/colors.dart';
@@ -41,18 +42,25 @@ class _ChapterPageState extends State<ChapterPage> with SingleTickerProviderStat
 
   void reloadData() {
     //_databaseController.getDatamodelWithLAnguage(widget.category.name, _homeController.currentLocale.value!.languageCode).then((result) {
-    _homeController.fetchAllData().then((onValue) {
-      if(onValue){
-        setState(() {
-          data = _homeController.careerData;
-          widget._updateProgress();
-        });
-    }});
+    _homeController.fetchDataFromCategory(widget.category.name).then((onValue) {
+      if(!mounted) return;
+      setState(() {
+        data = onValue;
+        widget._updateProgress();
+      });
+    });
   }
 
   @override
   void initState() {
     super.initState();
+    _homeController.fetchDataFromCategory(widget.category.name).then((onValue) {
+      if(!mounted) return;
+        setState(() {
+          data = onValue;
+          widget._updateProgress();
+        });
+      });
     switch (widget.category.name) {
       case 'career':
         pageTitle = "Career";
@@ -67,20 +75,9 @@ class _ChapterPageState extends State<ChapterPage> with SingleTickerProviderStat
         pageColor = Colors.grey[800]!;
         break;
     }
-    _homeController.fetchAllData().then((onValue) {
-      if(onValue){
-        setState(() {
-          data = _homeController.careerData;
-          widget._updateProgress();
-        });
-      }});
+
   }
 
-  @override
-  void dispose() {
-    //_tabController.dispose();
-    super.dispose();
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -113,7 +110,7 @@ class _ChapterPageState extends State<ChapterPage> with SingleTickerProviderStat
       ),
       body: data != null ? SingleChildScrollView(
         child: Column(
-          children: data!.chapters.map((chapter) {
+          children: data!.chapters.isNotEmpty ? data!.chapters.map((chapter) {
             return Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -142,7 +139,8 @@ class _ChapterPageState extends State<ChapterPage> with SingleTickerProviderStat
                 ),
               ],
             );
-          }).toList(),
+          }).toList()
+          :[ Center(child: Text("No Videos, Please come back later"),)]
         ),
       ) : Center(child: CircularProgressIndicator()),
     );

@@ -176,7 +176,6 @@ Future<void> insertDataModel(Future<Database> futureDb, Datamodel model) async {
           if (video.tasks != null && video.tasks!.isNotEmpty) {
             for (var task in video.tasks!) {
               // If the task has this language
-              log("In inser datamodel, task title ${task.title}  url: ${task.languageUrls[languageCode]}");
               if (task.languageUrls.containsKey(languageCode)) {
                 await txn.insert(
                   'tasks',
@@ -594,7 +593,7 @@ Future<ProgressModel> getProgress(Future<Database> futureDb, int categoryId, Loc
        JOIN chapters ON videos.chapter_id = chapters.id
        WHERE chapters.category_id = ?) as total
   ''', [categoryId, locale.languageCode, categoryId]);
-
+  log("In getProgress totalVideoResult: ${totalVideosResult}");
   final totalCount = Sqflite.firstIntValue(totalVideosResult) ?? 0;
   final query = '''
     SELECT 
@@ -605,7 +604,7 @@ Future<ProgressModel> getProgress(Future<Database> futureDb, int categoryId, Loc
     LEFT JOIN tasks ON videos.id = tasks.video_id
     WHERE chapters.category_id = ? AND videos.language_code = ? AND (videos.watched = 1 OR tasks.watched = 1)
   ''';
-
+  log("In getProgress total count : ${totalCount}");
   // Execute the query
   final result = await db.rawQuery(query, [categoryId, locale.languageCode]);
 

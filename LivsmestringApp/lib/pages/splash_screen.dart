@@ -5,20 +5,17 @@ import 'package:get/get.dart';
 import '../styles/fonts.dart';
 
 class SplashScreen extends StatefulWidget {
-  final int? selectedLanguage;
-  const SplashScreen({super.key, required this.selectedLanguage});
+  const SplashScreen({super.key});
 
   @override
   _SplashScreenState createState() => _SplashScreenState();
 }
 
 class _SplashScreenState extends State<SplashScreen> {
-  late int? selectedLanguage;
 
   @override
   void initState() {
     super.initState();
-    selectedLanguage = widget.selectedLanguage;
   }
 
   @override

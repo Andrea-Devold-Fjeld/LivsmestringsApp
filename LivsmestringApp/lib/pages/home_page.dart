@@ -90,7 +90,6 @@ class _HomePageContent extends State<HomePageContent> {
           Icon icon;
           Color backgroundColor;
           Pages page = Pages.home; // need to have a fallback value
-          log("In homepage tih name: $name");
           switch (name) {
             case 'career':
               icon = Icon(

@@ -1,4 +1,8 @@
+
+import 'dart:developer';
+
 import 'package:flutter/material.dart';
+import 'package:livsmestringapp/controllers/home-page-controller.dart';
 import '../styles/colors.dart';
 import 'package:get/get.dart';
 
@@ -18,14 +22,17 @@ class NavigationBarWrapper extends StatefulWidget {
 class NavigationBarWrapperState extends State<NavigationBarWrapper> {
   @override
   Widget build(BuildContext context) {
+    log("In NavigatioBarWrapperState selectedTab: ${widget.selectedTab}");
     return  BottomNavigationBar(
+      type: BottomNavigationBarType.fixed,
       currentIndex: widget.selectedTab,
-      onTap: widget.onTap,
-      backgroundColor: AppColors.lightGrey, // Set background color here
-      selectedItemColor: AppColors.tune, // Set selected item color if needed
-      unselectedItemColor: Colors.grey, // Set unselected item color if needed
-
-
+      onTap: (index) {
+        Get.find<HomePageController>().currentIndex.value = index;
+        widget.onTap(index);
+      },
+      backgroundColor: AppColors.lightGrey,
+      selectedItemColor: AppColors.tune,
+      unselectedItemColor: Colors.grey,
       items:  [
         BottomNavigationBarItem(
           icon: Icon(
