@@ -5,11 +5,15 @@ import 'package:flutter/foundation.dart';
 import 'package:get/get.dart';
 import 'package:livsmestringapp/consumer/FetchData.dart';
 import 'package:livsmestringapp/models/DataModelDTO.dart';
+import 'package:livsmestringapp/pages/home_page.dart';
 import 'package:livsmestringapp/pages/language_page_nav.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../databse/database_operation.dart';
 import '../dto/category_dto.dart';
+import '../main.dart';
+import '../models/page_enum.dart';
+import '../pages/chapter-page.dart';
 import 'database-controller.dart';
 
 
@@ -71,7 +75,7 @@ class HomePageController extends GetxController {
 
   Future<bool> insertData() async {
     try {
-      final results = await fetchData('category');
+      final results = await fetchData('video');
       //Future.wait([
         //fetchData('career'),
         //fetchData('health'),
@@ -104,13 +108,13 @@ class HomePageController extends GetxController {
 
   }
 
-
   // Navigation method
   void changePage(int index) {
     log("Current index $index");
-    if(index < 0 || index >2) return;
+    var listPages = Pages.values;
+    if(index < 0  && index > listPages.length) return;
     currentIndex.value = index;
-    log(currentIndex.value.toString());
+    log("IN change page in homeController ${currentIndex.value.toString()}");
   }
 
 

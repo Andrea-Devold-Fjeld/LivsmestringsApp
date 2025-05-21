@@ -34,15 +34,6 @@ class DatabaseController extends GetxController {
 
   Future<DatamodelDto> getDatamodelWithLAnguage(String category, String language) async {
     var data = await getDataModelWithLanguage(db, category, language);
-    log("IN getDatamodelWithLanguage: \n${data.category}");
-    data.chapters.forEach((c) {
-      c.videos.forEach((v) {
-        log("Video title: ${v.title}");
-        //if(v.tasks != null){
-        //  log("Task: ${v.tasks?.first.title}");
-        //};
-      });
-    });
     return data;
   }
 

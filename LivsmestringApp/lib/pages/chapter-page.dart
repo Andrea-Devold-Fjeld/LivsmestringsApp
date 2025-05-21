@@ -45,7 +45,6 @@ class _ChapterPageState extends State<ChapterPage> with SingleTickerProviderStat
       if(onValue){
         setState(() {
           data = _homeController.careerData;
-          log("In Chapter page data reload data: $data");
           widget._updateProgress();
         });
     }});
@@ -72,7 +71,6 @@ class _ChapterPageState extends State<ChapterPage> with SingleTickerProviderStat
       if(onValue){
         setState(() {
           data = _homeController.careerData;
-          log("In Chapter page data: $data");
           widget._updateProgress();
         });
       }});
