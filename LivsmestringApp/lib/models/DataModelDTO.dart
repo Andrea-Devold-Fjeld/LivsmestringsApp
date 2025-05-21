@@ -131,6 +131,8 @@ class TaskDto {
   final String title;
   final String url;
   final String? languageCode;
+  Duration? totalLength;
+  Duration? watchedLength;
   bool watched;
 
   TaskDto({
@@ -139,6 +141,8 @@ class TaskDto {
     required this.title,
     required this.url,
     this.languageCode,
+    this.totalLength,
+    this.watchedLength,
     this.watched = false,
   });
 
@@ -165,6 +169,19 @@ class TaskDto {
       map['id'] = id;
     }
     return map;
+  }
+  double getTaskProgress() {
+    if (watchedLength == null || totalLength == null) {
+      return 0.0;
+    } else {
+      double progress = (watchedLength!.inSeconds.toDouble() / totalLength!.inSeconds.toDouble());
+      if (progress >= 0.95) {
+        watched = true;
+        return 1.0;
+      } else {
+        return progress;
+      }
+    }
   }
 }
 

@@ -10,88 +10,89 @@ import (
 	"net/http"
 	"os/signal"
 	"syscall"
+	"time"
 )
 
-//TIP <p>To run your code, right-click the code and select <b>Run</b>.</p> <p>Alternatively, click
-// the <icon src="AllIcons.Actions.Execute"/> icon in the gutter and select the <b>Run</b> menu item from here.</p>
-/*
-//go:embed carrer.json
-var carrerFile []byte
+//go:embed career.json
+var career []byte
 
 //go:embed health.json
-var healthFile []byte
-*/
-//go:embed viedos.json
-var videos []byte
+var health []byte
 
 func main() {
 	ctx := context.Background()
 	ctx, ccl := signal.NotifyContext(ctx, syscall.SIGINT, syscall.SIGTERM)
 	defer ccl()
 
+	var categories = []string{"career", "health"}
+	var categoryVideoMap = map[string][]byte{categories[0]: career, categories[1]: health}
+
 	r := chi.NewRouter()
-	//r.Get("/{category}", DataHandler)
-	r.Get("/video", VideoHandler)
+	r.Get("/categories", CategoryListHandler(categories))
+	r.Get("/{categoryName}", VideoListHandler(categoryVideoMap))
 
-	fmt.Println("Server is running at http://localhost:8080")
-	log.Fatal(http.ListenAndServe(":8080", r))
-}
-
-func VideoHandler(w http.ResponseWriter, r *http.Request) {
-	var payload Comb
-
-	err := json.Unmarshal(videos, &payload)
-	if err != nil {
-		w.WriteHeader(http.StatusBadRequest)
-	}
-	res, err := json.Marshal(payload)
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(http.StatusOK)
-	if _, err = w.Write(res); err != nil {
-		log.Printf("Error writing response: %v", err)
+	srv := http.Server{
+		Addr:    ":8080",
+		Handler: r,
 	}
 
+	go func() {
+		fmt.Println("Server is running at http://localhost:8080")
+		if err := srv.ListenAndServe(); err != nil && err != http.ErrServerClosed {
+			log.Fatalf("listen: %s\n", err)
+		}
+	}()
+
+	<-ctx.Done()
+	shutdownCtx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+
+	fmt.Println("Server is shutting down at http://localhost:8080")
+
+	if err := srv.Shutdown(shutdownCtx); err != nil {
+		log.Fatalf("Server shutdown failed: %s", err)
+	}
+	fmt.Println("Server exiting")
 }
 
-/*
-func DataHandler(w http.ResponseWriter, r *http.Request) {
-	category := chi.URLParam(r, "category")
-	var payload Data
+func CategoryListHandler(categories []string) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		res, err := json.Marshal(categories)
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusOK)
+		if _, err = w.Write(res); err != nil {
+			log.Printf("Error writing response: %v", err)
+		}
+	}
+}
 
-	switch category {
-	case "career":
-		err := json.Unmarshal(carrerFile, &payload)
-		if err != nil {
-			w.WriteHeader(http.StatusInternalServerError)
-			log.Fatal("Error during Unmarshal(): ", err)
+func VideoListHandler(categories map[string][]byte) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		var payload Comb
+		category := chi.URLParam(r, "categoryName")
+
+		data, ok := categories[category]
+		fmt.Printf("ok %v\n", ok)
+		if ok {
+			if err := json.Unmarshal(data, &payload); err != nil {
+				fmt.Printf("Error unmarshalling payload: %v\n", err)
+				w.WriteHeader(http.StatusBadRequest)
+				return
+			}
+
+			w.Header().Set("Content-Type", "application/json")
+			w.WriteHeader(http.StatusOK)
+
+			if err := json.NewEncoder(w).Encode(payload); err != nil {
+				log.Printf("Error writing response: %v", err)
+			}
+			return
 		}
 
-	case "health":
-		err := json.Unmarshal(healthFile, &payload)
-		if err != nil {
-			w.WriteHeader(http.StatusInternalServerError)
-			log.Fatal("Error during Unmarshal(): ", err)
-		}
-	default:
 		w.WriteHeader(http.StatusNotFound)
 		return
 	}
-
-	res, err := json.Marshal(payload)
-	if err != nil {
-		w.WriteHeader(http.StatusInternalServerError)
-		log.Printf("Error during Marshal(): %v", err)
-		return
-	}
-
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(http.StatusOK)
-	if _, err = w.Write(res); err != nil {
-		log.Printf("Error writing response: %v", err)
-	}
 }
-
-*/
 
 type Comb struct {
 	Category string    `json:"Category"`

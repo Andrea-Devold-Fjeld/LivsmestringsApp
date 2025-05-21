@@ -20,21 +20,21 @@ class LanguagePage extends StatefulWidget {
 class _LanguagesScreenState extends State<LanguagePage> {
   final List<Map<String, dynamic>> locale = [
     {'name': 'English', 'locale': Locale('en', 'UK')},
-    //{'name': 'Español', 'locale': Locale('es', 'ES')},
-    //{'name': 'Kiswahili', 'locale': Locale('sw', 'KE')},
-    //{'name': 'Kurmancî', 'locale': Locale('ku', 'TR')},
     {'name': 'Norsk', 'locale': Locale('nb', 'NO')},
-    //{'name': 'Soomaali', 'locale': Locale('so', 'SO')},
-    //{'name': 'Türkçe', 'locale': Locale('tr', 'TR')},
-    //{'name': 'украïнська', 'locale': Locale('uk', 'UA')},
-    //{'name': 'اردو', 'locale': Locale('ur', 'PK')},
-    //{'name': 'العربية', 'locale': Locale('ar', 'AR')},
     {'name': 'پښتو', 'locale': Locale('ps', 'AF')},
-    //{'name': 'فارسی', 'locale': Locale('fa', 'IR')},  // Persian
-    //{'name': 'தமிழ்', 'locale': Locale('ta', 'IN')}, // Tamil
-    //{'name': 'ไทย', 'locale': Locale('th', 'TH')}, // Thai
-    //{'name': 'አማርኛ', 'locale': Locale('am', 'ET')}, // Amharic
-    //{'name': 'ትግሪኛ', 'locale': Locale('ti', 'ET')},
+    {'name': 'Español', 'locale': Locale('es', 'ES')},
+    {'name': 'Kiswahili', 'locale': Locale('sw', 'KE')},
+    {'name': 'Kurmancî', 'locale': Locale('ku', 'TR')},
+    {'name': 'Soomaali', 'locale': Locale('so', 'SO')},
+    {'name': 'Türkçe', 'locale': Locale('tr', 'TR')},
+    {'name': 'украïнська', 'locale': Locale('uk', 'UA')},
+    {'name': 'اردو', 'locale': Locale('ur', 'PK')},
+    {'name': 'العربية', 'locale': Locale('ar', 'AR')},
+    {'name': 'فارسی', 'locale': Locale('fa', 'IR')},  // Persian
+    {'name': 'தமிழ்', 'locale': Locale('ta', 'IN')}, // Tamil
+    {'name': 'ไทย', 'locale': Locale('th', 'TH')}, // Thai
+    {'name': 'አማርኛ', 'locale': Locale('am', 'ET')}, // Amharic
+    {'name': 'ትግሪኛ', 'locale': Locale('ti', 'ET')},
   ];
 
   late SharedPreferences prefs;

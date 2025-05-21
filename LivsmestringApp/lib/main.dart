@@ -21,6 +21,7 @@ import 'controllers/home-page-controller.dart';
 import 'databse/database-helper.dart';
 import 'dto/category_dto.dart';
 import 'models/DataModel.dart';
+import 'models/page_enum.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -104,8 +105,9 @@ class MyAppState extends State<MyApp> {
           if (snapshot.connectionState == ConnectionState.waiting) {
             return SplashScreen(selectedLanguage: _selectedLanguage);
           } else if (snapshot.hasData) {
+            /*
             // This is where we'll implement the navigation logic from HomePage
-            if ( homeController.currentLocale.value == null) {
+            if ( homeController.currentLocale.value != null ) {
               return LanguagePage(
                 selectedLanguage: (value) {
                   setState(() {
@@ -116,6 +118,11 @@ class MyAppState extends State<MyApp> {
             } else {
               return MainNavigation(selectedLanguage: _selectedLanguage);
             }
+            */
+
+            return HomePage(selectedLanguage: _selectedLanguage);
+
+
           } else if (snapshot.hasError) {
             return Center(child: Text("Error: ${snapshot.error}"));
           } else {
@@ -232,6 +239,7 @@ class _MainNavigationState extends State<MainNavigation> {
     );
   }
 }
+/*
 // Simplified HomePage that uses MainNavigation
 class HomePage extends StatelessWidget {
   final int? selectedLanguage;
@@ -240,11 +248,108 @@ class HomePage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    if (selectedLanguage == null) {
+    //if (selectedLanguage == null) {
       return LanguagePage(selectedLanguage: (int value) {});
-    } else {
+    //} else {
       Get.find<HomePageController>().fetchAllData();
       return MainNavigation(selectedLanguage: selectedLanguage);
-    }
+    //}
   }
 }
+*/
+class HomePage extends StatefulWidget {
+  final int? selectedLanguage;
+
+  const HomePage({super.key, required this.selectedLanguage});
+
+  @override
+  State<HomePage> createState() => _HomePageState();
+}
+
+class _HomePageState extends State<HomePage> {
+  Locale? _selectedLocale;
+  bool _dialogShown = false;
+
+  @override
+  void initState() {
+    super.initState();
+
+    // Only show the language dialog if no language is selected
+    if (widget.selectedLanguage == null) {
+      // Delay to ensure context is available
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        _showLanguageDialog();
+      });
+    } else {
+      // Load data if language is already selected
+      Get.find<HomePageController>().fetchAllData();
+    }
+  }
+
+  Future<void> _showLanguageDialog() async {
+    if (_dialogShown) return; // Prevent multiple dialogs
+    _dialogShown = true;
+
+    final selectedLocale = await buildLanguageDialog(context);
+
+    if (selectedLocale != null) {
+      // Update state or navigate as needed
+      setState(() {
+        _selectedLocale = selectedLocale;
+      });
+
+      Get.find<HomePageController>().currentLocale.value = selectedLocale;
+      Get.find<HomePageController>().changePage(Pages.home.index);
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    //if (widget.selectedLanguage == null && _selectedLocale == null) {
+    //  return const Scaffold(
+    //    body: Center(child: Text("Please select a language...")),
+    //  );
+    //} else {
+      return MainNavigation(selectedLanguage: widget.selectedLanguage);
+    //}
+  }
+
+  Future<Locale?> buildLanguageDialog(BuildContext context) async {
+    final result = await showDialog<Locale?>(
+      context: context,
+      barrierDismissible: false,
+      builder: (context) {
+        return PopScope(
+          child: AlertDialog(
+            title: Center(child: Text('select_language'.tr)),
+            content: SizedBox(
+              width: double.maxFinite,
+              child: ListView.separated(
+                shrinkWrap: true,
+                itemCount: LanguagePageNav.localeSet.length,
+                itemBuilder: (context, index) {
+                  final locale = LanguagePageNav.localeSet[index]['locale'];
+                  final name = LanguagePageNav.localeSet[index]['name'];
+                  return Center(
+                    child: Padding(
+                      padding: const EdgeInsets.all(8.0),
+                      child: GestureDetector(
+                        child: Text(name),
+                        onTap: () {
+                          Navigator.pop(context, locale);
+                        },
+                      ),
+                    ),
+                  );
+                },
+                separatorBuilder: (context, index) => Divider(color: Colors.grey[800]),
+              ),
+            ),
+          ),
+        );
+      },
+    );
+    return result;
+  }
+}
+

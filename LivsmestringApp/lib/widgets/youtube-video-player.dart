@@ -110,12 +110,12 @@ class _YoutubePageState extends State<YoutubePage> {
   @override
   void deactivate() {
     _controller.pause();
-    _totalWatchTime.stop();
-    _databaseController.updateWatchTime(_totalWatchTime.elapsed, widget.url);
+    Duration currentPosition = _controller.value.position;
+    _databaseController.updateWatchTime(currentPosition, widget.url);
+    //This is to update the value instantaneous
     if(widget.videoDto != null){
-      widget.videoDto?.watchedLength = _totalWatchTime.elapsed;
+      widget.videoDto?.watchedLength = currentPosition;
     }
-    log("in deactivare $_totalWatchTime");
     super.deactivate();
   }
 
@@ -129,7 +129,7 @@ class _YoutubePageState extends State<YoutubePage> {
     _idController.dispose();
     _seekToController.dispose();
     _controller.removeListener(_trackWatchTime);
-    widget.updateProgress(_totalWatchTime.elapsed);
+    widget.updateProgress(_controller.value.position);
     super.dispose();
   }
 

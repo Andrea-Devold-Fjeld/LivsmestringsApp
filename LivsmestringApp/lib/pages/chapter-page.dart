@@ -237,10 +237,6 @@ class _VideoTileState extends State<VideoTile> {
               },
             ),
           ),
-    //const SizedBox(height: 8), // Instead of just Divider
-    //Divider(thickness: 1, height: 1),
-    //const SizedBox(height: 8),
-
       ],
     );
   }
@@ -263,6 +259,9 @@ class VideoListPage extends StatelessWidget {
       physics: const NeverScrollableScrollPhysics(),
       itemCount: chapter.videos.length,
       itemBuilder: (context, videoIndex) {
+        if(chapter.videos.isEmpty){
+          return Text("No Videos Here!");
+        }
         VideoDto video = chapter.videos[videoIndex];
         bool hasTasks = video.tasks != null && video.tasks!.isNotEmpty;
         double progress = video.getVideoProgress();
@@ -281,102 +280,16 @@ class VideoListPage extends StatelessWidget {
             video: chapter.videos[videoIndex],
             onUpdate: _onUpdate,
           ),
-        );});}}
-          /*ExpansionTile(
-          title: Text(video.title.tr),
-          trailing: Row(
-            mainAxisSize: MainAxisSize.min, // So the row doesn't take full width
-            children: [
-              // Check mark or progress indicator
-              isComplete
-                  ? Icon(
-                video.watched ? Icons.check_circle : Icons.circle_outlined,
-                color: video.watched ? Colors.green : Colors.grey,
-              )
-                  : SizedBox(
-                width: 24,
-                height: 24,
-                child: CircularProgressIndicator(
-                  value: progress,
-                  backgroundColor: Colors.grey,
-                  valueColor: AlwaysStoppedAnimation(Colors.green),
-                  strokeWidth: 2.5,
-                ),
-              ),
-
-              // Optional spacing between icons
-              if (hasTasks) const SizedBox(width: 8),
-
-              // Task icon or arrow if there are tasks
-              if (hasTasks)
-                const Icon(
-                  Icons.chevron_right, // or use Icons.assignment / Icons.task_alt
-                  color: Colors.grey,
-                  size: 20,
-                ),
-            ],
-          ),
-          /*? Icon(
-            video.watched ? Icons.check_circle : Icons.circle_outlined,
-            color: video.watched ? Colors.green : Colors.grey,
-          )
-              : SizedBox(
-            width: 24,
-            height: 24,
-            child: CircularProgressIndicator(
-              value: progress,
-              backgroundColor: Colors.grey,
-              valueColor: AlwaysStoppedAnimation(Colors.green),
-              strokeWidth: 2.5,
-            ),
-          ),*/
-          onExpansionChanged: (isExpanded) {
-            if (isExpanded) {
-              // Optional logic on expand
-            }
-          },
-          children: [
-            ListTile(
-              title: Text("Watch Video"),
-              onTap: () {
-                Navigator.of(context).push(
-                  MaterialPageRoute(
-                    builder: (context) =>
-                        YoutubePage(
-                          url: video.url,
-                          tasks: video.tasks,
-                          title: video.title.tr,
-                          updateProgress: (Duration value) {
-                            _onUpdate();
-                          },
-                          videoDto: video,
-                        ),
-                  ),
-                );
-              },
-            ),
-            if (hasTasks)
-              ExpansionTile(
-                title: Text("Tasks"),
-                children: [
-                  TaskListPage(
-                    tasks: video.tasks!,
-                    updateWatched: (bool value) {
-                      _onUpdate();
-                    },
-                  ),
-                ],
-              ),
-          ],
         );
-      },
-    );
+      });
   }
 }
-*/
+
 class TaskListPage extends StatelessWidget {
   final List<TaskDto> tasks;
   final ValueSetter<bool> updateWatched;
+  //final progress = task.getVideoProgress();
+
   const TaskListPage({super.key, required this.tasks, required this.updateWatched});
 
   void _onUpdate(){
@@ -397,14 +310,30 @@ class TaskListPage extends StatelessWidget {
       itemCount: tasks.length,
       itemBuilder: (context, taskIndex) {
         TaskDto task = tasks[taskIndex];
+        var progress = task.getTaskProgress();
+        var isComplete = progress >= 0.95 || task.watched;
+
         return ListTile(
           dense: true,
-          //contentPadding: const EdgeInsets.only(left: 32.0, right: 16.0),
-          title: Text(task.title.tr),
-          trailing: Icon(
-            task.watched ? Icons.check_circle : Icons.circle_outlined,
-            color: task.watched ? Colors.green : Colors.grey,
-          ),
+            title: Text(task.title.tr),
+          trailing: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              isComplete
+                ? Icon(
+              task.watched ? Icons.check_circle : Icons.circle_outlined,
+              color: task.watched ? Colors.green : Colors.grey,
+            )
+                : SizedBox(
+              width: 24,
+              height: 24,
+              child: CircularProgressIndicator(
+                value: progress,
+                backgroundColor: Colors.grey,
+                valueColor: AlwaysStoppedAnimation(Colors.green),
+                strokeWidth: 2.5,
+              ),
+            ),]),
           onTap: () {
             _markTaskAsWatched(task);
             Navigator.of(context).push(
