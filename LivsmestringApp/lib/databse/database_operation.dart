@@ -591,7 +591,7 @@ Future<ProgressModel> getProgress(Future<Database> futureDb, int categoryId, Loc
        JOIN chapters ON videos.chapter_id = chapters.id
        WHERE chapters.category_id = ?) as total
   ''', [categoryId, locale.languageCode, categoryId]);
-  log("In getProgress totalVideoResult: ${totalVideosResult}");
+  log("In getProgress totalVideoResult: $totalVideosResult");
   final totalCount = Sqflite.firstIntValue(totalVideosResult) ?? 0;
   final query = '''
     SELECT 
@@ -602,7 +602,7 @@ Future<ProgressModel> getProgress(Future<Database> futureDb, int categoryId, Loc
     LEFT JOIN tasks ON videos.id = tasks.video_id
     WHERE chapters.category_id = ? AND videos.language_code = ? AND (videos.watched = 1 OR tasks.watched = 1)
   ''';
-  log("In getProgress total count : ${totalCount}");
+  log("In getProgress total count : $totalCount");
   // Execute the query
   final result = await db.rawQuery(query, [categoryId, locale.languageCode]);
 

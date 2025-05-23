@@ -18,9 +18,7 @@ import 'controllers/database-controller.dart';
 import 'controllers/home-page-controller.dart';
 import 'databse/database-helper.dart';
 
-/**
- * * * This is the main entry point of the application.
- */
+/// * * This is the main entry point of the application.
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
@@ -56,9 +54,7 @@ class MyApp extends StatefulWidget {
   MyAppState createState() => MyAppState();
 }
 
-/**
- * * This widget is responsible for displaying the main app.
- */
+/// * This widget is responsible for displaying the main app.
 class MyAppState extends State<MyApp> {
   late String? _selectedLanguage;
   late Future<bool> _dataFuture;
@@ -93,7 +89,7 @@ class MyAppState extends State<MyApp> {
           if (snapshot.connectionState == ConnectionState.waiting) {
             return SplashScreen();
           } else if (snapshot.hasData) {
-            log("In MyAppState selected language: ${_selectedLanguage}");
+            log("In MyAppState selected language: $_selectedLanguage");
             return HomePage(selectedLanguage: _selectedLanguage);
 
 
@@ -129,9 +125,7 @@ class MyAppState extends State<MyApp> {
   }
 }
 
-/**
- * * This widget is responsible for displaying the main navigation of the app.
- */
+/// * This widget is responsible for displaying the main navigation of the app.
 class MainNavigation extends StatefulWidget {
 
   const MainNavigation({super.key});

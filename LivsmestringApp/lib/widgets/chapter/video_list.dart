@@ -1,12 +1,9 @@
-import 'dart:ui';
 
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:livsmestringapp/widgets/chapter/video_tile.dart';
 
 import '../../dto/chapter_dto.dart';
 import '../../dto/video_dto.dart';
-import '../../models/DataModelDTO.dart';
 
 class VideoList extends StatelessWidget {
   final ChapterDto chapter;

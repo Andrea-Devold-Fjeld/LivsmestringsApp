@@ -1,6 +1,4 @@
 
-import 'package:flutter/cupertino.dart';
-import 'package:livsmestringapp/main.dart';
 
 enum Pages{
   home,

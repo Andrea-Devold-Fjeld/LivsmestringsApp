@@ -7,9 +7,7 @@ import '../../controllers/home-page-controller.dart';
 import '../../styles/colors.dart';
 import 'homepage_card.dart';
 
-/**
- * * * This widget is responsible for displaying the content of the home page.
- */
+/// * * This widget is responsible for displaying the content of the home page.
 class HomePageContent extends StatefulWidget {
   final List<CategoryClass> categories;
   final ValueSetter<bool> updateProgress;

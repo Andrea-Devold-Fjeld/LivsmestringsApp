@@ -59,7 +59,7 @@ class HomePageController extends GetxController {
       if (currentLocale.value != null && !isDataLoading) {
 
         Get.updateLocale(currentLocale.value!);
-        log("In onInit in HomeController ${careerData}"); // Debug the data to ensure it is set
+        log("In onInit in HomeController $careerData"); // Debug the data to ensure it is set
         await fetchAllData();
         _loadProgress();
         update();

@@ -33,13 +33,10 @@ void main() {
     late HomePageController mockHomePageController;
 
     setUpAll( () async {
-      // Initialize sqflite_common_ffi for testing
       final testDbHelper = TestDatabaseHelper();
       testDb = testDbHelper.getTestDatabase();
       SharedPreferences.setMockInitialValues({'selectedLanguage': 'en'});
 
-      //final resolvedTestDb = await testDbHelper.getTestDatabase(); // Resolve the database
-      // Basic setup
       final dio = Dio(BaseOptions());
       final dioAdapter = DioAdapter(dio: dio);
 
@@ -113,9 +110,6 @@ void main() {
         ],
       );
 
-      //when(() => mockHomePageController.fetchAllData()).thenAnswer((_) async =>  true);
-
-      //await mockHomePageController.loadData();
 
     });
 

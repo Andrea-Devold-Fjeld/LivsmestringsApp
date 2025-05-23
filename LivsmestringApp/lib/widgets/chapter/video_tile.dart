@@ -87,7 +87,7 @@ class _VideoTileState extends State<VideoTile> {
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 0),
             child: TaskList(
-              tasks: video.tasks!,
+              tasks: video.tasks,
               updateWatched: (bool value) {
                 widget.onUpdate();
               },

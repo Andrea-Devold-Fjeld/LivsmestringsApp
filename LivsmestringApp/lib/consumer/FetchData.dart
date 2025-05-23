@@ -1,11 +1,9 @@
 
 import 'package:dio/dio.dart';
 import 'package:get/get.dart';
-import 'package:livsmestringapp/controllers/database-controller.dart';
 import 'package:livsmestringapp/models/DataModel.dart';
 import 'dart:developer';
 
-import 'package:livsmestringapp/models/VideoUrl.dart';
 
 
 final dio = Dio();

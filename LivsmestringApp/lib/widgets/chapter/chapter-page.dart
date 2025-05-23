@@ -12,9 +12,7 @@ import '../../models/page_enum.dart';
 import '../../styles/colors.dart';
 import '../../styles/fonts.dart';
 
-/**
- * * * This widget is responsible for displaying the chapter page.
- */
+/// * * This widget is responsible for displaying the chapter page.
 class ChapterPage extends StatefulWidget {
   final CategoryClass category;
   final ValueSetter<bool> updateProgress;
@@ -73,10 +71,6 @@ class _ChapterPageState extends State<ChapterPage> with SingleTickerProviderStat
         break;
     }
 
-  }
-  @override
-  void dispose() {
-    super.dispose();
   }
 
   @override

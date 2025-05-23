@@ -48,7 +48,7 @@ class _YoutubePageState extends State<YoutubePage> {
   double _volume = 100;
   bool _muted = false;
   bool _isPlayerReady = false;
-  Stopwatch _totalWatchTime = Stopwatch();
+  final Stopwatch _totalWatchTime = Stopwatch();
   bool _isPlaying = false;
   bool _isFullScreen = false;
 
@@ -122,11 +122,17 @@ class _YoutubePageState extends State<YoutubePage> {
       SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]);
       SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge);
     }
+
+    // Only update progress if controller is ready and video is actually played
+    if (_isPlayerReady) {
+      final currentPosition = _controller.value.position;
+      widget.updateProgress(currentPosition);
+    }
+
     _controller.dispose();
     _idController.dispose();
     _seekToController.dispose();
     _controller.removeListener(_trackWatchTime);
-    widget.updateProgress(_controller.value.position);
     super.dispose();
   }
 
@@ -355,18 +361,21 @@ class _YoutubePageState extends State<YoutubePage> {
                 color: task.watched ? Colors.green : Colors.grey,
               ),
               onTap: () {
-                widget.updateProgress(_totalWatchTime.elapsed);
+                // Get real-time position before navigating away
+                final currentPosition = _controller.value.position;
+                widget.updateProgress(currentPosition);
+
                 Navigator.of(context).push(
-                MaterialPageRoute(
-                  builder: (context) => YoutubePage(
-                    url: task.url,
-                    title: task.title,
-                    tasks: null,
-                    updateProgress: widget.updateProgress,
+                  MaterialPageRoute(
+                    builder: (context) => YoutubePage(
+                      url: task.url,
+                      title: task.title,
+                      tasks: null,
+                      updateProgress: widget.updateProgress,
+                    ),
                   ),
-                 ),
-               );
-             },
+                );
+              },
             );
           },
           ),
