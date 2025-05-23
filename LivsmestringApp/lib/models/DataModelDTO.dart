@@ -1,3 +1,5 @@
+
+/*
 class DatamodelDto {
   final int? id;
   final String category;
@@ -209,3 +211,5 @@ Duration? _parseDuration(String? durationStr) {
     return null;
   }
 }
+
+ */

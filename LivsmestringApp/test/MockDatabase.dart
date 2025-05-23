@@ -22,7 +22,7 @@ class TestDatabaseHelper {
         await db.execute(createTasksTable);
 
         await db.insert("categories", Map.of({"name": "career"}));
-        await db.insert("categories", Map.of({"name": "health"}));
+        //await db.insert("categories", Map.of({"name": "health"}));
       },
     );
   }

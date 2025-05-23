@@ -11,22 +11,124 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:get/get.dart';
 import 'package:livsmestringapp/controllers/database-controller.dart';
 import 'package:livsmestringapp/controllers/home-page-controller.dart';
+import 'package:livsmestringapp/databse/database_operation.dart';
 import 'package:livsmestringapp/dto/category_dto.dart';
-import 'package:livsmestringapp/models/DataModelDTO.dart';
-import 'package:livsmestringapp/pages/chapter-page.dart';
+import 'package:livsmestringapp/dto/chapter_dto.dart';
+import 'package:livsmestringapp/dto/task_dto.dart';
+import 'package:livsmestringapp/dto/video_dto.dart';
+import 'package:livsmestringapp/models/cateregory.dart';
+import 'package:livsmestringapp/widgets/chapter/chapter-page.dart';
 import 'package:mockito/mockito.dart';
+import 'package:sqflite/sqflite.dart';
 
 import 'MockDatabase.dart';
+
+class MockDatabaseController extends Mock implements DatabaseController {
+  @override
+  Future<Database> get db async {
+    return await TestDatabaseHelper().getTestDatabase();
+  }
+  @override
+  Future<List<CategoryClass>> getCategories() {
+    // TODO: implement getCategories
+    return Future.value( [
+      CategoryClass(name: 'career', id: 1),
+      CategoryClass(name: 'health', id: 2),
+    ]);
+  }
+  @override
+  Future<CategoryDto> getDatamodelWithLAnguage(String category, String language) async {
+    return CategoryDto(
+      name: 'career',
+      id: 1,
+      chapters: [
+        ChapterDto(
+          categoryId: 1,
+          title: "Chapter 1",
+          videos: [
+            VideoDto(
+              id: 1,
+              title: 'Video 1',
+              url: 'https://youtube.com/video1',
+              watched: false,
+              tasks: [
+                TaskDto(
+                  id: 1,
+                  title: 'Task 1',
+                  url: 'https://youtube.com/task1',
+                  watched: false,
+                  videoId: 1,
+                ),
+              ],
+              chapterId: 0,
+            ),
+          ],
+        ),
+      ],
+    );
+  }
+}
 
 class MockHomePageController extends GetxService with Mock implements HomePageController {
   @override
   final Rx<Locale?> currentLocale = Rx<Locale?>(const Locale('en'));
-
   @override
-  late DatamodelDto? careerData;
-
+  final currentIndex = 0.obs;
   @override
-  late DatamodelDto? healthData;
+  late CategoryDto? careerData;
+  @override
+  late CategoryDto? healthData;
+  @override
+  var categories = <CategoryClass>[].obs;
+  @override
+  final progress = RxMap<int, ProgressModel>({
+    1: ProgressModel(totalVideos: 0, watchedVideos: 0, categoryId: 1, progress: 0),
+  });  @override
+  late final DatabaseController databaseController = Get.find<DatabaseController>();
+  @override
+  var careerCategory = Rx<CategoryClass?>(CategoryClass(name: 'career', id: 1));
+  @override
+  var healthCategory = Rx<CategoryClass?>(CategoryClass(name: 'health', id: 2));
+  @override
+  Future<void> onInit() async {
+    super.onInit();
+    categories = [
+      CategoryClass(name: 'career', id: 1),
+    ].obs;
+  }
+  @override
+  Future<CategoryDto> fetchDataFromCategory(String category) async {
+    var data = careerData;
+    if(data != null) return data;
+    return CategoryDto(
+      name: 'career',
+      id: 1,
+      chapters: [
+        ChapterDto(
+          categoryId: 1,
+          title: "Chapter 1",
+          videos: [
+            VideoDto(
+              id: 1,
+              title: 'Video 1',
+              url: 'https://youtube.com/video1',
+              watched: false,
+              tasks: [
+                TaskDto(
+                  id: 1,
+                  title: 'Task 1',
+                  url: 'https://youtube.com/task1',
+                  watched: false,
+                  videoId: 1,
+                ),
+              ],
+              chapterId: 0,
+            ),
+          ],
+        ),
+      ],
+    );
+  }
   @override
   Future<bool> fetchAllData() async {
     return true;
@@ -36,8 +138,7 @@ class MockHomePageController extends GetxService with Mock implements HomePageCo
 void main() {
   late DatabaseController mockDatabaseController;
   late MockHomePageController mockHomePageController;
-  late CategoryDTO testCategory;
-  late DatamodelDto testData;
+  late CategoryDto testCategory;
 
   setUp(() {
 
@@ -48,9 +149,43 @@ void main() {
     // Register mocks with GetX
     Get.put<DatabaseController>(mockDatabaseController);
     Get.put<HomePageController>(mockHomePageController);
+    // Set up the mock database controller
+    mockHomePageController.careerData =  CategoryDto(
+      name: 'career',
+      id: 1,
+      chapters: [
+        ChapterDto(
+          categoryId: 1,
+          title: "Chapter 1",
+          videos: [
+            VideoDto(
+              id: 1,
+              title: 'Video 1',
+              url: 'https://youtube.com/video1',
+              watched: false,
+              tasks: [
+                TaskDto(
+                  id: 1,
+                  title: 'Task 1',
+                  url: 'https://youtube.com/task1',
+                  watched: false,
+                  videoId: 1,
+                ),
+              ],
+              chapterId: 0,
+            ),
+          ],
+        ),
+      ],
+    );
+
+
+
+
+
 
     // Create test category
-    testCategory = CategoryDTO(
+    testCategory = CategoryDto(
       name: 'career',
       id: 1,
     );
@@ -103,13 +238,13 @@ void main() {
     ];
 
 
-    testData = DatamodelDto(
-      chapters: testChapters, category: 'career',
-    );
+    testCategory.chapters = testChapters;
 
     // Set up the mock data
-    mockHomePageController.careerData = testData;
+    mockHomePageController.careerData = testCategory;
   });
+
+  var category = CategoryClass(name: 'career', id: 1);
 
   // Test 1: Verify that ChapterPage renders title and chapter list correctly
   testWidgets('ChapterPage should display correct title and chapter list', (WidgetTester tester) async {
@@ -117,7 +252,7 @@ void main() {
     await tester.pumpWidget(
       GetMaterialApp(
         home: ChapterPage(
-          category: testCategory,
+          category: category,
           updateProgress: (_) {},
         ),
       ),
@@ -140,7 +275,7 @@ void main() {
     await tester.pumpWidget(
       GetMaterialApp(
         home: ChapterPage(
-          category: testCategory,
+          category: category,
           updateProgress: (_) {},
         ),
       ),
@@ -168,7 +303,7 @@ void main() {
     await tester.pumpWidget(
       GetMaterialApp(
         home: ChapterPage(
-          category: testCategory,
+          category: category,
           updateProgress: (_) {},
         ),
       ),
@@ -180,10 +315,9 @@ void main() {
     await tester.pumpAndSettle();
 
     // Verify tasks expansion tile is present
-    expect(find.text('Tasks'), findsOneWidget);
 
     // Tap on tasks to expand
-    await tester.tap(find.text('Tasks').first);
+    await tester.tap(find.byIcon(Icons.chevron_right).first);
     await tester.pumpAndSettle();
 
     // Verify task is displayed
@@ -196,7 +330,7 @@ void main() {
     await tester.pumpWidget(
       GetMaterialApp(
         home: ChapterPage(
-          category: testCategory,
+          category: category,
           updateProgress: (_) {},
         ),
       ),
@@ -236,7 +370,7 @@ void main() {
     await tester.pumpWidget(
       GetMaterialApp(
         home: ChapterPage(
-          category: testCategory,
+          category: category,
           updateProgress: (_) {},
         ),
       ),

@@ -1,15 +1,11 @@
-import 'dart:developer';
-
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:livsmestringapp/controllers/database-controller.dart';
-import 'package:livsmestringapp/models/video-db.dart';
 import 'package:youtube_player_flutter/youtube_player_flutter.dart';
 
-import '../models/DataModel.dart';
-import '../models/DataModelDTO.dart';
-import '../models/task-db.dart';
+import '../../dto/task_dto.dart';
+import '../../dto/video_dto.dart';
 
 /*
 he overflowing RenderFlex has an orientation of Axis.vertical.
@@ -18,6 +14,7 @@ The edge of the RenderFlex that is overflowing has been marked in the rendering 
 Consider applying a flex factor (e.g. using an Expanded widget) to force the children of the RenderFlex to fit within the available space instead of being sized to their natural size.
 This is considered an error condition because it indicates that there is content that cannot be seen. If the content is legitimately bigger than the available space, consider clipping it with a ClipRect widget before putting it in the flex, or using a scrollable container rather than a Flex, like a ListView.
  */
+
 class YoutubePage extends StatefulWidget {
   VideoDto? videoDto;
   final String url;
@@ -268,119 +265,115 @@ class _YoutubePageState extends State<YoutubePage> {
   }
 
   @override
+  @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        backgroundColor: Colors.black,
-        leading: IconButton(
-          icon: const Icon(Icons.close, color: Colors.white),
-          onPressed: () {
-            Navigator.of(context).pop();
-          },
+  return YoutubePlayerBuilder(
+    player: YoutubePlayer(
+      controller: _controller,
+      showVideoProgressIndicator: true,
+      progressIndicatorColor: Colors.amber,
+      progressColors: const ProgressBarColors(
+      playedColor: Colors.amber,
+      handleColor: Colors.amberAccent,
+      backgroundColor: Colors.white,
+      ),
+      onReady: () {
+        _isPlayerReady = true;
+        _controller.addListener(listener);
+      },
+      topActions: [
+        Expanded(
+          child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 12.0),
+          child: Text(
+            _controller.metadata.title,
+            style: const TextStyle(
+              color: Colors.white,
+              fontSize: 14.0,
+              ),
+              overflow: TextOverflow.ellipsis,
+              maxLines: 1,
+            ),
+          ),
+        ),
+      ],
+      bottomActions: [
+        const CurrentPosition(),
+        const ProgressBar(isExpanded: true),
+        IconButton(
+          icon: const Icon(Icons.settings, color: Colors.white),
+          onPressed: _showSettingsDialog,
+        ),
+        IconButton(
+          icon: Icon(
+            _isFullScreen ? Icons.fullscreen_exit : Icons.fullscreen,
+            color: Colors.white,
+            size: 20,
+          ),
+          onPressed: _toggleFullScreen,
+        ),
+      ],
+    ),
+    builder: (context, player) {
+      return Scaffold(
+        appBar: AppBar(
+          backgroundColor: Colors.black,
+          leading: IconButton(
+            icon: const Icon(Icons.close, color: Colors.white),
+            onPressed: () {
+              Navigator.of(context).pop();
+             },
+          ),
+        ),
+  body: Column(
+    children: [
+      player,
+      Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Text(
+          widget.title,
+          style: const TextStyle(
+            fontSize: 18,
+            fontWeight: FontWeight.bold,
+            color: Colors.black,
+          ),
+          textAlign: TextAlign.center,
         ),
       ),
-      body: Column(
-        children: [
-          // Youtube Player
-          YoutubePlayer(
-            controller: _controller,
-            showVideoProgressIndicator: true,
-            progressIndicatorColor: Colors.amber,
-            progressColors: const ProgressBarColors(
-              playedColor: Colors.amber,
-              handleColor: Colors.amberAccent,
-            ),
-            onReady: () {
-              _isPlayerReady = true;
-              _controller.addListener(listener);
-            },
-            topActions: [
-              Expanded(
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 12.0),
-                  child: Text(
-                    _controller.metadata.title,
-                    style: const TextStyle(
-                      color: Colors.white,
-                      fontSize: 14.0,
-                    ),
-                    overflow: TextOverflow.ellipsis,
-                    maxLines: 1,
+      if (widget.tasks != null && widget.tasks!.isNotEmpty)
+        Expanded(
+          child: ListView.builder(
+          itemCount: widget.tasks!.length,
+          itemBuilder: (context, taskIndex) {
+            final task = widget.tasks![taskIndex];
+            return ListTile(
+              dense: true,
+              contentPadding: const EdgeInsets.only(left: 32.0, right: 16.0),
+              title: Text(task.title.tr),
+              trailing: Icon(
+                task.watched ? Icons.check_circle : Icons.circle_outlined,
+                color: task.watched ? Colors.green : Colors.grey,
+              ),
+              onTap: () {
+                widget.updateProgress(_totalWatchTime.elapsed);
+                Navigator.of(context).push(
+                MaterialPageRoute(
+                  builder: (context) => YoutubePage(
+                    url: task.url,
+                    title: task.title,
+                    tasks: null,
+                    updateProgress: widget.updateProgress,
                   ),
-                ),
-              ),
-            ],
-            bottomActions: [
-              CurrentPosition(),
-              ProgressBar(isExpanded: true,),
-              IconButton(
-                icon: const Icon(
-                  Icons.settings,
-                  color: Colors.white,
-                ),
-                onPressed: _showSettingsDialog,
-              ),
-              IconButton(
-                icon: Icon(
-                  _isFullScreen ? Icons.fullscreen_exit : Icons.fullscreen,
-                  color: Colors.white,
-                  size: 20,
-                ),
-                onPressed: _toggleFullScreen,
-              ),
-            ],
+                 ),
+               );
+             },
+            );
+          },
           ),
-
-          // Title under the video player
-          Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: Text(
-              widget.title, // Use the passed title from the widget constructor
-              style: const TextStyle(
-                fontSize: 18,
-                fontWeight: FontWeight.bold,
-                color: Colors.black, // You can change the color if needed
-              ),
-              textAlign: TextAlign.center, // Centers the title
-            ),
-          ),
-
-          // ListView if tasks are provided
-          if (widget.tasks != null && widget.tasks!.isNotEmpty) ...[
-            Expanded(
-              child: ListView.builder(
-                shrinkWrap: true,
-                itemCount: widget.tasks!.length,
-                itemBuilder: (context, taskIndex) {
-                  final task = widget.tasks![taskIndex];
-                  return ListTile(
-                    dense: true,
-                    contentPadding: const EdgeInsets.only(left: 32.0, right: 16.0),
-                    title: Text(task.title.tr),
-                    trailing: Icon(
-                      task.watched ? Icons.check_circle : Icons.circle_outlined,
-                      color: task.watched ? Colors.green : Colors.grey,
-                    ),
-                    onTap: () {
-                      widget.updateProgress(_totalWatchTime.elapsed);  // Call updateProgress method here
-                      Navigator.of(context).push(
-                        MaterialPageRoute(
-                          builder: (context) => YoutubePage(
-                            url: task.url,
-                            title: task.title,
-                            tasks: null,
-                            updateProgress: widget.updateProgress, // Pass the updateProgress function
-                          ),
-                        ),
-                      );
-                    },
-                  );
-                },
-              ),
-            ),
-          ],
-        ],
-      ),
-    );
+        ),
+    ],
+  ),);
+      },
+  );
   }
 }

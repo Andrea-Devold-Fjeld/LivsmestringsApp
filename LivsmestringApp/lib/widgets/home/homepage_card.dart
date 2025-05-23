@@ -1,15 +1,14 @@
 import 'package:auto_size_text/auto_size_text.dart';
 import 'package:flutter/material.dart';
 import 'package:livsmestringapp/controllers/home-page-controller.dart';
-import '../styles/colors.dart';
-import '../styles/fonts.dart';
+import '../../styles/colors.dart';
+import '../../styles/fonts.dart';
 import 'package:get/get.dart';
 
 
 class HomePageCard extends StatefulWidget {
   final Color backgroundColor;
   final int categoryId;
-  //final double progress;
   final String title;
   final Icon icon;
   final VoidCallback onPressed;
@@ -19,7 +18,6 @@ class HomePageCard extends StatefulWidget {
       required this.icon,
       required this.backgroundColor,
         required this.categoryId,
-      //required this.progress,
       required this.title,
       required this.onPressed});
 
@@ -32,23 +30,6 @@ class _HomePageCardState extends State<HomePageCard> {
   @override
   Widget build(BuildContext context) {
     var homepageController = Get.find<HomePageController>();
-    var progress = homepageController.progress[widget.categoryId];
-    double progressValue = progress?.progress.toDouble() ?? 0.0;
-    String achievementInPercentage = "";
-
-// Calculate the percentage value
-    num achievementInPercentageRounded = (progressValue * 100).round();
-
-// Format the percentage string with translations
-    if (progressValue != 0.0) {
-      final percentString = achievementInPercentageRounded.toString();
-      final translatedDigits = percentString.split('')
-          .map((digit) => digit.tr)
-          .join('');
-      achievementInPercentage = '$translatedDigits %';
-    } else {
-      achievementInPercentage = '${'0'.tr} %';
-    }
 
     return GestureDetector(
       onTap: () {

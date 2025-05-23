@@ -51,6 +51,7 @@ dependencies:
   mockito: ^5.4.5
   sqflite_common_ffi: ^2.3.4+4
   flutter_inappwebview: ^6.1.5
+  mocktail: ^1.0.4
 
 
 dev_dependencies:

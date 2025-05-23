@@ -1,5 +1,3 @@
-import 'package:livsmestringapp/models/DataModel.dart';
-import 'package:livsmestringapp/models/category-db.dart';
 import 'package:sqflite/sqflite.dart';
 import 'package:path/path.dart';
 

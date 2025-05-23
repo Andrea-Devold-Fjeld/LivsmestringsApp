@@ -4,16 +4,11 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:get/get.dart';
 import 'package:livsmestringapp/consumer/FetchData.dart';
-import 'package:livsmestringapp/models/DataModelDTO.dart';
-import 'package:livsmestringapp/pages/home_page.dart';
-import 'package:livsmestringapp/pages/language_page_nav.dart';
+import 'package:livsmestringapp/models/cateregory.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../databse/database_operation.dart';
 import '../dto/category_dto.dart';
-import '../main.dart';
-import '../models/page_enum.dart';
-import '../pages/chapter-page.dart';
 import 'database-controller.dart';
 
 
@@ -32,14 +27,14 @@ class HomeBinding extends Bindings {
 class HomePageController extends GetxController {
   // Variables for navigation and categories
   var currentIndex = 0.obs;
-  var categories = <CategoryDTO>[].obs;
+  var categories = <CategoryClass>[].obs;
   var progress = <int, ProgressModel>{}.obs;
-  var careerCategory = Rx<CategoryDTO?>(null);
-  var healthCategory = Rx<CategoryDTO?>(null);
-  DatamodelDto? careerData;
-  DatamodelDto? healthData;
+  var careerCategory = Rx<CategoryClass?>(null);
+  var healthCategory = Rx<CategoryClass?>(null);
+  CategoryDto? careerData;
+  CategoryDto? healthData;
   bool isDataLoading = false;
-  final DatabaseController databaseController = Get.find<DatabaseController>();
+  late final DatabaseController databaseController = Get.find<DatabaseController>();
 
   // Variables for language
   var selectedLanguage = Rx<String?>(null);
@@ -77,7 +72,7 @@ class HomePageController extends GetxController {
     currentLocale.value = locale;
     fetchAllData();
   }
-  Future<List<CategoryDTO>> getCategories() {
+  Future<List<CategoryClass>> getCategories() {
     return databaseController.getCategories();
   }
 
@@ -86,12 +81,6 @@ class HomePageController extends GetxController {
     try {
       final careerResults = await fetchData('career');
       final healthResult = await fetchData('health');
-      //Future.wait([
-        //fetchData('career'),
-        //fetchData('health'),
-      //final resultVideoUrls = await Future.wait([
-      //  fetchVideoUrls()
-      //]);
 
       databaseController.insertDatamodel(careerResults);
       databaseController.insertDatamodel(healthResult);
@@ -118,7 +107,7 @@ class HomePageController extends GetxController {
     }
   }
 
-  Future<DatamodelDto> fetchDataFromCategory(String category) async {
+  Future<CategoryDto> fetchDataFromCategory(String category) async {
     var data = await databaseController.getDatamodelWithLAnguage(category, currentLocale.value!.languageCode);
     return data;
   }
@@ -167,9 +156,9 @@ class HomePageController extends GetxController {
       // Create a temporary map to store progress
       Map<int, ProgressModel> tempProgress = {};
       for (var c in categories) {
-        tempProgress[c.id] = await databaseController.getVideoProgress(c.id, currentLocale.value!);
+        final categoryId = c.id;
+        tempProgress[categoryId] = await databaseController.getVideoProgress(categoryId, currentLocale.value!);
       }
-
       // Update the observable map
       progress.value = tempProgress;
     } catch (e) {

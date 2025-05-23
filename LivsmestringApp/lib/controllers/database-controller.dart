@@ -5,6 +5,7 @@ import 'package:get/get_state_manager/src/simple/get_controllers.dart';
 import 'package:livsmestringapp/dto/category_dto.dart';
 import 'package:livsmestringapp/models/DataModelDTO.dart';
 import 'package:livsmestringapp/models/VideoUrl.dart';
+import 'package:livsmestringapp/models/cateregory.dart';
 import 'package:sqflite/sqflite.dart';
 
 import '../databse/database_operation.dart';
@@ -25,14 +26,9 @@ class DatabaseController extends GetxController {
   Future<void> markTaskWatched(String taskUrl) async {
     await updateTaskWatchStatus(db, taskUrl, true);
   }
-/*
-  Future<DatamodelDto> getDatamodel(String category) async {
-    return await getDatamodel(db, category);
-  }
 
- */
 
-  Future<DatamodelDto> getDatamodelWithLAnguage(String category, String language) async {
+  Future<CategoryDto> getDatamodelWithLAnguage(String category, String language) async {
     var data = await getDataModelWithLanguage(db, category, language);
     return data;
   }
@@ -41,7 +37,7 @@ class DatabaseController extends GetxController {
     return await getProgress(db, categoryId, locale);
   }
 
-  Future<List<CategoryDTO>> getCategories() async {
+  Future<List<CategoryClass>> getCategories() async {
     return await getAllCategories(db);
   }
 

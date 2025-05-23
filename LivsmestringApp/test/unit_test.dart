@@ -2,11 +2,12 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:livsmestringapp/dto/chapter_dto.dart';
 import 'package:livsmestringapp/dto/video_dto.dart';
 import 'package:livsmestringapp/models/DataModel.dart';
+import 'package:livsmestringapp/services/parse_duration.dart';
 
 
 void main() {
-  group('VideoDTO Tests', () {
-    test('fromMap should create a ChapterDTO with correct values', () {
+  group('VideoDto Tests', () {
+    test('fromMap should create a ChapterDto with correct values', () {
       // Arrange
       final Map<String, dynamic> chapterMap = {
         'id': 1,
@@ -107,14 +108,14 @@ void main() {
         'watched_length': '00:10:00',
       };
 
-      final videoDto1 = VideoDTO.fromMap(videoMap);
-      final videoDto2 = VideoDTO.fromMap(videoMap2);
+      final VideoDto1 = VideoDto.fromMap(videoMap);
+      final VideoDto2 = VideoDto.fromMap(videoMap2);
 
-      final chapter = ChapterDTO(
+      final chapter = ChapterDto(
         id: 1,
         categoryId: 2,
         title: 'Test Chapter',
-        videos: [videoDto1, videoDto2],
+        videos: [VideoDto1, VideoDto2],
       );
 
       // Act
@@ -143,23 +144,24 @@ void main() {
 
     test('roundtrip conversion should maintain data integrity', () {
       // Arrange
-      final originalChapter = ChapterDTO(
+      final originalChapter = ChapterDto(
         id: 1,
         categoryId: 2,
         title: 'Test Chapter',
         videos: [
-          VideoDTO(
+          VideoDto(
             id: 10,
             chapterId: 1,
             title: 'Test Video 1',
             url: 'https://example.com/video1',
+            languageCode: 'en',
           ),
         ],
       );
 
       // Act
       final Map<String, dynamic> map = originalChapter.toMap();
-      final resultChapter = ChapterDTO.fromMap(map);
+      final resultChapter = ChapterDto.fromMap(map);
 
       // Assert
       expect(resultChapter.id, originalChapter.id);
@@ -171,30 +173,58 @@ void main() {
       expect(resultChapter.videos[0].id, originalChapter.videos[0].id);
       expect(resultChapter.videos[0].chapterId, originalChapter.videos[0].chapterId);
       expect(resultChapter.videos[0].title, originalChapter.videos[0].title);
-      /*
+
       expect(
           resultChapter.videos[0].url,
           originalChapter.videos[0].url
       );
-      expect(
-          resultChapter.videos[1].url,
-          originalChapter.videos[1].url
-      );
 
-       */
+      expect(
+          resultChapter.videos[0].languageCode,
+          originalChapter.videos[0].languageCode
+      );
     });
-    group('Paring of the duration object', (){
-      test('Parsing the duration string from db to duration object', (){
+
+    group('Parsing of the duration object', () {
+      test('Parsing the duration string from db to duration object', () {
         // Arrange
         final String durationString = '00:10:05.010010';
-        final Duration duration = Duration(days: 0, hours: 0, minutes: 10, seconds: 5, milliseconds: 10, microseconds: 10);
+
+        // The fractional part .010010 represents 10,010 microseconds
+        // which is 10 milliseconds + 10 microseconds
+        final Duration expectedDuration = Duration(
+            hours: 0,
+            minutes: 10,
+            seconds: 5,
+            microseconds: 10010  // This is 10,010 microseconds total
+        );
 
         // Act
-        //#TODO fix this
-        //final Duration? parsedDuration = parseDuration(durationString);
+        final Duration? parsedDuration = ParseDuration.parse(durationString);
+
         // Assert
-        //expect(parsedDuration, isNotNull);
-        //expect(parsedDuration, duration);
+        expect(parsedDuration, isNotNull);
+        expect(parsedDuration, expectedDuration);
+      });
+
+      test('Parsing duration with different fractional formats', () {
+        // Test with milliseconds precision (3 digits)
+        expect(
+            ParseDuration.parse('00:10:05.010'),
+            Duration(hours: 0, minutes: 10, seconds: 5, microseconds: 000010)
+        );
+
+        // Test with microseconds precision (6 digits)
+        expect(
+            ParseDuration.parse('00:10:05.010010'),
+            Duration(hours: 0, minutes: 10, seconds: 5, microseconds: 10010)
+        );
+
+        // Test without fractional part
+        expect(
+            ParseDuration.parse('00:10:05'),
+            Duration(hours: 0, minutes: 10, seconds: 5)
+        );
       });
     });
   });

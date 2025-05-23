@@ -3,22 +3,24 @@ import 'dart:developer';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
-import 'package:livsmestringapp/pages/chapter-page.dart';
-import 'package:livsmestringapp/pages/home_page.dart';
-import 'package:livsmestringapp/pages/language_page_nav.dart';
-import 'package:livsmestringapp/pages/splash_screen.dart';
 import 'package:livsmestringapp/services/LocaleString.dart';
 import 'package:livsmestringapp/styles/theme.dart';
-import 'package:livsmestringapp/widgets/navigation_bar.dart';
+import 'package:livsmestringapp/widgets/chapter/chapter-page.dart';
+import 'package:livsmestringapp/widgets/home/home_page_content.dart';
+import 'package:livsmestringapp/widgets/home/language_selection_start.dart';
+import 'package:livsmestringapp/widgets/language/language_page_nav.dart';
+import 'package:livsmestringapp/widgets/navigation/navigation_bar.dart';
+import 'package:livsmestringapp/widgets/splash_screen.dart';
 import 'package:logging/logging.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:sqflite/sqflite.dart';
 
 import 'controllers/database-controller.dart';
 import 'controllers/home-page-controller.dart';
 import 'databse/database-helper.dart';
-import 'models/page_enum.dart';
 
+/**
+ * * * This is the main entry point of the application.
+ */
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
@@ -38,9 +40,6 @@ Future<void> main() async {
   // Get language preferences
   SharedPreferences prefs = await SharedPreferences.getInstance();
   String? getLanguage = prefs.getString('selectedLanguage');
-  Locale? locale = getLanguage != null
-      ? Locale.fromSubtags(languageCode: getLanguage)
-      : null;
 
   // Run the app with the new navigation structure
   runApp(MyApp(
@@ -57,6 +56,9 @@ class MyApp extends StatefulWidget {
   MyAppState createState() => MyAppState();
 }
 
+/**
+ * * This widget is responsible for displaying the main app.
+ */
 class MyAppState extends State<MyApp> {
   late String? _selectedLanguage;
   late Future<bool> _dataFuture;
@@ -68,6 +70,7 @@ class MyAppState extends State<MyApp> {
   void initState() {
     super.initState();
     var homepageController = Get.find<HomePageController>();
+    homeController.loadData();
     _dataFuture = homepageController.insertData();
     _selectedLanguage = widget.selectedLanguage;
     Logger.root.level = Level.INFO; // defaults to Level.INFO
@@ -76,9 +79,9 @@ class MyAppState extends State<MyApp> {
 
   @override
   Widget build(BuildContext context) {
-    return GetMaterialApp(
-      locale: homeController.currentLocale.value,
-      fallbackLocale: Locale('en'),
+    return Obx(() => GetMaterialApp(
+      locale: Locale(homeController.currentLocale.value?.languageCode ?? 'en'),
+      fallbackLocale: Locale('en', 'UK'),
       debugShowCheckedModeBanner: false,
       translations: LocaleString(),
       title: 'life_mastery_app'.tr,
@@ -122,9 +125,13 @@ class MyAppState extends State<MyApp> {
           page: () => LanguagePageNav(),
         ),
       ],
-    );
+    ));
   }
 }
+
+/**
+ * * This widget is responsible for displaying the main navigation of the app.
+ */
 class MainNavigation extends StatefulWidget {
 
   const MainNavigation({super.key});
@@ -145,12 +152,9 @@ class _MainNavigationState extends State<MainNavigation> {
     pageController = PageController(
       initialPage: homePageController.currentIndex.value,
     );
-    log("In init navigationstate : ${pageController.initialPage}");
 
     // Set up a worker to listen for index changes
     indexWorker = ever(homePageController.currentIndex, (index) {
-      log("In index worker ${index}");
-      log("Has clients: ${pageController.hasClients}");
       // Only animate if the pageController has clients and the page is different
       if (pageController.hasClients && pageController.page?.round() != index) {
         pageController.animateToPage(
@@ -171,13 +175,6 @@ class _MainNavigationState extends State<MainNavigation> {
 
   @override
   Widget build(BuildContext context) {
-    if (homePageController.careerCategory.value == null) {
-      return const Scaffold(
-        body: Center(
-          child: CircularProgressIndicator(),
-        ),
-      );
-    }
 
     return Scaffold(
       body: PageView(
@@ -211,96 +208,9 @@ class _MainNavigationState extends State<MainNavigation> {
       bottomNavigationBar: Obx(() => NavigationBarWrapper(
         selectedTab: homePageController.currentIndex.value,
         onTap: (index) {
-          log("Navigation bar onTap called with index: $index");
-          // The worker will handle the page animation, so we don't need to do anything here
-          // unless you want to override the animation behavior
         },
       )),
     );
-  }
-}
-
-class HomePage extends StatefulWidget {
-  final String? selectedLanguage;
-
-  const HomePage({super.key, required this.selectedLanguage});
-
-  @override
-  State<HomePage> createState() => _HomePageState();
-}
-
-class _HomePageState extends State<HomePage> {
-  bool _dialogShown = false;
-  var homePageController = Get.find<HomePageController>();
-
-  @override
-  void initState() {
-    super.initState();
-    // Only show the language dialog if no language is selected
-    if (widget.selectedLanguage == null) {
-      // Delay to ensure context is available
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        _showLanguageDialog();
-      });
-    } else {
-      // Load data if language is already selected
-      homePageController.fetchAllData();
-    }
-  }
-
-  Future<void> _showLanguageDialog() async {
-    if (_dialogShown) return; // Prevent multiple dialogs
-    _dialogShown = true;
-
-    final selectedLocale = await buildLanguageDialog(context);
-
-    if (selectedLocale != null) {
-      // Update state or navigate as needed
-      homePageController.currentLocale.value = selectedLocale;
-    }
-  }
-
-  @override
-  Widget build(BuildContext context) {
-      return MainNavigation();
-  }
-
-  Future<Locale?> buildLanguageDialog(BuildContext context) async {
-    final result = await showDialog<Locale?>(
-      context: context,
-      barrierDismissible: false,
-      builder: (context) {
-        return PopScope(
-          child: AlertDialog(
-            title: Center(child: Text('select_language'.tr)),
-            content: SizedBox(
-              width: double.maxFinite,
-              child: ListView.separated(
-                shrinkWrap: true,
-                itemCount: LanguagePageNav.localeSet.length,
-                itemBuilder: (context, index) {
-                  final locale = LanguagePageNav.localeSet[index]['locale'];
-                  final name = LanguagePageNav.localeSet[index]['name'];
-                  return Center(
-                    child: Padding(
-                      padding: const EdgeInsets.all(8.0),
-                      child: GestureDetector(
-                        child: Text(name),
-                        onTap: () {
-                          Navigator.pop(context, locale);
-                        },
-                      ),
-                    ),
-                  );
-                },
-                separatorBuilder: (context, index) => Divider(color: Colors.grey[800]),
-              ),
-            ),
-          ),
-        );
-      },
-    );
-    return result;
   }
 }
 

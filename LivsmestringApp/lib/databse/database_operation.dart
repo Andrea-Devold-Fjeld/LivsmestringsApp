@@ -2,15 +2,13 @@ import 'dart:core';
 import 'dart:developer';
 import 'dart:ui';
 import 'package:flutter/foundation.dart';
-import 'package:get/get.dart';
 import 'package:livsmestringapp/dto/category_dto.dart';
 import 'package:sqflite/sqflite.dart';
 import '../dto/chapter_dto.dart';
 import '../dto/task_dto.dart';
 import '../dto/video_dto.dart';
 import '../models/DataModel.dart';
-import '../models/DataModelDTO.dart';
-
+import '../models/cateregory.dart';
 
 Duration? _parseDuration(String? durationString) {
   // Format from Duration.toString() is typically "0:00:00.000000"
@@ -197,7 +195,7 @@ Future<void> insertDataModel(Future<Database> futureDb, Datamodel model) async {
   });
 }
 
-Future<DatamodelDto> getDataModelWithLanguage(Future<Database> futureDb, String category, String language) async {
+Future<CategoryDto> getDataModelWithLanguage(Future<Database> futureDb, String category, String language) async {
   try {
     final Database db = await futureDb;
     // Get category ID
@@ -268,10 +266,10 @@ Future<DatamodelDto> getDataModelWithLanguage(Future<Database> futureDb, String 
       }),
     );
 
-    return DatamodelDto(
+    return CategoryDto(
         id: categoryId,
         chapters: chaptersList,
-        category: category
+        name: category
     );
   } catch(e) {
     if (kDebugMode) {
@@ -428,7 +426,7 @@ Future<Datamodel> getDatamodelByLanguage(Future<Database> futureDb, String categ
  */
 
 
-Future<List<ChapterDTO>> getAllWatchedVideosAndTasksByCategory(Future<Database> futureDb, int categoryId) async {
+Future<List<ChapterDto>> getAllWatchedVideosAndTasksByCategory(Future<Database> futureDb, int categoryId) async {
   final db = await futureDb;
 
   // Query to get watched videos and tasks by category
@@ -454,9 +452,9 @@ Future<List<ChapterDTO>> getAllWatchedVideosAndTasksByCategory(Future<Database> 
   final result = await db.rawQuery(query, [categoryId]);
 
   // Process the results into a hierarchical structure
-  List<ChapterDTO> chapters = [];
-  Map<int, ChapterDTO> chapterMap = {};
-  Map<int, VideoDTO> videoMap = {};
+  List<ChapterDto> chapters = [];
+  Map<int, ChapterDto> chapterMap = {};
+  Map<int, VideoDto> videoMap = {};
 
   for (var row in result) {
     int chapterId = row['chapter_id'] as int;
@@ -464,7 +462,7 @@ Future<List<ChapterDTO>> getAllWatchedVideosAndTasksByCategory(Future<Database> 
     int taskId = row['task_id'] as int;
 
     if (!chapterMap.containsKey(chapterId)) {
-      chapterMap[chapterId] = ChapterDTO(
+      chapterMap[chapterId] = ChapterDto(
         id: chapterId,
         categoryId: categoryId,
         title: row['chapter_title'] as String,
@@ -474,7 +472,7 @@ Future<List<ChapterDTO>> getAllWatchedVideosAndTasksByCategory(Future<Database> 
     }
 
     if (!videoMap.containsKey(videoId)) {
-      videoMap[videoId] = VideoDTO(
+      videoMap[videoId] = VideoDto(
         id: videoId,
         chapterId: chapterId,
         title: row['video_title'] as String,
@@ -486,7 +484,7 @@ Future<List<ChapterDTO>> getAllWatchedVideosAndTasksByCategory(Future<Database> 
     }
 
     if (row['task_watched'] == 1) {
-      videoMap[videoId]!.tasks.add(TaskDTO(
+      videoMap[videoId]!.tasks.add(TaskDto(
         id: taskId,
         videoId: videoId,
         title: row['task_title'] as String,
@@ -558,13 +556,13 @@ Future<List<Map<String, dynamic>>> getChapters(Database db, int categoryId) {
   );
 }
 
-Future<List<CategoryDTO>> getAllCategories(Future<Database> futureDb) async {
+Future<List<CategoryClass>> getAllCategories(Future<Database> futureDb) async {
   try {
     final db = await futureDb;
     final List<Map<String, dynamic>> maps = await db.query('categories');
 
     return List.generate(maps.length, (i) {
-      return CategoryDTO.fromMap(maps[i]);
+      return CategoryClass.fromMap(maps[i]);
     });
   } catch (e) {
     throw Exception("An error happened with the db: $e");

@@ -5,20 +5,27 @@
 // gestures. You can also use WidgetTester to find child widgets in the widget
 // tree, read text, and verify that the values of widget properties are correct.
 
-import 'package:flutter/material.dart';
 import 'package:dio/dio.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:get/get.dart';
 import 'package:http_mock_adapter/http_mock_adapter.dart';
 import 'package:livsmestringapp/controllers/database-controller.dart';
 import 'package:livsmestringapp/controllers/home-page-controller.dart';
 import 'package:livsmestringapp/dto/category_dto.dart';
-import 'package:livsmestringapp/main.dart';
-import 'package:livsmestringapp/pages/chapter-page.dart';
-import 'package:livsmestringapp/pages/language_page.dart';
-import 'package:livsmestringapp/pages/language_page_nav.dart';
+import 'package:livsmestringapp/dto/chapter_dto.dart';
+import 'package:livsmestringapp/dto/task_dto.dart';
+import 'package:livsmestringapp/dto/video_dto.dart';
+import 'package:livsmestringapp/models/cateregory.dart';
+import 'package:livsmestringapp/widgets/chapter/chapter-page.dart';
+import 'package:livsmestringapp/widgets/home/home_page_content.dart';
+import 'package:livsmestringapp/widgets/home/language_selection_start.dart';
+import 'package:livsmestringapp/widgets/language/language_page_nav.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:sqflite/sqflite.dart';
+
 import 'MockDatabase.dart';
+import 'widget_test.dart';
 
 void main() {
   group('accessibility tests', () {
@@ -29,6 +36,7 @@ void main() {
       // Initialize sqflite_common_ffi for testing
       final testDbHelper = TestDatabaseHelper();
       testDb = testDbHelper.getTestDatabase();
+      SharedPreferences.setMockInitialValues({'selectedLanguage': 'en'});
 
       //final resolvedTestDb = await testDbHelper.getTestDatabase(); // Resolve the database
       // Basic setup
@@ -72,10 +80,42 @@ void main() {
 
       // Inject mocks into GetX
       Get.put<DatabaseController>(DatabaseController(testDb));
-      Get.put<HomePageController>(HomePageController());
-      mockHomePageController = Get.find<HomePageController>();
+      mockHomePageController = MockHomePageController();
+      Get.put<HomePageController>(mockHomePageController);
 
-      await mockHomePageController.loadData();
+      Get.put<HomePageController>(HomePageController());
+      //mockHomePageController = Get.find<HomePageController>();
+      mockHomePageController.currentIndex.value = 0;
+      mockHomePageController.careerData = mockHomePageController.careerData = CategoryDto(
+        id: 1,
+        name: 'career',
+        chapters: [
+          ChapterDto(
+            categoryId: 1,
+            title: "Chapter 1",
+            videos: [
+              VideoDto(
+                id: 1,
+                title: 'Video 1',
+                url: 'https://youtube.com/video1',
+                watched: false,
+                tasks: [
+                  TaskDto(
+                    id: 1,
+                    title: 'Task 1',
+                    url: 'https://youtube.com/task1',
+                    watched: false, videoId: 1,
+                  ),
+                ], chapterId: 0,
+              ),
+            ],
+          ),
+        ],
+      );
+
+      //when(() => mockHomePageController.fetchAllData()).thenAnswer((_) async =>  true);
+
+      //await mockHomePageController.loadData();
 
     });
 
@@ -87,7 +127,7 @@ void main() {
     testWidgets('HomePage meets guideline', (WidgetTester tester) async {
       final SemanticsHandle handle = tester.ensureSemantics();
 
-      await tester.pumpWidget(MaterialApp(home: HomePage(selectedLanguage: 1)));
+      await tester.pumpWidget(MaterialApp(home: HomePageContent(categories: [CategoryClass(id: 1, name: 'career')], updateProgress: (bool value) {  },)));
       await expectLater(tester, meetsGuideline(androidTapTargetGuideline));
       await expectLater(tester, meetsGuideline(textContrastGuideline));
       await expectLater(tester, meetsGuideline(iOSTapTargetGuideline));
@@ -96,9 +136,9 @@ void main() {
     });
     testWidgets('ChapterPage meets guidelines', (WidgetTester tester) async {
       final SemanticsHandle handle = tester.ensureSemantics();
-      mockHomePageController.fetchAllData();
+      await mockHomePageController.fetchAllData();
 
-      await tester.pumpWidget(MaterialApp(home: ChapterPage(category: CategoryDTO(id: 0, name: 'carreer'), updateProgress: (bool value) {})));
+      await tester.pumpWidget(MaterialApp(home: ChapterPage(category: CategoryClass(id: 1, name: 'career'), updateProgress: (bool value) {})));
       
       await expectLater(tester, meetsGuideline(androidTapTargetGuideline));
       await expectLater(tester, meetsGuideline(textContrastGuideline));
@@ -111,7 +151,7 @@ void main() {
     testWidgets('LanguagePage meets guidelines', (WidgetTester tester) async {
       final SemanticsHandle handle = tester.ensureSemantics();
 
-      await tester.pumpWidget(MaterialApp(home: LanguagePage(selectedLanguage: (int value) {})));
+      await tester.pumpWidget(MaterialApp(home: HomePage(selectedLanguage:  null)));
 
       await expectLater(tester, meetsGuideline(androidTapTargetGuideline));
       await expectLater(tester, meetsGuideline(textContrastGuideline));

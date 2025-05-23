@@ -64,9 +64,9 @@ class Chapter {
   factory Chapter.fromJson(Map<String, dynamic> json) {
     return Chapter(
       title: json['Title'],
-      videos: (json['Videos'] as List)
-          .map((video) => Video.fromJson(video))
-          .toList(),
+      videos: (json['Videos'] as List?)
+          ?.map((video) => Video.fromJson(video))
+          .toList() ?? [],
     );
   }
 }

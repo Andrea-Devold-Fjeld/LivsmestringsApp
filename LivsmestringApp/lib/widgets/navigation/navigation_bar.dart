@@ -3,7 +3,7 @@ import 'dart:developer';
 
 import 'package:flutter/material.dart';
 import 'package:livsmestringapp/controllers/home-page-controller.dart';
-import '../styles/colors.dart';
+import '../../styles/colors.dart';
 import 'package:get/get.dart';
 
 class NavigationBarWrapper extends StatefulWidget {
@@ -22,7 +22,6 @@ class NavigationBarWrapper extends StatefulWidget {
 class NavigationBarWrapperState extends State<NavigationBarWrapper> {
   @override
   Widget build(BuildContext context) {
-    log("In NavigatioBarWrapperState selectedTab: ${widget.selectedTab}");
     return  BottomNavigationBar(
       type: BottomNavigationBarType.fixed,
       currentIndex: widget.selectedTab,

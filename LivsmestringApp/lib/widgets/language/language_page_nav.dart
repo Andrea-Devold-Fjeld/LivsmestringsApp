@@ -1,60 +1,15 @@
 import 'package:auto_size_text/auto_size_text.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:livsmestringapp/services/locale_set.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-import '../controllers/home-page-controller.dart';
-import '../models/page_enum.dart';
+import '../../controllers/home-page-controller.dart';
+import '../../models/page_enum.dart';
 
 class LanguagePageNav extends StatefulWidget {
 
   const LanguagePageNav({super.key});
-
-static final List localeSet = [
-    {'name': 'English', 'locale': Locale('en', 'UK')},
-    {'name': 'Norsk', 'locale': Locale('nb', 'NO')},
-    {'name': 'پښتو', 'locale': Locale('ps', 'AF')},
-    {'name': 'Español', 'locale': Locale('es', 'ES')},
-    {'name': 'Kiswahili', 'locale': Locale('sw', 'KE')},
-    {'name': 'Kurmancî', 'locale': Locale('ku', 'TR')},
-    {'name': 'Soomaali', 'locale': Locale('so', 'SO')},
-    {'name': 'Türkçe', 'locale': Locale('tr', 'TR')},
-    {'name': 'украïнська', 'locale': Locale('uk', 'UA')},
-    {'name': 'اردو', 'locale': Locale('ur', 'PK')},
-    {'name': 'العربية', 'locale': Locale('ar', 'AR')},
-    {'name': 'فارسی', 'locale': Locale('fa', 'IR')},  // Persian
-    {'name': 'தமிழ்', 'locale': Locale('ta', 'IN')}, // Tamil
-    {'name': 'ไทย', 'locale': Locale('th', 'TH')}, // Thai
-    {'name': 'አማርኛ', 'locale': Locale('am', 'ET')}, // Amharic
-    {'name': 'ትግሪኛ', 'locale': Locale('ti', 'ET')},
-  ];
-/*
-
-
-  static final List localeSet = [
-    //   {'name': 'دری', 'locale': Locale('prs', 'AF')},
-   // {'name': 'فارسی', 'locale': Locale('fa', 'IR')},
-    {'name': 'English', 'locale': Locale('en', 'UK')},
-    {'name': 'Español', 'locale': Locale('es', 'ES')},
-    {'name': 'Kiswahili', 'locale': Locale('sw', 'KE')},
-    {'name': 'Kurmancî', 'locale': Locale('ku', 'TR')},
-    {'name': 'Norsk', 'locale': Locale('nb', 'NO')},
-    {'name': 'Soomaali', 'locale': Locale('so', 'SO')},
-    {'name': 'Türkçe', 'locale': Locale('tr', 'TR')},
-    {'name': 'عربي', 'locale': Locale('ar', 'AR')},
-    {'name': 'پښتو', 'locale': Locale('ps', 'AF')},
-    {'name': 'ትግሪኛ', 'locale': Locale('ti', 'ET')},
-    {'name': 'украïнська', 'locale': Locale('uk', 'UA')},
-    {'name': 'اردو', 'locale': Locale('ur', 'PK')},
-  ];
-
- */
-
-
-
-
-
-
 
   @override
   State<LanguagePageNav> createState() => _LanguagePageNavState();
@@ -97,13 +52,13 @@ class _LanguagePageNavState extends State<LanguagePageNav> {
                   child: Padding(
                     padding: const EdgeInsets.all(8.0),
                     child: GestureDetector(
-                      child: Text(LanguagePageNav.localeSet[index]['name']),
+                      child: Text(LocaleSet.localeSet[index]['name']),
                       onTap: () {
                         updateLanguage(
-                            LanguagePageNav.localeSet[index]['locale'], index);
+                            LocaleSet.localeSet[index]['locale'], index);
                         Navigator.pop(
                             context,
-                            LanguagePageNav.localeSet[index]['locale']);
+                            LocaleSet.localeSet[index]['locale']);
                       },
                     ),
                   ),
@@ -114,7 +69,7 @@ class _LanguagePageNavState extends State<LanguagePageNav> {
                   color: Colors.grey[800],
                 );
               },
-              itemCount: LanguagePageNav.localeSet.length,
+              itemCount: LocaleSet.localeSet.length,
             ),
           ),
         );
